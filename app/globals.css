@@ -26,8 +26,8 @@ body {
 
 * {
   box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+  /* padding: 0;
+  margin: 0; */
 }
 
 a {
@@ -39,4 +39,16 @@ a {
   html {
     color-scheme: dark;
   }
+}
+
+@font-face {
+  font-family: 'Stencilla';
+  src: url('/font/stencilla.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.stencilla-font {
+  font-family: 'Stencilla', Arial, Helvetica, sans-serif;
 }
