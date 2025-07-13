@@ -1,6 +1,6 @@
 import Script from "next/script";
 import { useEffect } from "react";
-import { useStore } from "./useStore";
+import { useStore } from "@/hooks/useStore";
 
 // Non typescript version, if copying consider using the typescript version instead from a repo like amcot or battle-trap
 

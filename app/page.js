@@ -5,8 +5,14 @@ import { Box, Typography } from "@mui/material";
 import GitHubIcon from '@mui/icons-material/GitHub';
 import StorageIcon from '@mui/icons-material/Storage';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+import PageContent from "./PageContent";
 
 export default function Home() {
+
+  return (
+    <PageContent />
+  )
+
   return (
     <div className={styles.page}>
       <main className={styles.main}>
@@ -98,4 +104,5 @@ export default function Home() {
       </footer>
     </div>
   );
+
 }
