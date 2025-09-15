@@ -23,7 +23,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 // import { useLocalStorageNew } from 'util/useLocalStorageNew';
 import IsDev from '@/components/UI/IsDev';
 // import games from '@/components/constants/games';
-import { useSocketStore } from '@/components/useSocketStore';
+import { useSocketStore } from '@/hooks/useSocketStore';
 
 const diceNumbersToWords = {
     1: "one",
@@ -69,9 +69,9 @@ export default function BattleTrapGamePage(props) {
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
-    // const params = Object.fromEntries(searchParams.entries());
-    const params = useParams()
-    const server = params?.server
+    const searchParamsObject = Object.fromEntries(searchParams.entries());
+    // const params = useParams()
+    const server = searchParamsObject?.server
 
     const { isFullscreen, requestFullscreen, exitFullscreen } = useFullscreen();
 
@@ -593,6 +593,7 @@ export default function BattleTrapGamePage(props) {
                         {["Easy", "Medium", "Hard"].map(item => {
                             return (
                                 <ArticlesButton
+                                    key={item}
                                     active={item == botOptions?.difficulty}
                                     onClick={() => {
                                         setBotOptions({

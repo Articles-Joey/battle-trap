@@ -29,4 +29,6 @@ export const useSocketStore = create((set) => ({
     }),
     totalUsers: 0,
     setTotalUsers: (total) => set({ totalUsers: total }),
+    connected: false,
+    setConnected: (total) => set({ connected: total }),
 }));

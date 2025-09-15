@@ -2,7 +2,7 @@ import { useEffect, useContext, useRef, useState, useMemo } from 'react';
 
 import { Line, Plane } from '@react-three/drei';
 import { DoubleSide, Vector3 } from 'three';
-import { useSocketStore } from '@/components/useSocketStore';
+import { useSocketStore } from '@/hooks/useSocketStore';
 
 const SquareWithLines = (props) => {
 

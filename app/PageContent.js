@@ -16,8 +16,9 @@ import { useLocalStorageNew } from '@/hooks/useLocalStorageNew';
 import ArticlesButton from '@/components/UI/Button';
 import useFullscreen from '@/hooks/useFullScreen';
 import IsDev from '@/components/UI/IsDev';
-import { useSocketStore } from '@/components/useSocketStore';
-import { Paper } from '@mui/material';
+import { useSocketStore } from '@/hooks/useSocketStore';
+import { Box, Paper, Tooltip } from '@mui/material';
+// import ArticlesSignInButton from '@/components/ArticlesSignInButton';
 
 const Ad = dynamic(() => import('@/components/ArticlesAd'), {
     ssr: false,
@@ -47,11 +48,11 @@ const RenderModel = dynamic(() => import('@/components/Game/RenderModel'), {
 
 export default function BattleTrapLobbyPage(props) {
 
-    const {
-        socket
-    } = useSocketStore(state => ({
-        socket: state.socket
-    }));
+    const socket = useSocketStore((state) => state.socket)
+    const connectSocket = useSocketStore((state) => state.connectSocket)
+    const disconnectSocket = useSocketStore((state) => state.disconnectSocket)
+    const connected = useSocketStore((state) => state.connected)
+    const setConnected = useSocketStore((state) => state.setConnected)
 
     // const userReduxState = useSelector((state) => state.auth.user_details)
     const userReduxState = false
@@ -66,6 +67,8 @@ export default function BattleTrapLobbyPage(props) {
     const canvasScoreboardRef = useRef(null);
 
     // const dispatch = useDispatch()
+
+    const [viewerRefreshKey, setViewerRefreshKey] = useState(0)
 
     const [showInfoModal, setShowInfoModal] = useState(false)
     const [showSettingsModal, setShowSettingsModal] = useState(false)
@@ -265,9 +268,9 @@ export default function BattleTrapLobbyPage(props) {
 
             <div className="container py-3 py-lg-5" data-theme="Dark">
 
-                <div className="text-center mb-3 mb-lg-5 mx-auto" style={{ "maxWidth": "800px" }}>
+                <div className="mb-3 mb-lg-5 mx-auto" style={{ "maxWidth": "800px" }}>
 
-                    <h1 className="mb-1">Battle Trap</h1>
+                    <h1 className="mb-1 text-center">Battle Trap</h1>
 
                     <div className='text-center mb-3'>
                         <span className="">Select a server to join.</span>
@@ -277,33 +280,136 @@ export default function BattleTrapLobbyPage(props) {
                         </span>
                     </div>
 
+                    <div className='d-flex justify-content-center align-items-center my-3 mb-4'>
+
+                        {/* <Link href={ROUTES.GAMES} className='mx-1'>
+                            <ArticlesButton
+                                className={``}
+                                small
+                                onClick={() => {
+
+                                }}
+                            >
+                                <i className="fad fa-sign-out fa-rotate-180"></i>
+                                Leave Game
+                            </ArticlesButton>
+                        </Link> */}
+
+                        <ArticlesButton
+                            small
+                            className="mx-0"
+                            onClick={() => {
+                                setShowInfoModal({
+                                    game: 'Battle Trap'
+                                })
+                            }}
+                        >
+                            <i className="fad fa-info-circle"></i>
+                            Controls & Info
+                        </ArticlesButton>
+
+                        <ArticlesButton
+                            small
+                            className="mx-0"
+                            onClick={() => {
+                                setShowSettingsModal({
+                                    game: 'Battle Trap'
+                                })
+                            }}
+                        >
+                            <i className="fad fa-cog"></i>
+                            Settings
+                        </ArticlesButton>
+
+                        {/* <ArticlesButton
+                            className="mx-1"
+                            small
+                        >
+                            Private Game
+                        </ArticlesButton> */}
+
+                        <ArticlesButton
+                            className="mx-0"
+                            small
+                            onClick={() => {
+                                if (connected) {
+                                    disconnectSocket()
+                                } else {
+                                    connectSocket(
+                                        // 'http://localhost:3000'
+                                    );
+                                }
+                            }}
+                        >
+                            <i className="fad fa-plug"></i>
+                            {connected ? "Disconnect" : "Connect"}
+                        </ArticlesButton>
+
+                        <IsDev inline>
+                            <ArticlesButton
+                                variant="warning"
+                                className="mx-1"
+                                small
+                            >
+                                Reset Server
+                            </ArticlesButton>
+                        </IsDev>
+
+                    </div>
+
                     <div className='d-lg-flex'>
 
-                        <div className='d-flex align-items-start'>
+                        <div className='model-preview'>
 
-                            <div className='d-flex flex-column'>
+                            <div className='floating-controls'>
 
-                                <ArticlesButton
-                                    active={autoRotate}
-                                    onClick={() => {
-                                        setAutoRotate(prev => !prev)
-                                    }}
-                                    className="mb-1"
+                                <Tooltip 
+                                    title="Rotation"
+                                    placement="bottom"
                                 >
-                                    <i className="fad fa-sync me-0"></i>
-                                </ArticlesButton>
+                                    <ArticlesButton
+                                        active={autoRotate}
+                                        onClick={() => {
+                                            setAutoRotate(prev => !prev)
+                                        }}
+                                        className=""
+                                    >
+                                        <i className="fad fa-sync me-0"></i>
+                                    </ArticlesButton>
+                                </Tooltip>
 
-                                <ArticlesButton
-                                    onClick={() => {
-                                        // requestFullscreen('users-bike-viewer')
-                                        setShowEditBikeModal(true)
-                                    }}
-                                    className="mb-2"
+                                <Tooltip 
+                                    title="Refresh"
+                                    placement="bottom"
                                 >
-                                    <i className="fad fa-pen me-0"></i>
-                                </ArticlesButton>
+                                    <ArticlesButton
+                                        // active={autoRotate}
+                                        onClick={() => {
+                                            // setAutoRotate(prev => !prev)
+                                            setViewerRefreshKey(prev => prev + 1)
+                                        }}
+                                        className=""
+                                    >
+                                        <i className="fad fa-undo me-0"></i>
+                                    </ArticlesButton>
+                                </Tooltip>
 
-                                <div style={{ width: '42px', height: '42px', backgroundColor: 'red' }}>
+                                <Tooltip 
+                                    title="Edit"
+                                    placement="bottom"
+                                >
+                                    <ArticlesButton
+                                        onClick={() => {
+                                            // requestFullscreen('users-bike-viewer')
+                                            setShowEditBikeModal(true)
+                                        }}
+                                        className=""
+                                    >
+                                        <i className="fad fa-pen me-0"></i>
+                                    </ArticlesButton>
+                                </Tooltip>
+
+                                <div style={{ width: '42px', height: '42px', backgroundColor: 'red', display: 'none' }}>
 
                                 </div>
 
@@ -312,12 +418,13 @@ export default function BattleTrapLobbyPage(props) {
                             <Paper
                                 id='users-bike-viewer'
                                 className="mb-3"
-                                style={{ "width": "20rem" }}
+                                style={{ "width": "100%", margin: '0rem', border: '1px solid #fff' }}
                                 sx={{ mr: 2 }}
                             >
 
                                 {!showEditBikeModal &&
                                     <Viewer
+                                        key={viewerRefreshKey}
                                         autoRotate={autoRotate}
                                     >
 
@@ -334,14 +441,14 @@ export default function BattleTrapLobbyPage(props) {
                         </div>
 
                         <Paper
-                            className="mb-3"
-                            style={{ "width": "20rem" }}
+                            className="mb-3 mx-auto text-center"
+                            style={{ "width": "100%", margin: '0rem', border: '1px solid #fff', padding: '1rem 0rem' }}
                         >
 
                             <div className="card-header d-flex flex-column justify-content-center h-100">
 
                                 <label htmlFor="nickname">Nickname</label>
-                                
+
                                 <div className="form-group articles mb-0">
 
                                     {/* <SingleInput
@@ -369,69 +476,106 @@ export default function BattleTrapLobbyPage(props) {
 
                                 <div style={{ fontSize: '0.8rem' }}>Visible to all players</div>
 
+                                {/* <Box
+                                    sx={{
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        mt: 2,
+                                        // maxWidth: '200px',
+                                    }}
+                                >
+                                    <ArticlesSignInButton
+                                        style="Articles"
+                                    />
+                                </Box> */}
+
                             </div>
 
                         </Paper>
 
                     </div>
 
+                    {/* <div className="text-center">
+                        <div>Test</div>
+                        <div className='small mb-1'>123</div>
+                    </div> */}
 
-                    <div className='my-3 mb-4'>
+                    <div className='servers mb-4'>
 
-                        {/* <Link href={ROUTES.GAMES} className='mx-1'>
-                            <ArticlesButton
+                        <Paper className="server flex-row flex-header border border-white p-2">
+
+                            <div>
+                                <div className='d-flex justify-content-between align-items-center w-100 mb-1'>
+                                    <div className="mb-0" style={{ fontSize: '0.9rem' }}>
+                                        <b>Single Player</b>
+                                    </div>
+                                </div>
+
+                                <div className='d-flex'>
+                                    <div className='d-flex justify-content-start'>
+
+                                    </div>
+                                    <div className='mb-0 ms-0' style={{ fontSize: '0.8rem' }}>
+                                        Play against bots
+                                    </div>
+                                </div>
+                            </div>
+
+                            <Link
                                 className={``}
-                                small
-                                onClick={() => {
-
+                                href={{
+                                    pathname: `/play`,
+                                    // query: { server: id }
                                 }}
                             >
-                                <i className="fad fa-sign-out fa-rotate-180"></i>
-                                Leave Game
-                            </ArticlesButton>
-                        </Link> */}
+                                <ArticlesButton
+                                    className="px-5"
+                                    small
+                                // disabled={!connected}
+                                >
+                                    Join
+                                </ArticlesButton>
+                            </Link>
 
-                        <ArticlesButton
-                            small
-                            className="mx-1"
-                            onClick={() => {
-                                setShowInfoModal({
-                                    game: 'Battle Trap'
-                                })
-                            }}
-                        >
-                            Controls & Info
-                        </ArticlesButton>
+                        </Paper>
 
-                        <ArticlesButton
-                            small
-                            className="mx-1"
-                            onClick={() => {
-                                setShowSettingsModal({
-                                    game: 'Battle Trap'
-                                })
-                            }}
-                        >
-                            Settings
-                        </ArticlesButton>
+                        <Paper className="server flex-row flex-header border border-white p-2">
 
-                        <ArticlesButton
-                            className="mx-1"
-                            small
-                        >
-                            Private Game
-                        </ArticlesButton>
+                            <div>
+                                <div className='d-flex justify-content-between align-items-center w-100 mb-1'>
+                                    <div className="mb-0" style={{ fontSize: '0.9rem' }}>
+                                        <b>Local Play</b>
+                                    </div>
+                                </div>
 
-                        <IsDev inline>
-                            <ArticlesButton
-                                variant="warning"
-                                className="mx-1"
-                                small
+                                <div className='d-flex'>
+                                    <div className='d-flex justify-content-start'>
+
+                                    </div>
+                                    <div className='mb-0 ms-0' style={{ fontSize: '0.8rem' }}>
+                                        Play with friends on same device
+                                    </div>
+                                </div>
+                            </div>
+
+                            <Link
+                                className={``}
+                                href={{
+                                    pathname: `/play`,
+                                    // query: { server: id }
+                                }}
                             >
-                                Reset Server
-                            </ArticlesButton>
-                        </IsDev>
+                                <ArticlesButton
+                                    className="px-5"
+                                    small
+                                // disabled={!connected}
+                                >
+                                    Join
+                                </ArticlesButton>
+                            </Link>
 
+                        </Paper>
 
                     </div>
 
@@ -439,6 +583,7 @@ export default function BattleTrapLobbyPage(props) {
                         <div>Classic Play Servers</div>
                         <div className='small mb-1'>20 seconds to complete your turn.</div>
                     </div>
+
                     <div className='servers mb-3'>
                         {[1, 2, 3, 4].map(id => {
 
@@ -487,12 +632,13 @@ export default function BattleTrapLobbyPage(props) {
                                         className={``}
                                         href={{
                                             pathname: `/play`,
-                                            query: {server: id}
+                                            query: { server: id }
                                         }}
                                     >
                                         <ArticlesButton
                                             className="px-5"
                                             small
+                                            disabled={!connected}
                                         >
                                             Join
                                         </ArticlesButton>
@@ -504,6 +650,7 @@ export default function BattleTrapLobbyPage(props) {
                         })}
                     </div>
 
+                    {/* TODO */}
                     <IsDev>
                         <>
                             <div className="text-center">

@@ -4,7 +4,7 @@ import { useStore } from "@/hooks/useStore";
 
 // Non typescript version, if copying consider using the typescript version instead from a repo like amcot or battle-trap
 
-export default function ArticlesSignInButton({ style }) {
+export default function ArticlesAd({ style }) {
 
     const darkMode = useStore((state) => state.darkMode)
 

@@ -9,7 +9,7 @@ import { DoubleSide, Vector3 } from "three";
 import { memo, useMemo } from "react";
 
 import RenderModel from "./RenderModel";
-import { useSocketStore } from "@/components/useSocketStore";
+import { useSocketStore } from "@/hooks/useSocketStore";
 // const RenderModel = dynamic(() => import('@/components/Games/Battle Trap/RenderModel'), {
 //     ssr: false,
 // });

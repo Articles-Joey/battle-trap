@@ -5,7 +5,7 @@ export const useStore = create()(
   persist(
     (set, get) => ({
 
-      darkMode: false,
+      darkMode: true,
       toggleDarkMode: () => set({ darkMode: !get().darkMode }),
 
     }),
