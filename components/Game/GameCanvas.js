@@ -1,15 +1,22 @@
 import { Canvas } from "@react-three/fiber"
-import { Sky, useDetectGPU, useTexture, OrbitControls } from "@react-three/drei";
+import { Sky, useDetectGPU, useTexture, OrbitControls, Text } from "@react-three/drei";
 
 import GameGrid from "./GameGrid";
 
 import GroundPlane from "./Ground";
 import { LowPolyChopper } from "./Bikes";
 import { DoubleSide, Vector3 } from "three";
-import { memo, useMemo } from "react";
+import { memo, useEffect, useMemo } from "react";
 
 import RenderModel from "./RenderModel";
 import { useSocketStore } from "@/hooks/useSocketStore";
+import { SkyBox } from "./SkyBox";
+import { useStore } from "@/hooks/useStore";
+// import { SciFiBuildingsPack } from "./SciFiBuildingsPackCorner";
+// import { SciFiBuildingsPack as SciFiBuildingsPackSquare } from "./SciFiBuildingsPackSquare";
+// import { degToRad } from "three/src/math/MathUtils";
+import CornerBuildings from "./CornerBuildings";
+import FillerBuildings from "./FillerBuildings";
 // const RenderModel = dynamic(() => import('@/components/Games/Battle Trap/RenderModel'), {
 //     ssr: false,
 // });
@@ -77,6 +84,24 @@ function GameCanvas(props) {
         socket: state.socket,
     }));
 
+    const localGameState = useStore(state => state.localGameState);
+    const defaultLocalGameState = useStore(state => state.defaultLocalGameState);
+    const setLocalGameState = useStore(state => state.setLocalGameState);
+    const addSpace = useStore(state => state.addSpace);
+
+    useEffect(() => {
+
+        console.log("localGameState", localGameState, defaultLocalGameState)
+
+        if (!localGameState) {
+            console.log("Set state to default")
+            setLocalGameState(
+                defaultLocalGameState
+            )
+        }
+
+    }, [])
+
     // const GPUTier = useDetectGPU()
 
     const {
@@ -91,8 +116,8 @@ function GameCanvas(props) {
     return (
         <Canvas camera={{ position: [-10, 40, 40], fov: 50 }}>
 
-            <OrbitControls 
-                // autoRotate={gameState.status == 'In Lobby'}
+            <OrbitControls
+            // autoRotate={gameState.status == 'In Lobby'}
             />
 
             <Sky
@@ -103,12 +128,78 @@ function GameCanvas(props) {
             // {...props} 
             />
 
-            <GroundPlane
-                args={[(boardSize * 2), (boardSize * 2)]}
-                position={[(boardSize / 2), -0.1, (boardSize / 2)]}
+            <SkyBox
+                position={[0, 0, 0]}
+                scale={500}
+            />
+
+            <CornerBuildings
+                boardSize={boardSize}
+            />
+
+            <FillerBuildings
+                boardSize={boardSize}
             />
 
             <GroundPlane
+                args={[(boardSize * 5.4), (boardSize * 5.4)]}
+                position={[
+                    0,
+                    -0.1,
+                    0]}
+            />
+
+            <mesh
+                rotation={[-Math.PI / 2, 0, 0]}
+                position={[
+                    -((boardSize) / 2) * 2,
+                    1,
+                    ((boardSize) / 2) * 2
+                ]}
+            >
+                <planeGeometry attach="geometry" args={[5, 5]} />
+                <meshStandardMaterial attach="material" color={'red'} transparent={true} opacity={0.5} />
+            </mesh>
+
+            <mesh
+                rotation={[-Math.PI / 2, 0, 0]}
+                position={[
+                    ((boardSize)),
+                    1,
+                    -((boardSize))
+                ]}
+            >
+                <planeGeometry attach="geometry" args={[5, 5]} />
+                <meshStandardMaterial attach="material" color={'blue'} transparent={true} opacity={0.5} />
+            </mesh>
+
+            <mesh
+                rotation={[-Math.PI / 2, 0, 0]}
+                position={[
+                    ((boardSize)),
+                    1,
+                    ((boardSize))
+                ]}
+            >
+                <planeGeometry attach="geometry" args={[5, 5]} />
+                <meshStandardMaterial attach="material" color={'green'} transparent={true} opacity={0.5} />
+            </mesh>
+
+
+
+            <mesh
+                rotation={[-Math.PI / 2, 0, 0]}
+                position={[
+                    -((boardSize) / 2) * 2,
+                    1,
+                    -((boardSize) / 2 * 2)
+                ]}
+            >
+                <planeGeometry attach="geometry" args={[5, 5]} />
+                <meshStandardMaterial attach="material" color={'yellow'} transparent={true} opacity={0.5} />
+            </mesh>
+
+            {/* <GroundPlane
                 args={[(boardSize * 2), (boardSize * 2)]}
                 position={[-(boardSize / 2), -0.1, -(boardSize / 2)]}
             />
@@ -121,7 +212,7 @@ function GameCanvas(props) {
             <GroundPlane
                 args={[(boardSize * 2), (boardSize * 2)]}
                 position={[-(boardSize / 2), -0.1, (boardSize / 2)]}
-            />
+            /> */}
 
             <ambientLight intensity={5} />
             <spotLight intensity={30000} position={[-50, 100, 50]} angle={5} penumbra={1} />
@@ -130,19 +221,44 @@ function GameCanvas(props) {
 
             <group position={[-(boardSize), 0, (boardSize - 2)]}>
 
-                {players?.map(player_obj => {
+                {[
+                    {
+                        id: '123',
+                        battleTrap: {
+                            nickname: "Player 1",
+                            color: "red",
+                            x: 0,
+                            y: 0,
+                            character: {
+                                model: "low_poly_chopper.glb"
+                            }
+                        }
+                    },
+                    {
+                        id: '124',
+                        battleTrap: {
+                            nickname: "Player 2",
+                            color: "blue",
+                            x: 5,
+                            y: 5,
+                            character: {
+                                model: "low_poly_chopper.glb"
+                            }
+                        }
+                    }
+                ]?.map(player_obj => {
 
                     let rotation;
 
                     let axis;
 
-                    console.log(gameState.spaces.flat())
+                    console.log(gameState?.spaces?.flat())
 
                     let lastMove = (gameState.move - 2)
 
                     console.log("Last move number", lastMove)
 
-                    let lookup = gameState.spaces.flat().find(space_obj => (
+                    let lookup = gameState?.spaces?.flat().find(space_obj => (
                         space_obj.checked.move == lastMove
                         &&
                         space_obj.checked.socket_id == player_obj.id
@@ -207,13 +323,23 @@ function GameCanvas(props) {
                     return (
                         <group key={player_obj.id} position={[(player_obj.battleTrap.x * 2), 0, -(player_obj.battleTrap.y * 2)]}>
 
+                            <Text
+                                position={[0, 1, 0]}
+                                color="pink"
+                                anchorX="center"
+                                anchorY="middle"
+                                scale={1}
+                            >
+                                123
+                            </Text>
+
                             {/* <LowPolyChopper
                                 position={[0, 0, 0]}
                                 scale={0.002}
                                 rotation={rotation}
                             /> */}
 
-                            {player_obj?.battleTrap?.character.model &&
+                            {player_obj?.battleTrap?.character?.model &&
                                 <group
                                     scale={0.03}
                                     rotation={rotation}
@@ -224,12 +350,15 @@ function GameCanvas(props) {
                             }
 
                             {/* Movement arrows - Only show for self */}
-                            {player_obj.id == socket.id &&
+                            {
+                            // player_obj.id == socket.id 
+                            true
+                            &&
                                 <group>
 
                                     {/* Left */}
                                     {
-                                        gameState.spaces.flat().find(space_obj => (
+                                        gameState?.spaces?.flat().find(space_obj => (
                                             space_obj.x == (player_obj.battleTrap.x - 1)
                                             &&
                                             space_obj.y == (player_obj.battleTrap.y)
@@ -243,7 +372,7 @@ function GameCanvas(props) {
 
                                     {/* Right */}
                                     {
-                                        gameState.spaces.flat().find(space_obj => (
+                                        gameState?.spaces?.flat().find(space_obj => (
                                             space_obj.x == (player_obj.battleTrap.x + 1)
                                             &&
                                             space_obj.y == (player_obj.battleTrap.y)
@@ -257,7 +386,7 @@ function GameCanvas(props) {
 
                                     {/* Back */}
                                     {
-                                        gameState.spaces.flat().find(space_obj => (
+                                        gameState?.spaces?.flat().find(space_obj => (
                                             space_obj.x == (player_obj.battleTrap.x)
                                             &&
                                             space_obj.y == (player_obj.battleTrap.y - 1)
@@ -271,7 +400,7 @@ function GameCanvas(props) {
 
                                     {/* Forward */}
                                     {
-                                        gameState.spaces.flat().find(space_obj => (
+                                        gameState?.spaces?.flat().find(space_obj => (
                                             space_obj.x == (player_obj.battleTrap.x)
                                             &&
                                             space_obj.y == (player_obj.battleTrap.y + 1)
@@ -325,15 +454,20 @@ function GameCanvas(props) {
                     )
                 })}
 
-
             </group>
 
-            <group position={[-(boardSize), 0, (boardSize - 2)]} rotation={[0, Math.PI / 2, 0]}>
+            <group
+                position={[-(boardSize), 0, (boardSize)]}
+                rotation={[0, Math.PI / 2, 0]}
+            >
                 <GameGrid
                     server={server}
                     boardSize={boardSize}
                     // player={players.find(player => player.id == socket.id)}
-                    gameState={gameState}
+
+                    // gameState={gameState}
+                    gameState={localGameState}
+
                     players={players}
                 // move={move}
                 />

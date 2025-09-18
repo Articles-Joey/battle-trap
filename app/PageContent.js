@@ -38,6 +38,11 @@ const SettingsModal = dynamic(
     { ssr: false }
 )
 
+const GameSetupModal = dynamic(
+    () => import('@/components/UI/GameSetupModal'),
+    { ssr: false }
+)
+
 const Viewer = dynamic(() => import('@/components/Game/Viewer'), {
     ssr: false,
 });
@@ -72,6 +77,8 @@ export default function BattleTrapLobbyPage(props) {
 
     const [showInfoModal, setShowInfoModal] = useState(false)
     const [showSettingsModal, setShowSettingsModal] = useState(false)
+
+    const [showGameSetupModal, setShowGameSetupModal] = useState(false)
 
     const [lobbyDetails, setLobbyDetails] = useState({
         players: [],
@@ -130,6 +137,13 @@ export default function BattleTrapLobbyPage(props) {
                     setShow={setShowInfoModal}
                 />
             } */}
+
+             {showGameSetupModal &&
+                <GameSetupModal
+                    show={showGameSetupModal}
+                    setShow={setShowGameSetupModal}
+                />
+            }
 
             {showSettingsModal &&
                 <SettingsModal
@@ -526,7 +540,7 @@ export default function BattleTrapLobbyPage(props) {
                                 className={``}
                                 href={{
                                     pathname: `/play`,
-                                    // query: { server: id }
+                                    query: { server: 'single-player' }
                                 }}
                             >
                                 <ArticlesButton
@@ -563,7 +577,7 @@ export default function BattleTrapLobbyPage(props) {
                                 className={``}
                                 href={{
                                     pathname: `/play`,
-                                    // query: { server: id }
+                                    query: { server: 'local-play' }
                                 }}
                             >
                                 <ArticlesButton

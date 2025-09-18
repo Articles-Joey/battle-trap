@@ -3,6 +3,8 @@ import { useEffect, useContext, useRef, useState, useMemo } from 'react';
 import { Line, Plane } from '@react-three/drei';
 import { DoubleSide, Vector3 } from 'three';
 import { useSocketStore } from '@/hooks/useSocketStore';
+import { useStore } from '@/hooks/useStore';
+import { useSearchParams } from 'next/navigation';
 
 const SquareWithLines = (props) => {
 
@@ -54,108 +56,110 @@ const Wall = (props) => {
             </mesh>
 
             {/* Forward and Back */}
+            <group>
+                {flatSpaces.find(obj => {
 
-            {flatSpaces.find(obj => {
-
-                return (
-                    obj.x == (clickableData.x - 1)
-                    &&
-                    obj.y == clickableData.y
-                    &&
-                    (
-                        (obj.checked.move - 1) == checked.checked.move
-                        ||
-                        (obj.checked.move + 1) == checked.checked.move
+                    return (
+                        obj.x == (clickableData.x - 1)
+                        &&
+                        obj.y == clickableData.y
+                        &&
+                        (
+                            (obj.checked.move - 1) == checked.checked.move
+                            ||
+                            (obj.checked.move + 1) == checked.checked.move
+                        )
                     )
-                )
 
-            })?.checked?.socket_id == checked.checked.socket_id &&
-                <mesh position={[0, 0, -0.5]}>
-                    <boxGeometry args={[0.2, wallHeight, 1]} />
-                    <meshStandardMaterial
-                        color={color}
-                        transparent={true}
-                        opacity={0.5}
-                    />
-                </mesh>
-            }
+                })?.checked?.socket_id == checked.checked.socket_id &&
+                    <mesh position={[0, 0, -0.5]}>
+                        <boxGeometry args={[0.2, wallHeight, 1]} />
+                        <meshStandardMaterial
+                            color={color}
+                            transparent={true}
+                            opacity={0.5}
+                        />
+                    </mesh>
+                }
 
-            {flatSpaces.find(obj => {
+                {flatSpaces.find(obj => {
 
-                return (
-                    obj.x == (clickableData.x + 1)
-                    &&
-                    obj.y == clickableData.y
-                    &&
-                    (
-                        (obj.checked.move - 1) == checked.checked.move
-                        ||
-                        (obj.checked.move + 1) == checked.checked.move
+                    return (
+                        obj.x == (clickableData.x + 1)
+                        &&
+                        obj.y == clickableData.y
+                        &&
+                        (
+                            (obj.checked.move - 1) == checked.checked.move
+                            ||
+                            (obj.checked.move + 1) == checked.checked.move
+                        )
                     )
-                )
 
-            })?.checked?.socket_id == checked.checked.socket_id &&
-                <mesh position={[0, 0, 0.5]}>
-                    <boxGeometry args={[0.2, wallHeight, 1]} />
-                    <meshStandardMaterial
-                        color={color}
-                        transparent={true}
-                        opacity={0.5}
-                    />
-                </mesh>
-            }
+                })?.checked?.socket_id == checked.checked.socket_id &&
+                    <mesh position={[0, 0, 0.5]}>
+                        <boxGeometry args={[0.2, wallHeight, 1]} />
+                        <meshStandardMaterial
+                            color={color}
+                            transparent={true}
+                            opacity={0.5}
+                        />
+                    </mesh>
+                }
+            </group>
 
             {/* Left and Right */}
+            <group>
+                {flatSpaces.find(obj => {
 
-            {flatSpaces.find(obj => {
-
-                return (
-                    obj.y == (clickableData.y - 1)
-                    &&
-                    obj.x == clickableData.x
-                    &&
-                    (
-                        (obj.checked.move - 1) == checked.checked.move
-                        ||
-                        (obj.checked.move + 1) == checked.checked.move
+                    return (
+                        obj.y == (clickableData.y - 1)
+                        &&
+                        obj.x == clickableData.x
+                        &&
+                        (
+                            (obj.checked.move - 1) == checked.checked.move
+                            ||
+                            (obj.checked.move + 1) == checked.checked.move
+                        )
                     )
-                )
 
-            })?.checked?.socket_id == checked.checked.socket_id &&
-                <mesh position={[-0.5, 0, 0]}>
-                    <boxGeometry args={[1, wallHeight, 0.2]} />
-                    <meshStandardMaterial
-                        color={color}
-                        transparent={true}
-                        opacity={0.5}
-                    />
-                </mesh>
-            }
+                })?.checked?.socket_id == checked.checked.socket_id &&
+                    <mesh position={[-0.5, 0, 0]}>
+                        <boxGeometry args={[1, wallHeight, 0.2]} />
+                        <meshStandardMaterial
+                            color={color}
+                            transparent={true}
+                            opacity={0.5}
+                        />
+                    </mesh>
+                }
 
-            {flatSpaces.find(obj => {
+                {flatSpaces.find(obj => {
 
-                return (
-                    obj.y == (clickableData.y + 1)
-                    &&
-                    obj.x == clickableData.x
-                    &&
-                    (
-                        (obj.checked.move - 1) == checked.checked.move
-                        ||
-                        (obj.checked.move + 1) == checked.checked.move
+                    return (
+                        obj.y == (clickableData.y + 1)
+                        &&
+                        obj.x == clickableData.x
+                        &&
+                        (
+                            (obj.checked.move - 1) == checked.checked.move
+                            ||
+                            (obj.checked.move + 1) == checked.checked.move
+                        )
                     )
-                )
 
-            })?.checked?.socket_id == checked.checked.socket_id &&
-                <mesh position={[0.5, 0, 0]}>
-                    <boxGeometry args={[1, wallHeight, 0.2]} />
-                    <meshStandardMaterial
-                        color={color}
-                        transparent={true}
-                        opacity={0.5}
-                    />
-                </mesh>
-            }
+                })?.checked?.socket_id == checked.checked.socket_id &&
+                    <mesh position={[0.5, 0, 0]}>
+                        <boxGeometry args={[1, wallHeight, 0.2]} />
+                        <meshStandardMaterial
+                            color={color}
+                            transparent={true}
+                            opacity={0.5}
+                        />
+                    </mesh>
+                }
+            </group>
 
         </group>
     );
@@ -190,6 +194,9 @@ const MysterySquareWithLines = (props) => {
 };
 
 function Box(props) {
+
+    const searchParams = useSearchParams()
+    const searchParamsObject = Object.fromEntries(searchParams.entries());
 
     const {
         socket
@@ -234,6 +241,10 @@ function Box(props) {
         setCalculatedColor('#000000')
 
     }, [checked, hovered])
+
+    const localGameState = useStore(state => state.localGameState);
+    const setLocalGameState = useStore(state => state.setLocalGameState);
+    const addSpace = useStore(state => state.addSpace);
 
     // Subscribe this component to the render-loop, rotate the mesh every frame
     // useFrame((state, delta) => (ref.current.rotation.x += 0.01))
@@ -297,6 +308,28 @@ function Box(props) {
 
                     console.log(`Clicked here`)
                     console.log(clickableData)
+
+                    if (searchParamsObject.server == "single-player") {
+
+                        let newSpace = {
+                            x: clickableData.x,
+                            y: clickableData.y,
+                            checked: {
+                                move: (localGameState?.spaces?.length || 0) + 1,
+                                socket_id: 'socket_id_1',
+                            }
+                        }
+
+                        console.log("single-player", newSpace)
+
+                        addSpace(newSpace)
+
+                    }
+
+                    if (searchParamsObject.server == "local-play") {
+                        console.log("local-play")
+                    }
+
                     socket.emit('game:battle-trap-move', {
                         game_id: server,
                         x: clickableData.x,
@@ -403,10 +436,10 @@ function GameGrid(props) {
                         spaces?.flat()?.find(space_obj => (space_obj.x == i && space_obj.y == j && space_obj.checked))?.checked?.socket_id
                     }
                     flatSpaces={spaces?.flat()}
-                    // hasMystery={hasMysteryLookup}
-                    // usedMysteryLookup={usedMysteryLookup}
-                    // setHoveredList={setHoveredList}
-                    // hoveredList={hoveredList}
+                // hasMystery={hasMysteryLookup}
+                // usedMysteryLookup={usedMysteryLookup}
+                // setHoveredList={setHoveredList}
+                // hoveredList={hoveredList}
                 />
             )
 

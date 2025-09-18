@@ -24,6 +24,8 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import IsDev from '@/components/UI/IsDev';
 // import games from '@/components/constants/games';
 import { useSocketStore } from '@/hooks/useSocketStore';
+import { useStore } from '@/hooks/useStore';
+import { X } from '@mui/icons-material';
 
 const diceNumbersToWords = {
     1: "one",
@@ -66,6 +68,9 @@ export default function BattleTrapGamePage(props) {
         socket: state.socket,
     }));
 
+    const localGameState = useStore(state => state.localGameState);
+    const addSpace = useStore(state => state.addSpace);
+
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
@@ -89,7 +94,33 @@ export default function BattleTrapGamePage(props) {
     const staticGameCanvasRef = useRef(null);
     const canvasScoreboardRef = useRef(null);
 
-    const [players, setPlayers] = useState([]);
+    // const [players, setPlayers] = useState([]);
+    const [players, setPlayers] = useState([
+        {
+            battleTrap: {
+                nickname: "Player 1",
+                color: "red",
+                X: 0,
+                Y: 0,
+                character: {
+                    model: "low_poly_chopper.glb"
+                }
+            }
+        },
+        {
+
+            battleTrap: {
+                nickname: "Player 2",
+                color: "blue",
+                X: 5,
+                Y: 5,
+                character: {
+                    model: "low_poly_chopper.glb"
+                }
+            }
+        }
+    ]);
+
     const [gameState, setGameState] = useState(false)
 
     // const dispatch = useDispatch()
@@ -294,16 +325,46 @@ export default function BattleTrapGamePage(props) {
     }
 
     useHotkeys('w', () => {
+
         console.log("Forward?")
+
+        let currentPlay = players?.find(player_obj => player_obj.id == socket.id)?.battleTrap
+
+        if (!currentPlay) {
+
+            let newSpace = {
+                x: currentPlay?.x,
+                y: currentPlay?.y + 1,
+                checked: {
+                    move: (localGameState?.spaces?.length || 0) + 1,
+                    socket_id: 'socket_id_1',
+                }
+            }
+
+            console.log("single-player Forward event", newSpace)
+
+            addSpace(newSpace)
+
+            return
+        }
+
+        // console.log("currentPlay")
+
         socket.emit('game:battle-trap-move', {
             game_id: server,
-            x: players.find(player_obj => player_obj.id == socket.id).battleTrap?.x,
-            y: players.find(player_obj => player_obj.id == socket.id).battleTrap?.y + 1
+            x: currentPlay?.x,
+            y: currentPlay?.y + 1
         });
-    });
+
+    }, [localGameState]);
 
     useHotkeys('s', () => {
         console.log("Back?")
+
+        let currentPlay = players?.find(player_obj => player_obj.id == socket.id)?.battleTrap
+
+        if (!currentPlay) return
+
         socket.emit('game:battle-trap-move', {
             game_id: server,
             x: players.find(player_obj => player_obj.id == socket.id).battleTrap?.x,
@@ -313,6 +374,11 @@ export default function BattleTrapGamePage(props) {
 
     useHotkeys('a', () => {
         console.log("Left?")
+
+        let currentPlay = players?.find(player_obj => player_obj.id == socket.id)?.battleTrap
+
+        if (!currentPlay) return
+
         socket.emit('game:battle-trap-move', {
             game_id: server,
             x: players.find(player_obj => player_obj.id == socket.id).battleTrap?.x - 1,
@@ -322,6 +388,11 @@ export default function BattleTrapGamePage(props) {
 
     useHotkeys('d', () => {
         console.log("Right?")
+
+        let currentPlay = players?.find(player_obj => player_obj.id == socket.id)?.battleTrap
+
+        if (!currentPlay) return
+
         socket.emit('game:battle-trap-move', {
             game_id: server,
             x: players.find(player_obj => player_obj.id == socket.id).battleTrap?.x + 1,
@@ -623,20 +694,65 @@ export default function BattleTrapGamePage(props) {
 
             <div className='menu-card'>
 
-                {/* Players */}
-                <div className="card card-articles card-sm mb-2">
+                {server == "single-player" &&
+                    <div className="card card-articles card-sm mb-2">
 
-                    <div className="card-body p-2">
+                        <div className="card-body p-2">
 
-                        <div>Room: {server}</div>
-                        <div>
-                            {gameState?.status == 'In Lobby' && 'In Lobby - Waiting for players'}
-                            {gameState?.status == 'In Progress' && 'In Progress - Your Turn'}
+                            <div className='mb-2'>
+                                Single Player - {`Red's`} Turn
+                            </div>
+
+                            <div>
+                                <div>Red (You)</div>
+                                <div>Blue (Bot)</div>
+                                <div>Green (Bot)</div>
+                                <div>Yellow (Bot)</div>
+
+                                <div>{gameState?.status == 'In Lobby' && 'In Lobby - Waiting for players'}</div>
+                                <div>{gameState?.status == 'In Progress' && 'In Progress - Your Turn'}</div>
+
+                            </div>
+
                         </div>
 
                     </div>
+                }
 
-                </div>
+                {server == "local-play" &&
+                    <div className="card card-articles card-sm mb-2">
+
+                        <div className="card-body p-2">
+
+                            <div>
+                                Local Play
+                            </div>
+
+                            <div>
+                                {gameState?.status == 'In Lobby' && 'In Lobby - Waiting for players'}
+                                {gameState?.status == 'In Progress' && 'In Progress - Your Turn'}
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
+
+                {(server !== "single-player" && server !== "local-play") &&
+                    <div className="card card-articles card-sm mb-2">
+
+                        <div className="card-body p-2">
+
+                            <div>Room: {server}</div>
+                            <div>
+                                {gameState?.status == 'In Lobby' && 'In Lobby - Waiting for players'}
+                                {gameState?.status == 'In Progress' && 'In Progress - Your Turn'}
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
 
                 <div className='d-flex mb-2'>
 
@@ -657,11 +773,14 @@ export default function BattleTrapGamePage(props) {
 
                         }}
                     >
+
                         <i className="fad fa-play"></i>
                         <span>Start Game</span>
+
                         <span className="badge bg-dark ms-2">
                             {`2+ Players`}
                         </span>
+
                     </ArticlesButton>
 
                     <IsDev>

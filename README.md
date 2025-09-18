@@ -28,3 +28,7 @@ Black and White Board
 
 Instructions
 ![Battle Trap Instructions](public/img/Board%20Game/Instructions.webp)
+
+## Attributions
+
+[free_colorful_sci_fi_skybox.glb](https://www.fab.com/listings/569774e7-9238-4036-8824-64d85f999916)  
