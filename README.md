@@ -1,6 +1,8 @@
 # Battle Trap
 
-Battle trap is a single player and multiplayer game where you must last the longest in the board without coliding with another players trail. Inspired by Tron, players can move there player when it is their turn. 
+![Game Preview](/public/img/game-preview.webp)
+
+Battle trap is a single player and multiplayer game where you must last the longest in the board without colliding with another players trail. Inspired by Tron, players can move there player when it is their turn. 
 
 ## Getting Started
 

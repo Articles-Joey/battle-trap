@@ -14,11 +14,23 @@ export const useStore = create()(
       players: [],
       setPlayers: (players) => set({ players }),
 
-      boardSize: 8,
+      boardSize: 20,
       setBoardSize: (boardSize) => set({ boardSize }),
 
+      // Player index of who's turn it is
       currentTurn: 0,
       setCurrentTurn: (currentTurn) => set({ currentTurn }),
+
+      // Dice roll value for the current turn 
+      // Note: false and 0 are different states, false means no roll yet, 0 means rolled a 0
+      // Make sure to strict check (===) against false
+      currentRoll: false,
+      setCurrentRoll: (currentRoll) => set({ currentRoll }),
+
+      // Total move count for the current turn
+      currentMoveCount: 0,
+      setCurrentMoveCount: (currentMoveCount) => set({ currentMoveCount }),
+      incCurrentMoveCount: () => set({ currentMoveCount: get().currentMoveCount + 1 }),
 
       defaultLocalGameState: {
         boardSize: 8,

@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber"
-import { Sky, useDetectGPU, useTexture, OrbitControls, Text } from "@react-three/drei";
+import { Sky, useDetectGPU, useTexture, OrbitControls, Text, Billboard } from "@react-three/drei";
 
 import GameGrid from "./GameGrid";
 
@@ -339,16 +339,20 @@ function GameCanvas(props) {
                     return (
                         <group key={player_obj.id} position={[(player_obj.battleTrap.x * 2), 0, -(player_obj.battleTrap.y * 2)]}>
 
-                            <Text
-                                position={[0, 1, 0]}
-                                color="pink"
-                                anchorX="center"
-                                anchorY="middle"
-                                scale={1}
+                            <Billboard
+
                             >
-                                {player_obj.battleTrap.nickname}
-                                {/* {player_obj.battleTrap.x} */}
-                            </Text>
+                                <Text
+                                    position={[0, 2, 0]}
+                                    color="pink"
+                                    anchorX="center"
+                                    anchorY="middle"
+                                    scale={1}
+                                >
+                                    {player_obj.battleTrap.nickname}
+                                    {/* {player_obj.battleTrap.x} */}
+                                </Text>
+                            </Billboard>
 
                             {/* <LowPolyChopper
                                 position={[0, 0, 0]}

@@ -219,7 +219,10 @@ function Box(props) {
 
     const colorLookup = useMemo(() => {
 
-        let color = players.find(player_obj => player_obj.id == checked?.checked?.socket_id)?.battleTrap?.color
+        // let color = players.find(player_obj => player_obj.id == checked?.checked?.socket_id)?.battleTrap?.color
+
+        // Just store the color on in the space object instead of looking up player each time
+        let color = checked?.checked?.color
 
         return color
 
@@ -322,7 +325,11 @@ function Box(props) {
 
                         console.log("single-player", newSpace)
 
-                        addSpace(newSpace)
+                        // addSpace(newSpace)
+                        addSpace({
+                            space: newSpace,
+                            player_color: 'red'
+                        })
 
                     }
 

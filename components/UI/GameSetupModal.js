@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Modal, Form } from "react-bootstrap"
 
 import ArticlesButton from "@/components/UI/Button";
+import Link from "next/link";
+import { useStore } from "@/hooks/useStore";
 
-export default function FourFrogsSettingsModal({
+export default function GameSetupModal({
     show,
     setShow,
 }) {
@@ -14,6 +16,36 @@ export default function FourFrogsSettingsModal({
     const [lightboxData, setLightboxData] = useState(null)
 
     const [tab, setTab] = useState('Controls')
+
+    const [botData, setBotData] = useState([])
+
+    const players = useStore(state => state.players);
+    const setPlayers = useStore(state => state.setPlayers);
+    const boardSize = useStore(state => state.boardSize);
+
+    useEffect(() => {
+
+        if (show.type == 'single-player') {
+            setBotData([
+                ...[...Array(3).keys()].map(i => (
+                    {
+                        difficulty: "Medium"
+                    }
+                ))
+            ])
+        }
+
+        if (show.type == 'local-play') {
+            // setBotData([
+            //     ...[...Array(3).keys()].map(i => (
+            //         {
+            //             difficulty: "Medium"
+            //         }
+            //     ))
+            // ])
+        }
+
+    }, [show])
 
     return (
         <>
@@ -45,126 +77,204 @@ export default function FourFrogsSettingsModal({
             >
 
                 <Modal.Header closeButton>
-                    <Modal.Title>Game Settings</Modal.Title>
+                    <Modal.Title>Game Setup</Modal.Title>
                 </Modal.Header>
 
                 <Modal.Body className="flex-column p-0">
 
-                    <div className='p-2'>
-                        {[
-                            'Controls',
-                            'Audio',
-                            'Chat'
-                        ].map(item =>
-                            <ArticlesButton
-                                key={item}
-                                active={tab == item}
-                                onClick={() => { setTab(item) }}
-                            >
-                                {item}
-                            </ArticlesButton>
-                        )}
-                    </div>
+                    {show.type == 'single-player' &&
+                        <div className='p-3 border-bottom'>
 
-                    <hr className="my-0" />
+                            <div className='mb-3'>
+                                Adjust bot difficulty as needed.
+                            </div>
 
-                    <div className="p-2">
-                        {tab == 'Controls' &&
-                            <div>
-                                {[
-                                    {
-                                        action: 'Move Up',
-                                        defaultKeyboardKey: 'W'
-                                    },
-                                    {
-                                        action: 'Move Down',
-                                        defaultKeyboardKey: 'S'
-                                    },
-                                    {
-                                        action: 'Move Left',
-                                        defaultKeyboardKey: 'A'
-                                    },
-                                    {
-                                        action: 'Move Right',
-                                        defaultKeyboardKey: 'D'
-                                    },
-                                    {
-                                        action: 'Drop Insect',
-                                        defaultKeyboardKey: 'Space'
-                                    },
-                                    {
-                                        action: 'Stop Powerup',
-                                        defaultKeyboardKey: 'ArrowDown'
-                                    },
-                                    {
-                                        emote: true,
-                                        action: 'Stick out Tongue',
-                                        defaultKeyboardKey: 'ArrowDown'
-                                    },
-                                    {
-                                        emote: true,
-                                        action: 'Rotate Left',
-                                        defaultKeyboardKey: 'ArrowLeft'
-                                    },
-                                    {
-                                        emote: true,
-                                        action: 'Rotate Right',
-                                        defaultKeyboardKey: 'ArrowRight'
-                                    }
-                                ].map(obj =>
-                                    <div key={obj.action}>
-                                        <div className="flex-header border-bottom pb-1 mb-1">
+                            <div className=''>
+                                {botData.map((item, i) =>
+                                    <div
+                                        key={`bot-data-option-${i}`}
+                                        // active={i == botData}
+                                        onClick={() => {
+                                            // setBotData(
+                                            //     [...Array(parseInt(item)).keys()].map(i => (
+                                            //         {
+                                            //             difficulty: "Easy"
+                                            //         }
+                                            //     ))
+                                            // )
+                                        }}
+                                    >
 
-                                            <div>
-                                                <div>{obj.action}</div>
-                                                {obj.emote && <div className="span badge bg-dark">Emote</div>}
-                                            </div>
+                                        <div>Bot {i + 1}: {item.difficulty}</div>
 
-                                            <div>
+                                        <div className='p-2'>
+                                            {[
+                                                'Easy',
+                                                'Medium',
+                                                'Hard',
+                                            ].map((difficulty_item, difficulty_i) =>
+                                                <ArticlesButton
+                                                    key={`bot-difficulty-option-${difficulty_item}`}
+                                                    active={difficulty_item == botData[i].difficulty}
+                                                    onClick={() => {
 
-                                                <div className="badge badge-hover bg-articles me-1">{obj.defaultKeyboardKey}</div>
+                                                        let newData = botData.map((bot, index) => {
+                                                            if (index == i) {
+                                                                return {
+                                                                    ...bot,
+                                                                    difficulty: difficulty_item
+                                                                }
+                                                            }
+                                                            return bot
+                                                        })
 
-                                                <ArticlesButton 
-                                                    className=""
-                                                    small
+                                                        setBotData(newData)
+
+                                                    }}
                                                 >
-                                                    Change Key
+                                                    {difficulty_item}
                                                 </ArticlesButton>
-
-                                            </div>
+                                            )}
                                         </div>
+
                                     </div>
                                 )}
                             </div>
-                        }
-                        {tab == 'Audio' &&
-                            <>
-                                <Form.Label className="mb-0">Game Volume</Form.Label>
-                                <Form.Range />
-                                <Form.Label className="mb-0">Music Volume</Form.Label>
-                                <Form.Range />
-                            </>
-                        }
-                        {tab == 'Chat' &&
-                            <>
-                                <Form.Check
-                                    type="switch"
-                                    id="custom-switch"
-                                    label="Game chat panel"
-                                />
-                                <Form.Check
-                                    type="switch"
-                                    id="custom-switch"
-                                    label="Censor chat"
-                                />
-                                <Form.Check
-                                    type="switch"
-                                    id="custom-switch"
-                                    label="Game chat speech bubbles"
-                                />
-                            </>
-                        }
-                    </div>
+
+                        </div>
+                    }
+
+                    {show.type == 'local-play' &&
+                        <div className='p-3 border-bottom'>
+
+                            <div className=''>
+                                How many bots do you want to play against?
+                            </div>
+
+                            <div className=''>
+                                {[
+                                    '0',
+                                    '1',
+                                    '2',
+                                    '3'
+                                ].map((item, i) =>
+                                    <ArticlesButton
+                                        key={`bot-amount-option-${i}`}
+                                        active={i == botData.length}
+                                        onClick={() => {
+
+                                            let newData = [...Array(parseInt(item)).keys()].map(i => (
+                                                {
+                                                    difficulty: "Easy"
+                                                }
+                                            ))
+
+                                            // console.log(
+                                            //     newData
+                                            // )
+
+                                            setBotData(newData)
+                                        }}
+                                    >
+                                        {item}
+                                    </ArticlesButton>
+                                )}
+                            </div>
+
+                            <div className='p-2 border-bottom mb-3'>
+                                {botData.map((item, i) =>
+                                    <div
+                                        key={`bot-data-option-${i}`}
+                                        // active={i == botData}
+                                        onClick={() => {
+                                            // setBotData(
+                                            //     [...Array(parseInt(item)).keys()].map(i => (
+                                            //         {
+                                            //             difficulty: "Easy"
+                                            //         }
+                                            //     ))
+                                            // )
+                                        }}
+                                    >
+
+                                        <div>Bot {i + 1}: {item.difficulty}</div>
+
+                                        <div className='p-2'>
+                                            {[
+                                                'Easy',
+                                                'Medium',
+                                                'Hard',
+                                            ].map((difficulty_item, difficulty_i) =>
+                                                <ArticlesButton
+                                                    key={`bot-difficulty-option-${difficulty_item}`}
+                                                    active={difficulty_item == botData[i].difficulty}
+                                                    onClick={() => {
+
+                                                        let newData = botData.map((bot, index) => {
+                                                            if (index == i) {
+                                                                return {
+                                                                    ...bot,
+                                                                    difficulty: difficulty_item
+                                                                }
+                                                            }
+                                                            return bot
+                                                        })
+
+                                                        setBotData(newData)
+
+                                                    }}
+                                                >
+                                                    {difficulty_item}
+                                                </ArticlesButton>
+                                            )}
+                                        </div>
+
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className=''>
+                                Player Data
+                            </div>
+
+                            <div className='p-3'>
+                                {[
+                                    ...Array(4 - botData.length)
+                                ].map((item, i) =>
+                                    <div
+                                        key={`player-info-${i}`}
+                                        className="mb-2"
+                                        // active={i == botData.length}
+                                        onClick={() => {
+
+                                            let newData = [...Array(parseInt(item)).keys()].map(i => (
+                                                {
+                                                    difficulty: "Easy"
+                                                }
+                                            ))
+
+                                            // console.log(
+                                            //     newData
+                                            // )
+
+                                            setBotData(newData)
+                                        }}
+                                    >
+                                        <div>Enter nickname for player</div>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            placeholder="Nickname"
+                                            onChange={(e) => {
+                                                e.preventDefault();
+                                            }}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+
+                        </div>
+                    }
 
                 </Modal.Body>
 
@@ -196,9 +306,83 @@ export default function FourFrogsSettingsModal({
                     </div>
 
 
-                    {/* <ArticlesButton variant="success" onClick={() => setValue(false)}>
-                    Save
-                </ArticlesButton> */}
+                    <Link
+                        className={``}
+                        href={{
+                            pathname: `/play`,
+                            query: { server: show.type }
+                        }}
+                    >
+                        <ArticlesButton
+                            variant="success" onClick={() => {
+                                setPlayers([
+
+                                    // ...[
+                                    //     ...Array(4 - botData.length)
+                                    // ].map((item, i) => ({
+
+                                    // })),
+
+                                    // ...[
+                                    //     ...Array(botData.length)
+                                    // ].map((item, i) => ({
+
+                                    // })),
+
+                                    {
+                                        id: '1',
+                                        battleTrap: {
+                                            nickname: "Player 1",
+                                            color: "red",
+                                            x: 0,
+                                            y: 0,
+                                            character: {
+                                                model: "low_poly_chopper.glb"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        id: '2',
+                                        battleTrap: {
+                                            nickname: "Player 2",
+                                            color: "blue",
+                                            x: boardSize - 1,
+                                            y: boardSize - 1,
+                                            character: {
+                                                model: "low_poly_chopper.glb"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        id: '3',
+                                        battleTrap: {
+                                            nickname: "Player 3",
+                                            color: "yellow",
+                                            x: 0,
+                                            y: boardSize - 1,
+                                            character: {
+                                                model: "low_poly_chopper.glb"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        id: '4',
+                                        battleTrap: {
+                                            nickname: "Player 4",
+                                            color: "green",
+                                            x: boardSize - 1,
+                                            y: 0,
+                                            character: {
+                                                model: "low_poly_chopper.glb"
+                                            }
+                                        }
+                                    }
+
+                                ])
+                            }}>
+                            Start
+                        </ArticlesButton>
+                    </Link>
 
                 </Modal.Footer>
 

@@ -138,7 +138,7 @@ export default function BattleTrapLobbyPage(props) {
                 />
             } */}
 
-             {showGameSetupModal &&
+            {showGameSetupModal &&
                 <GameSetupModal
                     show={showGameSetupModal}
                     setShow={setShowGameSetupModal}
@@ -377,7 +377,7 @@ export default function BattleTrapLobbyPage(props) {
 
                             <div className='floating-controls'>
 
-                                <Tooltip 
+                                <Tooltip
                                     title="Rotation"
                                     placement="bottom"
                                 >
@@ -392,7 +392,7 @@ export default function BattleTrapLobbyPage(props) {
                                     </ArticlesButton>
                                 </Tooltip>
 
-                                <Tooltip 
+                                <Tooltip
                                     title="Refresh"
                                     placement="bottom"
                                 >
@@ -408,7 +408,7 @@ export default function BattleTrapLobbyPage(props) {
                                     </ArticlesButton>
                                 </Tooltip>
 
-                                <Tooltip 
+                                <Tooltip
                                     title="Edit"
                                     placement="bottom"
                                 >
@@ -536,7 +536,7 @@ export default function BattleTrapLobbyPage(props) {
                                 </div>
                             </div>
 
-                            <Link
+                            {/* <Link
                                 className={``}
                                 href={{
                                     pathname: `/play`,
@@ -550,7 +550,20 @@ export default function BattleTrapLobbyPage(props) {
                                 >
                                     Join
                                 </ArticlesButton>
-                            </Link>
+                            </Link> */}
+
+                            <ArticlesButton
+                                className="px-5"
+                                small
+                                onClick={() => {
+                                    setShowGameSetupModal({
+                                        type: 'single-player'
+                                    })
+                                }}
+                            // disabled={!connected}
+                            >
+                                Join
+                            </ArticlesButton>
 
                         </Paper>
 
@@ -573,21 +586,26 @@ export default function BattleTrapLobbyPage(props) {
                                 </div>
                             </div>
 
-                            <Link
+                            {/* <Link
                                 className={``}
                                 href={{
                                     pathname: `/play`,
                                     query: { server: 'local-play' }
                                 }}
+                            > */}
+                            <ArticlesButton
+                                className="px-5"
+                                small
+                                onClick={() => {
+                                    setShowGameSetupModal({
+                                        type: 'local-play'
+                                    })
+                                }}
+                            // disabled={!connected}
                             >
-                                <ArticlesButton
-                                    className="px-5"
-                                    small
-                                // disabled={!connected}
-                                >
-                                    Join
-                                </ArticlesButton>
-                            </Link>
+                                Join
+                            </ArticlesButton>
+                            {/* </Link> */}
 
                         </Paper>
 
