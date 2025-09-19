@@ -71,6 +71,12 @@ export default function BattleTrapGamePage(props) {
     const localGameState = useStore(state => state.localGameState);
     const addSpace = useStore(state => state.addSpace);
 
+    const players = useStore(state => state.players);
+    const setPlayers = useStore(state => state.setPlayers);
+
+    const currentTurn = useStore(state => state.currentTurn);
+    const setCurrentTurn = useStore(state => state.setCurrentTurn);
+
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
@@ -95,31 +101,33 @@ export default function BattleTrapGamePage(props) {
     const canvasScoreboardRef = useRef(null);
 
     // const [players, setPlayers] = useState([]);
-    const [players, setPlayers] = useState([
-        {
-            battleTrap: {
-                nickname: "Player 1",
-                color: "red",
-                X: 0,
-                Y: 0,
-                character: {
-                    model: "low_poly_chopper.glb"
-                }
-            }
-        },
-        {
 
-            battleTrap: {
-                nickname: "Player 2",
-                color: "blue",
-                X: 5,
-                Y: 5,
-                character: {
-                    model: "low_poly_chopper.glb"
-                }
-            }
-        }
-    ]);
+    // const [players, setPlayers] = useState([
+    //     {
+    //         id: '123',
+    //         battleTrap: {
+    //             nickname: "Player 1",
+    //             color: "red",
+    //             x: 0,
+    //             y: 0,
+    //             character: {
+    //                 model: "low_poly_chopper.glb"
+    //             }
+    //         }
+    //     },
+    //     {
+    //         id: '124',
+    //         battleTrap: {
+    //             nickname: "Player 2",
+    //             color: "blue",
+    //             x: 5,
+    //             y: 5,
+    //             character: {
+    //                 model: "low_poly_chopper.glb"
+    //             }
+    //         }
+    //     }
+    // ]);
 
     const [gameState, setGameState] = useState(false)
 
@@ -254,6 +262,40 @@ export default function BattleTrapGamePage(props) {
             setGameState(data?.game_state)
         });
 
+        if (
+            server == 'single-player'
+            ||
+            server == 'local-play'
+        ) {
+            console.log("Set players because local")
+            setPlayers([
+                {
+                    id: '123',
+                    battleTrap: {
+                        nickname: "Player 1",
+                        color: "red",
+                        x: 0,
+                        y: 0,
+                        character: {
+                            model: "low_poly_chopper.glb"
+                        }
+                    }
+                },
+                {
+                    id: '124',
+                    battleTrap: {
+                        nickname: "Player 2",
+                        color: "blue",
+                        x: 5,
+                        y: 5,
+                        character: {
+                            model: "low_poly_chopper.glb"
+                        }
+                    }
+                }
+            ])
+        }
+
         return () => {
             socket.off(`game:battle-trap-room-${server}`);
         };
@@ -324,13 +366,83 @@ export default function BattleTrapGamePage(props) {
 
     }
 
-    useHotkeys('w', () => {
+    function handlePlayerMoveLogic(newSpaceData) {
 
-        console.log("Forward?")
+        // Logic instead of every hotkey
 
+        // If multi-player and no game state, do nothing
         let currentPlay = players?.find(player_obj => player_obj.id == socket.id)?.battleTrap
 
-        if (!currentPlay) {
+        // Local Play override
+        let currentPlayerColor = players[currentTurn]?.battleTrap?.color
+        console.log("Current Player Color", currentPlayerColor)
+        currentPlay = players?.find(player_obj => player_obj.battleTrap.color == currentPlayerColor)?.battleTrap
+
+        console.log("Forward with the current player", currentPlay)
+
+        if (
+            server == 'single-player'
+            ||
+            server == 'local-play'
+        ) {
+
+            let newSpace = {
+                x: currentPlay?.x + newSpaceData.x,
+                y: currentPlay?.y + newSpaceData.y,
+                checked: {
+                    move: (localGameState?.spaces?.length || 0) + 1,
+                    color: currentPlayerColor,
+                    socket_id: 'socket_id_1',
+                }
+            }
+
+            console.log("single-player Forward event", newSpace)
+
+            addSpace({
+                space: newSpace,
+                player_color: currentPlayerColor
+            })
+
+            return
+
+        } else {
+
+            // console.log("currentPlay")
+
+            // TODO - Confirm working because got redone with local play
+
+            socket.emit('game:battle-trap-move', {
+                game_id: server,
+                x: currentPlay?.x + newSpaceData.x,
+                y: currentPlay?.y + newSpaceData.y
+            });
+
+        }
+
+    }
+
+    useHotkeys('w', () => {
+
+        console.log("Back?")
+        handlePlayerMoveLogic({
+            x: 0,
+            y: 1
+        })
+        return
+
+        // If multi-player and no game state, do nothing
+        let currentPlay = players?.find(player_obj => player_obj.id == socket.id)?.battleTrap
+
+        // Local Play override
+        currentPlay = players?.find(player_obj => player_obj.battleTrap.color == 'red')?.battleTrap
+
+        console.log("Forward with the current player", currentPlay)
+
+        if (
+            server == 'single-player'
+            ||
+            server == 'local-play'
+        ) {
 
             let newSpace = {
                 x: currentPlay?.x,
@@ -343,23 +455,35 @@ export default function BattleTrapGamePage(props) {
 
             console.log("single-player Forward event", newSpace)
 
-            addSpace(newSpace)
+            addSpace({
+                space: newSpace,
+                player_color: 'red'
+            })
 
             return
+
+        } else {
+
+            // console.log("currentPlay")
+
+            socket.emit('game:battle-trap-move', {
+                game_id: server,
+                x: currentPlay?.x,
+                y: currentPlay?.y + 1
+            });
+
         }
 
-        // console.log("currentPlay")
-
-        socket.emit('game:battle-trap-move', {
-            game_id: server,
-            x: currentPlay?.x,
-            y: currentPlay?.y + 1
-        });
-
-    }, [localGameState]);
+    }, [localGameState, players]);
 
     useHotkeys('s', () => {
+
         console.log("Back?")
+        handlePlayerMoveLogic({
+            x: 0,
+            y: -1
+        })
+        return
 
         let currentPlay = players?.find(player_obj => player_obj.id == socket.id)?.battleTrap
 
@@ -373,7 +497,13 @@ export default function BattleTrapGamePage(props) {
     });
 
     useHotkeys('a', () => {
+
         console.log("Left?")
+        handlePlayerMoveLogic({
+            x: -1,
+            y: 0
+        })
+        return
 
         let currentPlay = players?.find(player_obj => player_obj.id == socket.id)?.battleTrap
 
@@ -387,7 +517,13 @@ export default function BattleTrapGamePage(props) {
     });
 
     useHotkeys('d', () => {
+
         console.log("Right?")
+        handlePlayerMoveLogic({
+            x: 1,
+            y: 0
+        })
+        return
 
         let currentPlay = players?.find(player_obj => player_obj.id == socket.id)?.battleTrap
 
@@ -704,6 +840,29 @@ export default function BattleTrapGamePage(props) {
                             </div>
 
                             <div>
+
+                                {players.map((player_obj, i) => <div
+                                    key={`${player_obj}-${i}`}
+                                    className="player open p-1"
+                                >
+
+                                    <div className='d-flex align-items-center mb-1'>
+                                        <i className="fad fa-user text-center" style={{ width: '30px' }}></i>
+                                        <h5 className='mb-0'>{player_obj?.battleTrap?.nickname || '?'}</h5>
+                                    </div>
+
+                                    <ArticlesButton
+                                        small
+                                        active={i == currentTurn}
+                                        onClick={() => {
+                                            setCurrentTurn(i)
+                                        }}
+                                    >
+                                        Turn
+                                    </ArticlesButton>
+
+                                </div>)}
+
                                 <div>Red (You)</div>
                                 <div>Blue (Bot)</div>
                                 <div>Green (Bot)</div>
@@ -901,7 +1060,7 @@ export default function BattleTrapGamePage(props) {
                                 </div>)}
 
                                 {players.length < 4 &&
-                                    <div className='d-flex justify-content-center'>
+                                    <div className='d-flex justify-content-center flex-wrap'>
 
                                         <ArticlesButton
                                             small
@@ -933,6 +1092,17 @@ export default function BattleTrapGamePage(props) {
                                         >
                                             <i className="fad fa-user-plus"></i>
                                             <span className='mb-0'>Invite Players</span>
+                                        </ArticlesButton>
+
+                                        <ArticlesButton
+                                            small
+                                            className="w-50"
+                                            onClick={() => {
+                                                console.log("Log Players", players)
+                                            }}
+                                        >
+                                            <i className="fad fa-users"></i>
+                                            <span className='mb-0'>Log Players</span>
                                         </ArticlesButton>
 
                                     </div>

@@ -24,8 +24,8 @@ export function SciFiBuildingsPack(props) {
   }
 
   const groupRef = useRef();
-  const minDistance = 200; // Minimum distance from the center
-  const maxDistance = 1000; // Maximum distance from the center
+  const minDistance = 600; // Minimum distance from the center
+  const maxDistance = 700; // Maximum distance from the center
 
   useLayoutEffect(() => {
     if (groupRef.current) {

@@ -31,4 +31,5 @@ Instructions
 
 ## Attributions
 
-[free_colorful_sci_fi_skybox.glb](https://www.fab.com/listings/569774e7-9238-4036-8824-64d85f999916)  
+[Sci-fi Skybox](https://www.fab.com/listings/569774e7-9238-4036-8824-64d85f999916)  
+[Sci-fi Buildings Pack](https://sketchfab.com/3d-models/sci-fi-buildings-pack-low-poly-game-ready-333a430644b34e688aecfdc874f4cbf2)

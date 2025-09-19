@@ -78,6 +78,10 @@ const FlatArrow = (props) => {
 
 function GameCanvas(props) {
 
+    // const searchParams = useSearchParams()
+    // const searchParamsObject = Object.fromEntries(searchParams.entries());
+    // const server = searchParamsObject?.server
+
     const {
         socket,
     } = useSocketStore(state => ({
@@ -106,12 +110,23 @@ function GameCanvas(props) {
 
     const {
         handleCameraChange,
-        gameState,
+        gameState: multiplayerGameState,
         players,
         move,
         cameraInfo,
         server
     } = props;
+
+    let gameState
+    if (
+        server == 'single-player'
+        ||
+        server == 'local-play'
+    ) {
+        gameState = localGameState
+    } else {
+        gameState = multiplayerGameState
+    }
 
     return (
         <Canvas camera={{ position: [-10, 40, 40], fov: 50 }}>
@@ -222,30 +237,31 @@ function GameCanvas(props) {
             <group position={[-(boardSize), 0, (boardSize - 2)]}>
 
                 {[
-                    {
-                        id: '123',
-                        battleTrap: {
-                            nickname: "Player 1",
-                            color: "red",
-                            x: 0,
-                            y: 0,
-                            character: {
-                                model: "low_poly_chopper.glb"
-                            }
-                        }
-                    },
-                    {
-                        id: '124',
-                        battleTrap: {
-                            nickname: "Player 2",
-                            color: "blue",
-                            x: 5,
-                            y: 5,
-                            character: {
-                                model: "low_poly_chopper.glb"
-                            }
-                        }
-                    }
+                    ...players
+                    // {
+                    //     id: '123',
+                    //     battleTrap: {
+                    //         nickname: "Player 1",
+                    //         color: "red",
+                    //         x: 0,
+                    //         y: 0,
+                    //         character: {
+                    //             model: "low_poly_chopper.glb"
+                    //         }
+                    //     }
+                    // },
+                    // {
+                    //     id: '124',
+                    //     battleTrap: {
+                    //         nickname: "Player 2",
+                    //         color: "blue",
+                    //         x: 5,
+                    //         y: 5,
+                    //         character: {
+                    //             model: "low_poly_chopper.glb"
+                    //         }
+                    //     }
+                    // }
                 ]?.map(player_obj => {
 
                     let rotation;
@@ -330,7 +346,8 @@ function GameCanvas(props) {
                                 anchorY="middle"
                                 scale={1}
                             >
-                                123
+                                {player_obj.battleTrap.nickname}
+                                {/* {player_obj.battleTrap.x} */}
                             </Text>
 
                             {/* <LowPolyChopper
@@ -351,9 +368,9 @@ function GameCanvas(props) {
 
                             {/* Movement arrows - Only show for self */}
                             {
-                            // player_obj.id == socket.id 
-                            true
-                            &&
+                                // player_obj.id == socket.id 
+                                true
+                                &&
                                 <group>
 
                                     {/* Left */}
@@ -390,8 +407,8 @@ function GameCanvas(props) {
                                             space_obj.x == (player_obj.battleTrap.x)
                                             &&
                                             space_obj.y == (player_obj.battleTrap.y - 1)
-                                            &&
-                                            !space_obj.checked
+                                            // &&
+                                            // !space_obj.checked
                                         )
                                         )
                                         &&
@@ -400,14 +417,15 @@ function GameCanvas(props) {
 
                                     {/* Forward */}
                                     {
-                                        gameState?.spaces?.flat().find(space_obj => (
-                                            space_obj.x == (player_obj.battleTrap.x)
+                                        gameState?.spaces?.find(space_obj => (
+                                            space_obj.x == player_obj.battleTrap.x
                                             &&
                                             space_obj.y == (player_obj.battleTrap.y + 1)
-                                            &&
-                                            !space_obj.checked
-                                        )
-                                        )
+                                            // &&
+                                            // !space_obj.checked
+                                        ))
+                                        // ||
+                                        // true
                                         &&
                                         <FlatArrow rotation={[0, -Math.PI, 0]} color="blue" size={10} />
                                     }
@@ -457,7 +475,7 @@ function GameCanvas(props) {
             </group>
 
             <group
-                position={[-(boardSize), 0, (boardSize)]}
+                position={[-(boardSize), 0, (boardSize - 2)]}
                 rotation={[0, Math.PI / 2, 0]}
             >
                 <GameGrid
@@ -465,8 +483,8 @@ function GameCanvas(props) {
                     boardSize={boardSize}
                     // player={players.find(player => player.id == socket.id)}
 
-                    // gameState={gameState}
-                    gameState={localGameState}
+                    gameState={gameState}
+                    // gameState={localGameState}
 
                     players={players}
                 // move={move}
