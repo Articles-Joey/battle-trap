@@ -71,70 +71,51 @@ export default function FourFrogsSettingsModal({
                     <div className="p-2">
                         {tab == 'Controls' &&
                             <div>
-                                {[
-                                    {
-                                        action: 'Move Up',
-                                        defaultKeyboardKey: 'W'
-                                    },
-                                    {
-                                        action: 'Move Down',
-                                        defaultKeyboardKey: 'S'
-                                    },
-                                    {
-                                        action: 'Move Left',
-                                        defaultKeyboardKey: 'A'
-                                    },
-                                    {
-                                        action: 'Move Right',
-                                        defaultKeyboardKey: 'D'
-                                    },
-                                    {
-                                        action: 'Drop Insect',
-                                        defaultKeyboardKey: 'Space'
-                                    },
-                                    {
-                                        action: 'Stop Powerup',
-                                        defaultKeyboardKey: 'ArrowDown'
-                                    },
-                                    {
-                                        emote: true,
-                                        action: 'Stick out Tongue',
-                                        defaultKeyboardKey: 'ArrowDown'
-                                    },
-                                    {
-                                        emote: true,
-                                        action: 'Rotate Left',
-                                        defaultKeyboardKey: 'ArrowLeft'
-                                    },
-                                    {
-                                        emote: true,
-                                        action: 'Rotate Right',
-                                        defaultKeyboardKey: 'ArrowRight'
-                                    }
-                                ].map(obj =>
-                                    <div key={obj.action}>
-                                        <div className="flex-header border-bottom pb-1 mb-1">
+                                <div>
+                                    {[
+                                        {
+                                            action: 'Move Up',
+                                            defaultKeyboardKey: 'W'
+                                        },
+                                        {
+                                            action: 'Move Down',
+                                            defaultKeyboardKey: 'S'
+                                        },
+                                        {
+                                            action: 'Move Left',
+                                            defaultKeyboardKey: 'A'
+                                        },
+                                        {
+                                            action: 'Move Right',
+                                            defaultKeyboardKey: 'D'
+                                        },
+                                    ].map(obj =>
+                                        <div key={obj.action}>
+                                            <div className="flex-header border-bottom pb-1 mb-1">
 
-                                            <div>
-                                                <div>{obj.action}</div>
-                                                {obj.emote && <div className="span badge bg-dark">Emote</div>}
-                                            </div>
+                                                <div>
+                                                    <div>{obj.action}</div>
+                                                </div>
 
-                                            <div>
+                                                <div>
 
-                                                <div className="badge badge-hover bg-articles me-1">{obj.defaultKeyboardKey}</div>
+                                                    <div className="badge badge-hover bg-black me-1">{obj.defaultKeyboardKey}</div>
 
-                                                <ArticlesButton 
-                                                    className=""
-                                                    small
-                                                >
-                                                    Change Key
-                                                </ArticlesButton>
+                                                    <ArticlesButton
+                                                        className=""
+                                                        small
+                                                    >
+                                                        Change Key
+                                                    </ArticlesButton>
 
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                )}
+                                    )}
+                                </div>
+                                <div className="p-2">
+                                    * You can also click or tap the tile you want to move to.
+                                </div>
                             </div>
                         }
                         {tab == 'Audio' &&

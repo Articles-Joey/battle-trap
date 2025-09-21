@@ -8,6 +8,9 @@ export const useStore = create()(
       theme: null, // 'Light' | 'Dark' | null
       setTheme: (theme) => set({ theme }),
 
+      updateCamera: null,
+      setUpdateCamera: (updateCamera) => set({ updateCamera }),
+
       threeDimensional: true, // 'Light' | 'Dark' | null
       setThreeDimensional: (threeDimensional) => set({ threeDimensional }),
 

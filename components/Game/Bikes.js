@@ -9,7 +9,12 @@ Title: Low Poly Chopper
 import { useRef } from "react";
 import { useGLTF } from "@react-three/drei";
 
-const link = `${process.env.NEXT_PUBLIC_CDN}games/Battle Trap/`
+let link = `${process.env.NEXT_PUBLIC_CDN}games/Battle Trap/`
+
+// Will load from local public folder instead of CDN
+if (process.env.NEXT_PUBLIC_MODEL_SOURCE == "LOCAL") {
+    link = `/models/Player/`
+}
 
 export function LowPolyChopper(props) {
 

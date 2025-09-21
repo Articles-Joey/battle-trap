@@ -17,6 +17,7 @@ import { useStore } from "@/hooks/useStore";
 // import { degToRad } from "three/src/math/MathUtils";
 import CornerBuildings from "./CornerBuildings";
 import FillerBuildings from "./FillerBuildings";
+import { SkyBoxCitySkyLine } from "./SkyBoxCitySkyLine";
 // const RenderModel = dynamic(() => import('@/components/Games/Battle Trap/RenderModel'), {
 //     ssr: false,
 // });
@@ -91,7 +92,8 @@ function GameCanvas(props) {
     const localGameState = useStore(state => state.localGameState);
     const defaultLocalGameState = useStore(state => state.defaultLocalGameState);
     const setLocalGameState = useStore(state => state.setLocalGameState);
-    const addSpace = useStore(state => state.addSpace);
+    const theme = useStore(state => state.theme);
+    // const addSpace = useStore(state => state.addSpace);
 
     useEffect(() => {
 
@@ -143,10 +145,15 @@ function GameCanvas(props) {
             // {...props} 
             />
 
-            <SkyBox
+            {theme == "Dark" && <SkyBox
                 position={[0, 0, 0]}
                 scale={500}
-            />
+            />}
+
+            {theme == "Light" && <SkyBoxCitySkyLine
+                position={[0, -30, 0]}
+                // scale={500}
+            />}
 
             <CornerBuildings
                 boardSize={boardSize}

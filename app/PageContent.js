@@ -19,6 +19,7 @@ import IsDev from '@/components/UI/IsDev';
 import { useSocketStore } from '@/hooks/useSocketStore';
 import { Box, Paper, Tooltip } from '@mui/material';
 import { useStore } from '@/hooks/useStore';
+import GameInfoModal from '@/components/UI/InfoModal';
 // import ArticlesSignInButton from '@/components/ArticlesSignInButton';
 
 const Ad = dynamic(() => import('@/components/ArticlesAd'), {
@@ -134,12 +135,12 @@ export default function BattleTrapLobbyPage(props) {
     return (
         <div className="battle-trap-lobby-page">
 
-            {/* {showInfoModal &&
-                <InfoModal
+            {showInfoModal &&
+                <GameInfoModal
                     show={showInfoModal}
                     setShow={setShowInfoModal}
                 />
-            } */}
+            }
 
             {showGameSetupModal &&
                 <GameSetupModal

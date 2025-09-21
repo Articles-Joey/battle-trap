@@ -5,11 +5,15 @@ import { Modal, Form } from "react-bootstrap"
 import ArticlesButton from "@/components/UI/Button";
 import Link from "next/link";
 import { useStore } from "@/hooks/useStore";
+import { usePathname } from "next/navigation";
 
 export default function GameSetupModal({
     show,
     setShow,
+    preventClose,
 }) {
+
+    const pathname = usePathname()
 
     const nickname = useStore((state) => state.nickname)
     const setNickname = useStore((state) => state.setNickname)
@@ -76,7 +80,6 @@ export default function GameSetupModal({
             //     })),
 
             // ])
-
 
         }
 
@@ -181,14 +184,24 @@ export default function GameSetupModal({
                 // centered
                 scrollable
                 onExited={() => {
+
+                    if (preventClose) {
+                        return
+                    }
+                    
                     setShow(false)
                 }}
                 onHide={() => {
+
+                    if (preventClose) {
+                        return
+                    }
+                    
                     setShowModal(false)
                 }}
             >
 
-                <Modal.Header closeButton>
+                <Modal.Header closeButton={pathname !== '/play' ? true : false}>
                     <Modal.Title>Game Setup</Modal.Title>
                 </Modal.Header>
 
@@ -549,14 +562,16 @@ export default function GameSetupModal({
 
                     <div>
 
-                        <ArticlesButton
-                            variant="outline-dark"
-                            onClick={() => {
-                                setShow(false)
-                            }}
-                        >
-                            Close
-                        </ArticlesButton>
+                        {pathname !== '/play' &&
+                            <ArticlesButton
+                                variant="outline-dark"
+                                onClick={() => {
+                                    setShow(false)
+                                }}
+                            >
+                                Close
+                            </ArticlesButton>
+                        }
 
                         <ArticlesButton
                             variant="outline-danger ms-3"

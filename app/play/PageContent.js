@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 
 import Link from 'next/link'
 import Image from 'next/image';
@@ -326,9 +326,21 @@ export default function BattleTrapGamePage(props) {
 
     }, [currentMoveCount]);
 
+    const currentPlayer = useMemo(() => {
+        return players[currentTurn]?.battleTrap
+    }, [players, currentTurn]);
+
     useEffect(() => {
 
         console.log("currentTurn changed and is now", currentTurn)
+
+        if (currentPlayer?.bot) {
+            console.log("It's a bot turn, set turn timeout")
+
+            const botTurnTimeout = setTimeout(() => {
+                console.log("Bot turn timeout")
+            }, 2000)
+        }
 
     }, [currentTurn]);
 
@@ -546,7 +558,10 @@ export default function BattleTrapGamePage(props) {
                     show={{
                         type: server,
                     }}
-                // setShow={}
+                    preventClose={true}
+                    setShow={() => {
+                        console.error("No leaving on play page!")
+                    }}
                 />
             }
 
@@ -606,17 +621,17 @@ export default function BattleTrapGamePage(props) {
             <div className='menu-card'>
 
                 {server == "single-player" &&
-                    <div className="card card-articles card-sm mb-2">
+                    <div className="d-none card card-articles card-sm mb-2">
 
                         <div className="card-body p-2">
 
-                            <div className='mb-2'>
+                            {/* <div className='mb-2'>
                                 Single Player - {`Red's`} Turn
-                            </div>
+                            </div> */}
 
                             <div>
 
-                                {players.map((player_obj, i) => <div
+                                {/* {players.map((player_obj, i) => <div
                                     key={`${player_obj}-${i}`}
                                     className="player open p-1"
                                 >
@@ -637,15 +652,15 @@ export default function BattleTrapGamePage(props) {
                                         Turn
                                     </ArticlesButton>
 
-                                </div>)}
+                                </div>)} */}
 
-                                <div>Red (You)</div>
+                                {/* <div>Red (You)</div>
                                 <div>Blue (Bot)</div>
                                 <div>Green (Bot)</div>
-                                <div>Yellow (Bot)</div>
-
+                                <div>Yellow (Bot)</div> */}
+                                {/* 
                                 <div>{gameState?.status == 'In Lobby' && 'In Lobby - Waiting for players'}</div>
-                                <div>{gameState?.status == 'In Progress' && 'In Progress - Your Turn'}</div>
+                                <div>{gameState?.status == 'In Progress' && 'In Progress - Your Turn'}</div> */}
 
                             </div>
 
@@ -655,7 +670,7 @@ export default function BattleTrapGamePage(props) {
                 }
 
                 {server == "local-play" &&
-                    <div className="card card-articles card-sm mb-2">
+                    <div className="d-none card card-articles card-sm mb-2">
 
                         <div className="card-body p-2">
 
@@ -691,32 +706,39 @@ export default function BattleTrapGamePage(props) {
 
                 <div className='d-flex mb-2'>
 
-                    <ArticlesButton
-                        className="flex-grow-1"
-                        disabled={
-                            gameState.status !== "In Lobby"
-                            ||
-                            (players?.length || 0) < 2
-                        }
-                        small
-                        onClick={() => {
+                    {
+                        (
+                            server !== "single-player"
+                            &&
+                            server !== "local-play"
+                        )
+                        &&
+                        <ArticlesButton
+                            className="flex-grow-1"
+                            disabled={
+                                gameState.status !== "In Lobby"
+                                ||
+                                (players?.length || 0) < 2
+                            }
+                            small
+                            onClick={() => {
 
-                            socket.emit('game:battle-trap:start-game', {
-                                server: server,
-                                settings: {}
-                            });
+                                socket.emit('game:battle-trap:start-game', {
+                                    server: server,
+                                    settings: {}
+                                });
 
-                        }}
-                    >
+                            }}
+                        >
 
-                        <i className="fad fa-play"></i>
-                        <span>Start Game</span>
+                            <i className="fad fa-play"></i>
+                            <span>Start Game</span>
 
-                        <span className="badge bg-dark ms-2">
-                            {`2+ Players`}
-                        </span>
+                            <span className="badge bg-dark ms-2">
+                                {`2+ Players`}
+                            </span>
 
-                    </ArticlesButton>
+                        </ArticlesButton>}
 
                     <IsDev>
                         <ArticlesButton
@@ -769,7 +791,7 @@ export default function BattleTrapGamePage(props) {
 
                 </div>
 
-                <div className='mb-2'>
+                <div className=''>
                     <ArticlesButton
                         className="w-50"
                         small
@@ -796,7 +818,7 @@ export default function BattleTrapGamePage(props) {
                     </ArticlesButton>
                 </div>
 
-                <div className='mb-2 d-flex'>
+                <div className='mb-3 d-flex'>
 
                     <div className='w-50'>
                         <DropdownButton
@@ -852,14 +874,115 @@ export default function BattleTrapGamePage(props) {
 
                 </div>
 
-                {/* Players */}
+
+
+                {/* Tile Moves */}
                 <div className="card card-articles card-sm mb-2">
+
+                    <div className="card-header flex-header">
+                        <div>Tile Moves</div>
+                        <span className='badge bg-dark'>
+                            <span>8 Left</span>
+                        </span>
+                    </div>
+
+                    <div className="card-body text-center">
+                        <div className='h3 mb-0'>
+
+                            {gameState.status == 'In Lobby' ?
+                                <span>Awaiting game start</span>
+                                :
+                                <Countdown
+                                    date={currentTurnCountdown}
+                                />
+                            }
+
+
+                        </div>
+                    </div>
+
+                </div>
+
+                {/* Dice Roll */}
+                <div className="card card-articles card-sm mb-2">
+
+                    <div className="card-header flex-header">
+
+                        <div className='d-flex justify-content-center align-items-center'>
+                            <span>Dice Roll</span>
+                        </div>
+
+                        <div>
+                            <span className='badge bg-dark'>
+                                <span>Moves: </span>
+
+                                <span>{gameState?.turn?.spaces}</span>
+                                <span>{currentMoveCount}</span>
+
+                                <span>/</span>
+
+                                <span>{currentRoll === false ? '?' : currentRoll}</span>
+
+                            </span>
+                            {/* <span className='badge bg-dark ms-2'>
+                                <span>{currentRoll || 0} Left</span>
+                            </span> */}
+                        </div>
+
+                    </div>
+
+                    <div className="card-body text-center">
+
+                        {currentRoll === false ? `${currentPlayer?.nickname} Please Roll` : currentRoll}
+
+                        {(gameState.status == 'In Lobby' && !gameState?.turn) &&
+                            <>
+                                <i className={`fal fa-dice-four fa-3x`}></i>
+                                <i className={`fal fa-dice-two fa-3x me-0`}></i>
+                            </>
+                        }
+
+                        <i className={`fal fa-dice-${diceNumbersToWords[gameState?.turn?.dice_one]} fa-3x`}></i>
+                        <i className={`fal fa-dice-${diceNumbersToWords[gameState?.turn?.dice_two]} fa-3x me-0`}></i>
+
+                    </div>
+
+                    <div className="card-footer d-flex justify-content-center align-items-center">
+
+                        {/* <ArticlesButton
+                            className="flex-grow-1"
+                            onClick={() => {
+                                rollDice()
+                            }}
+                        >
+                            <i className="fad fa-play"></i>
+                            <span>Auto</span>
+                            <span className="badge bg-dark ms-1">Off</span>
+                        </ArticlesButton> */}
+
+                        <ArticlesButton
+                            small
+                            className="flex-grow-1"
+                            onClick={() => {
+                                rollDice()
+                            }}
+                        >
+                            <i className="fad fa-play"></i>
+                            <span>Roll Dice</span>
+                        </ArticlesButton>
+
+                    </div>
+
+                </div>
+
+                {/* Players */}
+                <div className="card card-articles card-sm mb-2 mt-auto">
 
                     <div className="card-header flex-header">
 
                         <ArticlesButton
                             small
-                            className="py-0"
+                            className="py-1"
                             active={showPlayers}
                             onClick={() => {
                                 setShowPlayers(prev => !prev)
@@ -868,10 +991,20 @@ export default function BattleTrapGamePage(props) {
                             <i className="fad fa-eye me-0"></i>
                         </ArticlesButton>
 
-                        <span>Players</span>
+                        {/* <span>Players</span> */}
 
                         <span className='badge bg-dark'>
-                            <span>{players.length || 0}/4</span>
+
+                            <span className='me-2'>
+                                <i className="fad fa-users"></i>
+                                {players?.filter(player => !player.battleTrap?.bot)?.length}
+                            </span>
+
+                            <span>
+                                <i className="fad fa-robot"></i>
+                                {players?.filter(player => player.battleTrap?.bot)?.length}
+                            </span>
+
                         </span>
 
                     </div>
@@ -887,8 +1020,31 @@ export default function BattleTrapGamePage(props) {
 
                                     }}
                                 >
-                                    <i className="fad fa-user text-center" style={{ width: '30px' }}></i>
-                                    <h5 className='mb-0'>{player_obj?.battleTrap?.nickname || '?'}</h5>
+
+                                    <div className='d-flex align-items-center '>
+
+                                        {player_obj?.battleTrap?.bot ?
+                                            <i className="fad fa-robot text-center" style={{ width: '30px' }}></i>
+                                            :
+                                            <i className="fad fa-user text-center" style={{ width: '30px' }}></i>
+                                        }
+
+
+                                        <h5 className='mb-0'>{player_obj?.battleTrap?.nickname || '?'}</h5>
+
+                                    </div>
+
+                                    <ArticlesButton
+                                        small
+                                        active={i == currentTurn}
+                                        variant='warning'
+                                        onClick={() => {
+                                            setCurrentTurn(i)
+                                        }}
+                                    >
+                                        Turn
+                                    </ArticlesButton>
+
                                 </div>)}
 
                                 {/* {players.length < 4 && */}
@@ -937,6 +1093,12 @@ export default function BattleTrapGamePage(props) {
                                         <span className='mb-0'>Log Players</span>
                                     </ArticlesButton>
 
+                                    <div
+                                        className='w-50'
+                                    >
+                                        {/* Spacer */}
+                                    </div>
+
                                 </div>
                                 {/* } */}
 
@@ -947,99 +1109,6 @@ export default function BattleTrapGamePage(props) {
 
                         </div>
                     </>}
-
-                </div>
-
-                {/* Tile Moves */}
-                <div className="card card-articles card-sm mb-2 mt-auto">
-
-                    <div className="card-header flex-header">
-                        <div>Tile Moves</div>
-                        <span className='badge bg-dark'>
-                            <span>8 Left</span>
-                        </span>
-                    </div>
-
-                    <div className="card-body text-center">
-                        <div className='h3 mb-0'>
-
-                            {gameState.status == 'In Lobby' ?
-                                <span>Awaiting game start</span>
-                                :
-                                <Countdown
-                                    date={currentTurnCountdown}
-                                />
-                            }
-
-
-                        </div>
-                    </div>
-
-                </div>
-
-                {/* Dice Roll */}
-                <div className="card card-articles card-sm mb-2">
-
-                    <div className="card-header flex-header">
-
-                        <div className='d-flex justify-content-center align-items-center'>
-                            <span>Dice Roll</span>
-                        </div>
-
-                        <div>
-                            <span className='badge bg-dark'>
-                                <span>Moves: </span>
-                                <span>{gameState?.turn?.spaces}</span>
-                                <span>{currentMoveCount}</span>
-                            </span>
-                            <span className='badge bg-dark ms-2'>
-                                <span>{currentRoll || 0} Left</span>
-                            </span>
-                        </div>
-
-                    </div>
-
-                    <div className="card-body text-center">
-
-                        {currentRoll === false ? "Please Roll" : currentRoll}
-
-                        {(gameState.status == 'In Lobby' && !gameState?.turn) &&
-                            <>
-                                <i className={`fal fa-dice-four fa-3x`}></i>
-                                <i className={`fal fa-dice-two fa-3x me-0`}></i>
-                            </>
-                        }
-
-                        <i className={`fal fa-dice-${diceNumbersToWords[gameState?.turn?.dice_one]} fa-3x`}></i>
-                        <i className={`fal fa-dice-${diceNumbersToWords[gameState?.turn?.dice_two]} fa-3x me-0`}></i>
-
-                    </div>
-
-                    <div className="card-footer d-flex justify-content-center align-items-center">
-
-                        {/* <ArticlesButton
-                            className="flex-grow-1"
-                            onClick={() => {
-                                rollDice()
-                            }}
-                        >
-                            <i className="fad fa-play"></i>
-                            <span>Auto</span>
-                            <span className="badge bg-dark ms-1">Off</span>
-                        </ArticlesButton> */}
-
-                        <ArticlesButton
-                            small
-                            className="flex-grow-1"
-                            onClick={() => {
-                                rollDice()
-                            }}
-                        >
-                            <i className="fad fa-play"></i>
-                            <span>Roll</span>
-                        </ArticlesButton>
-
-                    </div>
 
                 </div>
 
