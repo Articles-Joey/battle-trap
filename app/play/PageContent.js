@@ -9,7 +9,7 @@ import { useSearchParams, useRouter, usePathname, useParams } from 'next/navigat
 // import BasicLoading from '@/components/loading/BasicLoading';
 import Countdown from 'react-countdown';
 import { add } from 'date-fns';
-import { Accordion, Card } from 'react-bootstrap';
+import { Accordion, Card, Dropdown, DropdownButton } from 'react-bootstrap';
 import ArticlesButton from '@/components/UI/Button';
 import useFullscreen from '@/hooks/useFullScreen';
 import { useHotkeys } from 'react-hotkeys-hook';
@@ -51,6 +51,11 @@ const GameCanvas = dynamic(() => import('@/components/Game/GameCanvas'), {
     ssr: false,
 });
 
+const GameSetupModal = dynamic(
+    () => import('@/components/UI/GameSetupModal'),
+    { ssr: false }
+)
+
 export default function BattleTrapGamePage(props) {
 
     const {
@@ -58,6 +63,12 @@ export default function BattleTrapGamePage(props) {
     } = useSocketStore(state => ({
         socket: state.socket,
     }));
+
+    const theme = useStore(state => state.theme);
+    const setTheme = useStore(state => state.setTheme);
+
+    const threeDimensional = useStore(state => state.threeDimensional);
+    const setThreeDimensional = useStore(state => state.setThreeDimensional);
 
     const localGameState = useStore(state => state.localGameState);
     const addSpace = useStore(state => state.addSpace);
@@ -72,6 +83,7 @@ export default function BattleTrapGamePage(props) {
     const setCurrentRoll = useStore(state => state.setCurrentRoll);
 
     const currentMoveCount = useStore(state => state.currentMoveCount);
+    const setCurrentMoveCount = useStore(state => state.setCurrentMoveCount)
     const incCurrentMoveCount = useStore(state => state.incCurrentMoveCount);
 
     const router = useRouter()
@@ -188,7 +200,7 @@ export default function BattleTrapGamePage(props) {
     function rollDice() {
 
         if (server == 'single-player' || server == 'local-play') {
-            
+
             setCurrentRoll(
                 Math.floor(Math.random() * 10)
             )
@@ -289,6 +301,42 @@ export default function BattleTrapGamePage(props) {
         };
 
     }, [server]);
+
+    useEffect(() => {
+
+        console.log("currentMoveCount changed", currentMoveCount)
+
+        if (
+            currentRoll == currentMoveCount
+            &&
+            currentMoveCount !== false
+        ) {
+            console.log("player is done with turn", currentMoveCount)
+            // Player is done with their turn
+
+            if (currentTurn == 3) {
+                setCurrentTurn(0)
+            } else {
+                setCurrentTurn(currentTurn + 1)
+            }
+
+            setCurrentRoll(false)
+            setCurrentMoveCount(0)
+        }
+
+    }, [currentMoveCount]);
+
+    useEffect(() => {
+
+        console.log("currentTurn changed and is now", currentTurn)
+
+    }, [currentTurn]);
+
+    useEffect(() => {
+
+
+
+    }, []);
 
     function handlePlayerMoveLogic(newSpaceData) {
 
@@ -407,7 +455,7 @@ export default function BattleTrapGamePage(props) {
 
         }
 
-    }, [localGameState, players, currentRoll]);
+    }, [localGameState, players, currentRoll, currentTurn]);
 
     useHotkeys('s', () => {
 
@@ -427,7 +475,7 @@ export default function BattleTrapGamePage(props) {
             x: players.find(player_obj => player_obj.id == socket.id).battleTrap?.x,
             y: players.find(player_obj => player_obj.id == socket.id).battleTrap?.y - 1
         });
-    });
+    }, [localGameState, players, currentRoll, currentTurn]);
 
     useHotkeys('a', () => {
 
@@ -447,7 +495,7 @@ export default function BattleTrapGamePage(props) {
             x: players.find(player_obj => player_obj.id == socket.id).battleTrap?.x - 1,
             y: players.find(player_obj => player_obj.id == socket.id).battleTrap?.y
         });
-    });
+    }, [localGameState, players, currentRoll, currentTurn]);
 
     useHotkeys('d', () => {
 
@@ -467,7 +515,7 @@ export default function BattleTrapGamePage(props) {
             x: players.find(player_obj => player_obj.id == socket.id).battleTrap?.x + 1,
             y: players.find(player_obj => player_obj.id == socket.id).battleTrap?.y
         });
-    });
+    }, [localGameState, players, currentRoll, currentTurn]);
 
     return (
         <div className={`battle-trap-game-page ${isFullscreen && 'fullscreen'}`} id={'battle-trap-game-page'}>
@@ -490,6 +538,15 @@ export default function BattleTrapGamePage(props) {
                 <InviteModal
                     show={showInviteModal}
                     setShow={setShowInviteModal}
+                />
+            }
+
+            {players.length == 0 &&
+                <GameSetupModal
+                    show={{
+                        type: server,
+                    }}
+                // setShow={}
                 />
             }
 
@@ -572,6 +629,7 @@ export default function BattleTrapGamePage(props) {
                                     <ArticlesButton
                                         small
                                         active={i == currentTurn}
+                                        variant='warning'
                                         onClick={() => {
                                             setCurrentTurn(i)
                                         }}
@@ -738,6 +796,62 @@ export default function BattleTrapGamePage(props) {
                     </ArticlesButton>
                 </div>
 
+                <div className='mb-2 d-flex'>
+
+                    <div className='w-50'>
+                        <DropdownButton
+                            variant="articles w-100"
+                            size='sm'
+                            id="dropdown-basic-button"
+                            className="dropdown-articles"
+                            title={
+                                <span>
+                                    <i className="fad fa-eyedropper"></i>
+                                    <span>Theme: {theme == "Dark" ? 'Dark' : 'Light'}</span>
+                                    {/* <span>{darkMode ? 'On' : 'Off'}</span> */}
+                                </span>
+                            }
+                        >
+
+                            <div style={{ maxHeight: '600px', overflowY: 'auto', width: '200px' }}>
+
+                                {[
+                                    true, false
+                                ]
+                                    .map(location =>
+                                        <Dropdown.Item
+                                            key={location}
+                                            onClick={() => {
+                                                // setDarkMode(location)
+                                                setTheme(theme == "Dark" ? "Light" : "Dark")
+                                            }}
+                                            className="d-flex justify-content-between"
+                                        >
+                                            {location ? 'Dark' : 'Light'}
+                                        </Dropdown.Item>
+                                    )}
+
+                            </div>
+
+                        </DropdownButton>
+                    </div>
+
+                    <ArticlesButton
+                        className="w-50"
+                        small
+                        onClick={() => {
+                            // setShowInfoModal({
+                            //     game: 'Battle Trap'
+                            // })
+                            setThreeDimensional(!threeDimensional)
+                        }}
+                    >
+                        <i className="fad fa-info-circle"></i>
+                        <span>{threeDimensional ? '3D Mode' : '2D Mode'}</span>
+                    </ArticlesButton>
+
+                </div>
+
                 {/* Players */}
                 <div className="card card-articles card-sm mb-2">
 
@@ -777,54 +891,54 @@ export default function BattleTrapGamePage(props) {
                                     <h5 className='mb-0'>{player_obj?.battleTrap?.nickname || '?'}</h5>
                                 </div>)}
 
-                                {players.length < 4 &&
-                                    <div className='d-flex justify-content-center flex-wrap'>
+                                {/* {players.length < 4 && */}
+                                <div className='d-flex justify-content-center flex-wrap'>
 
-                                        <ArticlesButton
-                                            small
-                                            className="w-50"
-                                            onClick={() => {
-                                                setShowBotModal(true)
-                                                // alert("TODO")
-                                                // setShowInviteModal({
-                                                //     type: 'Game',
-                                                //     game_name: 'Battle Trap',
-                                                //     server_id: server
-                                                // })
-                                            }}
-                                        >
-                                            <i className="fad fa-robot"></i>
-                                            <span className='mb-0'>Add Bot</span>
-                                        </ArticlesButton>
+                                    <ArticlesButton
+                                        small
+                                        className="w-50"
+                                        onClick={() => {
+                                            setShowBotModal(true)
+                                            // alert("TODO")
+                                            // setShowInviteModal({
+                                            //     type: 'Game',
+                                            //     game_name: 'Battle Trap',
+                                            //     server_id: server
+                                            // })
+                                        }}
+                                    >
+                                        <i className="fad fa-robot"></i>
+                                        <span className='mb-0'>Add Bot</span>
+                                    </ArticlesButton>
 
-                                        <ArticlesButton
-                                            small
-                                            className="w-50"
-                                            onClick={() => {
-                                                setShowInviteModal({
-                                                    type: 'Game',
-                                                    game_name: 'Battle Trap',
-                                                    server_id: server
-                                                })
-                                            }}
-                                        >
-                                            <i className="fad fa-user-plus"></i>
-                                            <span className='mb-0'>Invite Players</span>
-                                        </ArticlesButton>
+                                    <ArticlesButton
+                                        small
+                                        className="w-50"
+                                        onClick={() => {
+                                            setShowInviteModal({
+                                                type: 'Game',
+                                                game_name: 'Battle Trap',
+                                                server_id: server
+                                            })
+                                        }}
+                                    >
+                                        <i className="fad fa-user-plus"></i>
+                                        <span className='mb-0'>Invite Players</span>
+                                    </ArticlesButton>
 
-                                        <ArticlesButton
-                                            small
-                                            className="w-50"
-                                            onClick={() => {
-                                                console.log("Log Players", players)
-                                            }}
-                                        >
-                                            <i className="fad fa-users"></i>
-                                            <span className='mb-0'>Log Players</span>
-                                        </ArticlesButton>
+                                    <ArticlesButton
+                                        small
+                                        className="w-50"
+                                        onClick={() => {
+                                            console.log("Log Players", players)
+                                        }}
+                                    >
+                                        <i className="fad fa-users"></i>
+                                        <span className='mb-0'>Log Players</span>
+                                    </ArticlesButton>
 
-                                    </div>
-                                }
+                                </div>
+                                {/* } */}
 
                             </div>
                         </div>
@@ -929,7 +1043,8 @@ export default function BattleTrapGamePage(props) {
 
                 </div>
 
-                <Accordion defaultActiveKey={0} className='mt-auto'>
+                {/* TODO - Add 2D -  */}
+                {/* <Accordion defaultActiveKey={0} className='mt-auto'>
 
                     <Accordion.Item eventKey={1} className="card card-articles card-sm mb-1 mt-auto">
 
@@ -941,26 +1056,36 @@ export default function BattleTrapGamePage(props) {
 
                         <Accordion.Collapse eventKey={1}>
                             <Card.Body className="p-0" style={{ fontSize: '0.9rem' }}>
-                                <TwoDimensionalMap />                               
+                                <TwoDimensionalMap />
                             </Card.Body>
                         </Accordion.Collapse>
 
                     </Accordion.Item>
 
-                </Accordion>
+                </Accordion> */}
 
             </div>
 
             {/* Game Board */}
             <div className='game-content'>
 
-                <div className='canvas-three-wrap'>
-                    <GameCanvas
-                        gameState={gameState}
-                        server={server}
-                        players={players}
-                    />
-                </div>
+                {threeDimensional &&
+                    <div className='canvas-three-wrap'>
+                        <GameCanvas
+                            gameState={gameState}
+                            server={server}
+                            players={players}
+                        />
+                    </div>
+                }
+
+                {!threeDimensional &&
+                    <div className='canvas-two-dimensional-wrap'>
+                        <TwoDimensionalMap
+
+                        />
+                    </div>
+                }
 
             </div>
 

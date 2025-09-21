@@ -198,6 +198,8 @@ function Box(props) {
     const searchParams = useSearchParams()
     const searchParamsObject = Object.fromEntries(searchParams.entries());
 
+    const currentTurn = useStore(state => state.currentTurn);
+
     const {
         socket
     } = useSocketStore(state => ({
@@ -312,12 +314,19 @@ function Box(props) {
                     console.log(`Clicked here`)
                     console.log(clickableData)
 
+                    let currentPlayer = players[currentTurn]
+                    console.log("this is current player", currentPlayer)
+
+                    // Check if currentPlayer can make this move
+
+
                     if (searchParamsObject.server == "single-player") {
 
                         let newSpace = {
                             x: clickableData.x,
                             y: clickableData.y,
                             checked: {
+                                color: currentPlayer?.battleTrap?.color,
                                 move: (localGameState?.spaces?.length || 0) + 1,
                                 socket_id: 'socket_id_1',
                             }
@@ -328,7 +337,7 @@ function Box(props) {
                         // addSpace(newSpace)
                         addSpace({
                             space: newSpace,
-                            player_color: 'red'
+                            player_color: currentPlayer?.battleTrap?.color
                         })
 
                     }

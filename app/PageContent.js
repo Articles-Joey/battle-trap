@@ -18,6 +18,7 @@ import useFullscreen from '@/hooks/useFullScreen';
 import IsDev from '@/components/UI/IsDev';
 import { useSocketStore } from '@/hooks/useSocketStore';
 import { Box, Paper, Tooltip } from '@mui/material';
+import { useStore } from '@/hooks/useStore';
 // import ArticlesSignInButton from '@/components/ArticlesSignInButton';
 
 const Ad = dynamic(() => import('@/components/ArticlesAd'), {
@@ -60,9 +61,11 @@ export default function BattleTrapLobbyPage(props) {
     const setConnected = useSocketStore((state) => state.setConnected)
 
     // const userReduxState = useSelector((state) => state.auth.user_details)
-    const userReduxState = false
+    // const userReduxState = false
 
-    const [nickname, setNickname] = useLocalStorageNew("game:nickname", userReduxState.display_name)
+    const nickname = useStore((state) => state.nickname)
+    const setNickname = useStore((state) => state.setNickname)
+    // const [nickname, setNickname] = useLocalStorageNew("game:nickname", userReduxState.display_name)
 
     const [character, setCharacter] = useLocalStorageNew("game:battle-trap:character", {})
 

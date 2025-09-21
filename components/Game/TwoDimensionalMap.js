@@ -44,19 +44,19 @@ export default function TwoDimensionalMap() {
         context.stroke();
 
         context.fillStyle = '#38FF12';
-        context.fillRect(7.5, 7.5, (15 * 7), 15);
+        context.fillRect((bw - (20)), (bh - (20)), (15), (15 * 1));
 
         context.fillStyle = '#FDFF00';
-        context.fillRect(7.5, (7.5 * 5), (15 * 14), (15));
+        context.fillRect(7.5, 7.5, (15 * 1), 15);        
 
         context.fillStyle = '#001eff';
         // context.rotate(180 * Math.PI / 180);
-        context.fillRect((bw - 21), (bh - (21 * 15.3)), (15), (15 * 21));
+        context.fillRect((bw - 21), (bh - (21 * 28.2)), (15), (15 * 1));
 
         // context.rotate(0);
 
-        context.fillStyle = '#FF8001';
-        context.fillRect((7.5), (bh - 21), (15 * 28), (15));
+        context.fillStyle = '#ff0101';
+        context.fillRect((7.5), (bh - 21), (15 * 1), (15));
 
     }
 

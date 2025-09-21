@@ -8,8 +8,14 @@ export const useStore = create()(
       theme: null, // 'Light' | 'Dark' | null
       setTheme: (theme) => set({ theme }),
 
+      threeDimensional: true, // 'Light' | 'Dark' | null
+      setThreeDimensional: (threeDimensional) => set({ threeDimensional }),
+
       // darkMode: true,
       // toggleDarkMode: () => set({ darkMode: !get().darkMode }),
+
+      nickname: '',
+      setNickname: (nickname) => set({ nickname }),
 
       players: [],
       setPlayers: (players) => set({ players }),
@@ -37,40 +43,8 @@ export const useStore = create()(
         localPlayPlayerCount: 2,
         gameStarted: false,
         // currentTurn: 0,
-        spaces: [
-          {
-            x: 0,
-            y: 0,
-            checked: {
-              move: 1,
-              socket_id: 'socket_id_1',
-            }
-          },
-          {
-            x: 2,
-            y: 2,
-            checked: {
-              move: 1,
-              socket_id: 'socket_id_1',
-            }
-          },
-          {
-            x: 3,
-            y: 2,
-            checked: {
-              move: 2,
-              socket_id: 'socket_id_1',
-            }
-          },
-          {
-            x: 4,
-            y: 2,
-            checked: {
-              move: 3,
-              socket_id: 'socket_id_1',
-            }
-          }
-        ]
+        // Note - Spaces gets initialized more when game starts in useEffect
+        spaces: []
       },
 
       localGameState: false,
@@ -123,6 +97,7 @@ export const useStore = create()(
       // storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
       partialize: (state) => ({
         theme: state.theme,
+        nickname: state.nickname,
         // defaultLocalGameState: state.defaultLocalGameState,
       }),
     },
