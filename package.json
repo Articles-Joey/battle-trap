@@ -4,8 +4,8 @@
   "private": false,
   "homepage": "https://battle-trap.articles.media",
   "scripts": {
-    "dev": "next dev -p 3014",
-    "build": "next build",
+    "dev": "next dev --webpack -p 3014",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "next lint"
   },
@@ -35,6 +35,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "babel-plugin-react-compiler": "^1.0.0",
     "eslint": "^9",
     "eslint-config-next": "^16"
   }
