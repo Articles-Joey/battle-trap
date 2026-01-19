@@ -1,5 +1,5 @@
 import Image from "next/image";
-import styles from "./page.module.css";
+// import styles from "./page.module.css";
 import Link from "next/link";
 import { Box, Typography } from "@mui/material";
 import GitHubIcon from '@mui/icons-material/GitHub';

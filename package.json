@@ -4,39 +4,41 @@
   "private": false,
   "homepage": "https://battle-trap.articles.media",
   "scripts": {
-    "dev": "next dev --webpack -p 3014",
-    "build": "next build --webpack",
+    "dev": "next dev -p 3014",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@articles-media/articles-dev-box": "^1.0.11",
+    "@articles-media/articles-gamepad-helper": "^0.0.3",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@mui/icons-material": "^7.3.6",
-    "@mui/material": "^7.3.6",
-    "@mui/material-nextjs": "^7.3.6",
+    "@mui/icons-material": "^7.3.7",
+    "@mui/material": "^7.3.7",
+    "@mui/material-nextjs": "^7.3.7",
     "@react-three/drei": "^10.5.0",
     "@react-three/fiber": "^9.2.0",
     "axios": "^1.13.2",
     "bootstrap": "^5.3.8",
     "classnames": "^2.5.1",
     "date-fns": "^4.1.0",
-    "next": "^16",
+    "next": "^15.5.9",
     "qrcode.react": "^4.2.0",
-    "react": "^19",
+    "react": "^19.2.3",
     "react-bootstrap": "^2.10.10",
     "react-countdown": "^2.3.6",
-    "react-dom": "^19",
+    "react-dom": "^19.2.3",
     "react-hotkeys-hook": "^5.1.0",
     "sass": "^1.95.0",
     "socket.io-client": "^4.8.1",
-    "swr": "^2.3.6",
+    "swr": "^2.3.8",
     "three": "^0.178.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "babel-plugin-react-compiler": "^1.0.0",
     "eslint": "^9",
-    "eslint-config-next": "^16"
+    "eslint-config-next": "^15.5.9"
   }
 }

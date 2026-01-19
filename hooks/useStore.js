@@ -8,6 +8,9 @@ export const useStore = create()(
       theme: null, // 'Light' | 'Dark' | null
       setTheme: (theme) => set({ theme }),
 
+      darkMode: null,
+      setDarkMode: (darkMode) => set({ darkMode }),
+
       updateCamera: null,
       setUpdateCamera: (updateCamera) => set({ updateCamera }),
 
@@ -19,6 +22,22 @@ export const useStore = create()(
 
       nickname: '',
       setNickname: (nickname) => set({ nickname }),
+
+      showInfoModal: false,
+      setShowInfoModal: (value) => set({ showInfoModal: value }),
+      toggleInfoModal: () => set({ showInfoModal: !get().showInfoModal }),
+
+      loginInfoModal: false,
+      setLoginInfoModal: (value) => set({ loginInfoModal: value }),
+      toggleLoginInfoModal: () => set({ loginInfoModal: !get().loginInfoModal }),
+
+      showSettingsModal: false,
+      setShowSettingsModal: (value) => set({ showSettingsModal: value }),
+      toggleSettingsModal: () => set({ showSettingsModal: !get().showSettingsModal }),
+
+      showCreditsModal: false,
+      setShowCreditsModal: (value) => set({ showCreditsModal: value }),
+      toggleCreditsModal: () => set({ showCreditsModal: !get().showCreditsModal }),
 
       players: [],
       setPlayers: (players) => set({ players }),
@@ -101,6 +120,8 @@ export const useStore = create()(
       partialize: (state) => ({
         theme: state.theme,
         nickname: state.nickname,
+        darkMode: state.darkMode,
+        threeDimensional: state.threeDimensional,
         // defaultLocalGameState: state.defaultLocalGameState,
       }),
     },

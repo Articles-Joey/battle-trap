@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect, useContext, useRef } from 'react';
+import { useState, useEffect, useContext, useRef, Suspense } from 'react';
 
 import Link from 'next/link'
 import Image from 'next/image';
@@ -22,9 +22,9 @@ import { useStore } from '@/hooks/useStore';
 import GameInfoModal from '@/components/UI/InfoModal';
 // import ArticlesSignInButton from '@/components/ArticlesSignInButton';
 
-const Ad = dynamic(() => import('@/components/ArticlesAd'), {
-    ssr: false,
-});
+// const Ad = dynamic(() => import('@/components/ArticlesAd'), {
+//     ssr: false,
+// });
 
 const ArticlesModal = dynamic(() => import('@/components/UI/ArticlesModal'), {
     ssr: false,
@@ -53,6 +53,20 @@ const RenderModel = dynamic(() => import('@/components/Game/RenderModel'), {
     ssr: false,
 });
 
+import GameScoreboard from '@articles-media/articles-dev-box/GameScoreboard';
+import Ad from '@articles-media/articles-dev-box/Ad';
+
+import useUserDetails from '@articles-media/articles-dev-box/useUserDetails';
+import useUserToken from '@articles-media/articles-dev-box/useUserToken';
+import { PieMenu } from '@articles-media/articles-gamepad-helper';
+
+const ReturnToLauncherButton = dynamic(() =>
+    import('@articles-media/articles-dev-box/ReturnToLauncherButton'),
+    { ssr: false }
+);
+
+const game_name = "Battle Trap";
+
 export default function BattleTrapLobbyPage(props) {
 
     const socket = useSocketStore((state) => state.socket)
@@ -64,6 +78,7 @@ export default function BattleTrapLobbyPage(props) {
     // const userReduxState = useSelector((state) => state.auth.user_details)
     // const userReduxState = false
 
+    const darkMode = useStore((state) => state.darkMode);
     const nickname = useStore((state) => state.nickname)
     const setNickname = useStore((state) => state.setNickname)
     // const [nickname, setNickname] = useLocalStorageNew("game:nickname", userReduxState.display_name)
@@ -79,8 +94,17 @@ export default function BattleTrapLobbyPage(props) {
 
     const [viewerRefreshKey, setViewerRefreshKey] = useState(0)
 
-    const [showInfoModal, setShowInfoModal] = useState(false)
-    const [showSettingsModal, setShowSettingsModal] = useState(false)
+    // const [showInfoModal, setShowInfoModal] = useState(false)
+    // const [showSettingsModal, setShowSettingsModal] = useState(false)
+
+    // const showInfoModal = useStore((state) => state.showInfoModal)
+    const setShowInfoModal = useStore((state) => state.setShowInfoModal)
+
+    // const showSettingsModal = useStore((state) => state.showSettingsModal)
+    const setShowSettingsModal = useStore((state) => state.setShowSettingsModal)
+
+    // const showCreditsModal = useStore((state) => state.showCreditsModal)
+    const setShowCreditsModal = useStore((state) => state.setShowCreditsModal)
 
     const [showGameSetupModal, setShowGameSetupModal] = useState(false)
 
@@ -132,15 +156,81 @@ export default function BattleTrapLobbyPage(props) {
 
     }, [socket.connected]);
 
+    const {
+        data: userToken,
+        error: userTokenError,
+        isLoading: userTokenLoading,
+        mutate: userTokenMutate
+    } = useUserToken(
+        "3014"
+    );
+
+    const {
+        data: userDetails,
+        error: userDetailsError,
+        isLoading: userDetailsLoading,
+        mutate: userDetailsMutate
+    } = useUserDetails({
+        token: userToken
+    });
+
     return (
         <div className="battle-trap-lobby-page">
 
-            {showInfoModal &&
+            <Suspense>
+                <PieMenu
+                    options={[
+                        {
+                            label: 'Settings',
+                            icon: 'fad fa-cog',
+                            callback: () => {
+                                setShowSettingsModal(prev => !prev)
+                            }
+                        },
+                        {
+                            label: 'Go Back',
+                            icon: 'fad fa-arrow-left',
+                            callback: () => {
+                                window.history.back()
+                            }
+                        },
+                        {
+                            label: 'Credits',
+                            icon: 'fad fa-info-circle',
+                            callback: () => {
+                                setShowCreditsModal(true)
+                            }
+                        },
+                        {
+                            label: 'Game Launcher',
+                            icon: 'fad fa-gamepad',
+                            callback: () => {
+                                window.location.href = 'https://games.articles.media';
+                            }
+                        },
+                        {
+                            label: `${darkMode ? "Light" : "Dark"} Mode`,
+                            icon: 'fad fa-palette',
+                            callback: () => {
+                                toggleDarkMode()
+                            }
+                        }
+                    ]}
+                    onFinish={(event) => {
+                        console.log("Event", event)
+                        if (event.callback) {
+                            event.callback()
+                        }
+                    }}
+                />
+            </Suspense>
+
+            {/* {showInfoModal &&
                 <GameInfoModal
                     show={showInfoModal}
                     setShow={setShowInfoModal}
                 />
-            }
+            } */}
 
             {showGameSetupModal &&
                 <GameSetupModal
@@ -149,12 +239,12 @@ export default function BattleTrapLobbyPage(props) {
                 />
             }
 
-            {showSettingsModal &&
+            {/* {showSettingsModal &&
                 <SettingsModal
                     show={showSettingsModal}
                     setShow={setShowSettingsModal}
                 />
-            }
+            } */}
 
             {showEditBikeModal &&
                 <ArticlesModal
@@ -284,7 +374,10 @@ export default function BattleTrapLobbyPage(props) {
                 />
             </div>
 
-            <div className="container py-3 py-lg-5" data-theme="Dark">
+            <div
+                className="container py-3 py-lg-5"
+                data-theme="Dark"
+            >
 
                 <div className="mb-3 mb-lg-5 mx-auto" style={{ "maxWidth": "800px" }}>
 
@@ -317,9 +410,7 @@ export default function BattleTrapLobbyPage(props) {
                             small
                             className="mx-0"
                             onClick={() => {
-                                setShowInfoModal({
-                                    game: 'Battle Trap'
-                                })
+                                setShowInfoModal(true)
                             }}
                         >
                             <i className="fad fa-info-circle"></i>
@@ -330,13 +421,22 @@ export default function BattleTrapLobbyPage(props) {
                             small
                             className="mx-0"
                             onClick={() => {
-                                setShowSettingsModal({
-                                    game: 'Battle Trap'
-                                })
+                                setShowSettingsModal(true)
                             }}
                         >
                             <i className="fad fa-cog"></i>
                             Settings
+                        </ArticlesButton>
+
+                        <ArticlesButton
+                            small
+                            className="mx-0"
+                            onClick={() => {
+                                setShowCreditsModal(true)
+                            }}
+                        >
+                            <i className="fad fa-cog"></i>
+                            Credits
                         </ArticlesButton>
 
                         {/* <ArticlesButton
@@ -831,12 +931,27 @@ export default function BattleTrapLobbyPage(props) {
 
                 </div>
 
+                <div className='d-flex justify-content-center align-items-center'>
+                    <div style={{ width: '300px' }}><ReturnToLauncherButton /></div>
+                </div>
+
             </div>
 
-            <div className="ad-wrap">
-                {/* TODO - Ad Script */}
-                <Ad section={"Games"} section_id={'Four Frogs'} />
-            </div>
+            <GameScoreboard
+                game="Catching Game"
+                style="Default"
+                darkMode={darkMode ? true : false}
+            />
+
+            <Ad
+                style="Default"
+                section={"Games"}
+                section_id={game_name}
+                darkMode={darkMode ? true : false}
+                user_ad_token={userToken}
+                userDetails={userDetails}
+                userDetailsLoading={userDetailsLoading}
+            />
 
         </div>
     )

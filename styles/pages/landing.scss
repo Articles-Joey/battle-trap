@@ -31,15 +31,28 @@
         color: white;
     }
 
+    // .ad-wrap {
+    //     margin-top: 50px;
+
+    //     @include media-breakpoint-up(lg) {
+    //         position: absolute;
+    //         right: 0.5rem;
+    //         top: 50%;
+    //         transform: translateY(-50%);
+    //         margin-top: 50px;
+    //     }
+    // }
+
     .ad-wrap {
-        margin-top: 50px;
+        position: fixed;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+
+        display: none;
 
         @include media-breakpoint-up(lg) {
-            position: absolute;
-            right: 0.5rem;
-            top: 50%;
-            transform: translateY(-50%);
-            margin-top: 50px;
+            display: block;
         }
     }
 
