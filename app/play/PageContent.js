@@ -70,6 +70,9 @@ export default function BattleTrapGamePage(props) {
     const threeDimensional = useStore(state => state.threeDimensional);
     const setThreeDimensional = useStore(state => state.setThreeDimensional);
 
+    const nickname = useStore(state => state.nickname);
+    const character = useStore(state => state.character);
+
     const localGameState = useStore(state => state.localGameState);
     const addSpace = useStore(state => state.addSpace);
 
@@ -288,8 +291,9 @@ export default function BattleTrapGamePage(props) {
             socket.emit('join-room', `game:battle-trap-room-${server}`, {
                 client_version: '1',
                 game_id: server,
-                character: JSON.parse(localStorage.getItem('game:battle-trap:character')),
-                nickname: JSON.parse(localStorage.getItem('game:nickname'))
+                character: character,
+                nickname: nickname,
+                // nickname: JSON.parse(localStorage.getItem('game:nickname'))
             });
         }
 

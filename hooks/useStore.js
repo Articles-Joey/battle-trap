@@ -11,6 +11,54 @@ export const useStore = create()(
       darkMode: null,
       setDarkMode: (darkMode) => set({ darkMode }),
 
+      characters: [
+        {
+          name: 'Low Poly Chopper',
+          model: 'low_poly_chopper.glb',
+          description: "Default bike.",
+          supportedCustomizations: ['primaryColor']
+        },
+        // {
+        //     name: 'Dirt Bike',
+        //     description: "Win one game to unlock."
+        // },
+        {
+          name: 'Low Poly Scooter',
+          model: 'low_poly_scooter.glb',
+          description: "Win two games to unlock.",
+          supportedCustomizations: ['primaryColor']
+        },
+        {
+          name: 'Low Poly Tricycle',
+          model: 'low_poly_tricycle.glb',
+          description: "Win three games to unlock.",
+          supportedCustomizations: ['primaryColor']
+        },
+        {
+          name: 'Low Poly Unicycle',
+          model: 'low_poly_unicycle.glb',
+          description: "Win four games to unlock.",
+          supportedCustomizations: ['primaryColor']
+        },
+        {
+          name: 'Toilet Tricycle',
+          model: 'toilet_tricycle.glb',
+          description: "Win five games to unlock.",
+          supportedCustomizations: ['primaryColor']
+        },
+        // {
+        //     name: 'Light Bike',
+        //     description: "Win three games to unlock."
+        // }
+      ],
+      character: {
+        model: "low_poly_chopper.glb",
+        customizations: {
+          primaryColor: "#000000",
+        }
+      },
+      setCharacter: (character) => set({ character }),
+
       updateCamera: null,
       setUpdateCamera: (updateCamera) => set({ updateCamera }),
 
@@ -20,6 +68,13 @@ export const useStore = create()(
       // darkMode: true,
       // toggleDarkMode: () => set({ darkMode: !get().darkMode }),
 
+      randomNickname: () => {
+        const adjectives = ['Swift', 'Brave', 'Cunning', 'Mighty', 'Sneaky', 'Fierce', 'Nimble', 'Sly'];
+        const animals = ['Tiger', 'Eagle', 'Shark', 'Panther', 'Wolf', 'Falcon', 'Dragon', 'Leopard'];
+        const adjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+        const animal = animals[Math.floor(Math.random() * animals.length)];
+        return `${adjective}${animal}${Math.floor(Math.random() * 1000)}`;
+      },
       nickname: '',
       setNickname: (nickname) => set({ nickname }),
 
@@ -111,7 +166,13 @@ export const useStore = create()(
         const newSpaces = [...localGameState?.spaces, space];
         set({ localGameState: { ...localGameState, spaces: newSpaces } });
 
-      }
+      },
+
+      lobbyDetails: {
+        players: [],
+        games: [],
+      },
+      setLobbyDetails: (lobbyDetails) => set({ lobbyDetails }),
 
     }),
     {

@@ -275,7 +275,7 @@ function GameCanvas(props) {
 
                     let axis;
 
-                    console.log(gameState?.spaces?.flat())
+                    // console.log(gameState?.spaces?.flat())
 
                     let lastMove = (gameState.move - 2)
 

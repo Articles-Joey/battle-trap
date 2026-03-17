@@ -12,6 +12,8 @@ import "@/styles/index.scss";
 
 import "@articles-media/articles-dev-box/dist/style.css";
 
+import "@articles-media/articles-gamepad-helper/dist/style.css";
+
 import SocketLogicHandler from "@/components/SocketLogicHandler";
 import LayoutClient from "@/app/layout-client";
 import DarkModeHandler from "@/components/UI/DarkModeHandler";

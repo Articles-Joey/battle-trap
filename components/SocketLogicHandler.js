@@ -13,6 +13,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import axios from "axios";
 
 import { useSocketStore } from "@/hooks/useSocketStore";
+import { useStore } from '@/hooks/useStore';
 
 // SocketContextControl
 export default function SocketLogicHandler(props) {
@@ -21,6 +22,11 @@ export default function SocketLogicHandler(props) {
     const pathname = usePathname()
 
     // const userReduxState = useSelector((state) => state.auth.user_details)
+
+    const nickname = useStore((state) => state.nickname)
+
+    const lobbyDetails = useStore((state) => state.lobbyDetails)
+    const setLobbyDetails = useStore((state) => state.setLobbyDetails)
 
     const socket = useSocketStore((state) => state.socket)
     const connectSocket = useSocketStore((state) => state.connectSocket)
@@ -84,7 +90,7 @@ export default function SocketLogicHandler(props) {
         // Makes sure connect is only called once during reactStrictMode
         if (!initialized.current) {
             initialized.current = true
-            // connectSocket()
+            connectSocket()
         }
 
         // if (!socket.connected) return
@@ -129,6 +135,14 @@ export default function SocketLogicHandler(props) {
             console.log("[📶Socket] roomsList", value);
         });
 
+        socket.on('game:battle-trap-landing-details', function (msg) {
+            console.log('game:battle-trap-landing-details', msg)
+
+            if (JSON.stringify(msg) !== JSON.stringify(lobbyDetails)) {
+                setLobbyDetails(msg)
+            }
+        });
+
         socket.emit('getUserCount');
 
         socket.on('userCount', userCount);
@@ -148,6 +162,14 @@ export default function SocketLogicHandler(props) {
         };
 
     }, [socket]);
+
+    useEffect(() => {
+
+        if (connected) {
+            socket.emit("nickname", nickname)
+        }
+
+    }, [nickname])
 
     useEffect(() => {
 

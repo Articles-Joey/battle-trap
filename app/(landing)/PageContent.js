@@ -83,7 +83,10 @@ export default function BattleTrapLobbyPage(props) {
     const setNickname = useStore((state) => state.setNickname)
     // const [nickname, setNickname] = useLocalStorageNew("game:nickname", userReduxState.display_name)
 
-    const [character, setCharacter] = useLocalStorageNew("game:battle-trap:character", {})
+    // const [character, setCharacter] = useLocalStorageNew("game:battle-trap:character", {})
+    const characters = useStore((state) => state.characters)
+    const character = useStore((state) => state.character)
+    const setCharacter = useStore((state) => state.setCharacter)
 
     const { isFullscreen, requestFullscreen, exitFullscreen } = useFullscreen();
 
@@ -108,10 +111,11 @@ export default function BattleTrapLobbyPage(props) {
 
     const [showGameSetupModal, setShowGameSetupModal] = useState(false)
 
-    const [lobbyDetails, setLobbyDetails] = useState({
-        players: [],
-        games: [],
-    })
+    // const [lobbyDetails, setLobbyDetails] = useState({
+    //     players: [],
+    //     games: [],
+    // })
+    const lobbyDetails = useStore((state) => state.lobbyDetails)
 
     const [autoRotate, setAutoRotate] = useState(true)
 
@@ -129,16 +133,16 @@ export default function BattleTrapLobbyPage(props) {
         //     console.log("Is user")
         // }
 
-        socket.on('game:battle-trap-landing-details', function (msg) {
-            console.log('game:battle-trap-landing-details', msg)
+        // socket.on('game:battle-trap-landing-details', function (msg) {
+        //     console.log('game:battle-trap-landing-details', msg)
 
-            if (JSON.stringify(msg) !== JSON.stringify(lobbyDetails)) {
-                setLobbyDetails(msg)
-            }
-        });
+        //     if (JSON.stringify(msg) !== JSON.stringify(lobbyDetails)) {
+        //         setLobbyDetails(msg)
+        //     }
+        // });
 
         return () => {
-            socket.off('game:battle-trap-landing-details');
+            // socket.off('game:battle-trap-landing-details');
             socket.emit('leave-room', 'game:battle-trap-landing')
         };
 
@@ -273,41 +277,7 @@ export default function BattleTrapLobbyPage(props) {
                     <div className="fw-bold">Bike Types</div>
 
                     <div className=''>
-                        {[
-                            {
-                                name: 'Low Poly Chopper',
-                                model: 'low_poly_chopper.glb',
-                                description: "Default bike."
-                            },
-                            // {
-                            //     name: 'Dirt Bike',
-                            //     description: "Win one game to unlock."
-                            // },
-                            {
-                                name: 'Low Poly Scooter',
-                                model: 'low_poly_scooter.glb',
-                                description: "Win two games to unlock."
-                            },
-                            {
-                                name: 'Low Poly Tricycle',
-                                model: 'low_poly_tricycle.glb',
-                                description: "Win three games to unlock."
-                            },
-                            {
-                                name: 'Low Poly Unicycle',
-                                model: 'low_poly_unicycle.glb',
-                                description: "Win four games to unlock."
-                            },
-                            {
-                                name: 'Toilet Tricycle',
-                                model: 'toilet_tricycle.glb',
-                                description: "Win five games to unlock."
-                            },
-                            // {
-                            //     name: 'Light Bike',
-                            //     description: "Win three games to unlock."
-                            // }
-                        ].map(bike_obj => {
+                        {characters.map(bike_obj => {
                             return (
                                 <div key={bike_obj.name} className='d-flex align-items-start mb-2'>
 
@@ -729,9 +699,12 @@ export default function BattleTrapLobbyPage(props) {
                                 <Paper key={id} className="server flex-row flex-header border border-white p-2">
 
                                     <div>
-                                        <div className='d-flex justify-content-between align-items-center w-100 mb-2'>
+
+                                        <div className='d-flex justify-content-between align-items-center w-100'>
                                             <div className="mb-0" style={{ fontSize: '0.9rem' }}><b>Server {id}</b></div>
                                         </div>
+
+                                        <div className="mb-0" style={{ fontSize: '0.9rem' }}><b>Status: {game_lookup?.status || "Empty"}</b></div>
 
                                         <div className='d-flex'>
                                             <div className='d-flex justify-content-start'>
