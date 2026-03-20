@@ -5,6 +5,7 @@ import { DoubleSide, Vector3 } from 'three';
 import { useSocketStore } from '@/hooks/useSocketStore';
 import { useStore } from '@/hooks/useStore';
 import { useSearchParams } from 'next/navigation';
+import usePlayerMoveLogic from '@/hooks/usePlayerMoveLogic';
 
 const SquareWithLines = (props) => {
 
@@ -238,18 +239,20 @@ function Box(props) {
         }
 
         if (checked) {
-            setCalculatedColor(colorLookup)
             setCalculatedColor('#333333')
+            return
+        }
+
+        if (clickable) {
+            setCalculatedColor('#002200')
             return
         }
 
         setCalculatedColor('#000000')
 
-    }, [checked, hovered])
+    }, [checked, hovered, clickable])
 
-    const localGameState = useStore(state => state.localGameState);
-    const setLocalGameState = useStore(state => state.setLocalGameState);
-    const addSpace = useStore(state => state.addSpace);
+    const handlePlayerMove = usePlayerMoveLogic(server);
 
     // Subscribe this component to the render-loop, rotate the mesh every frame
     // useFrame((state, delta) => (ref.current.rotation.x += 0.01))
@@ -317,40 +320,30 @@ function Box(props) {
                     let currentPlayer = players[currentTurn]
                     console.log("this is current player", currentPlayer)
 
-                    // Check if currentPlayer can make this move
+                    const currentPlay = currentPlayer?.battleTrap;
+                    if (!currentPlay) return;
 
+                    const dx = clickableData.x - currentPlay.x;
+                    const dy = clickableData.y - currentPlay.y;
 
-                    if (searchParamsObject.server == "single-player") {
-
-                        let newSpace = {
-                            x: clickableData.x,
-                            y: clickableData.y,
-                            checked: {
-                                color: currentPlayer?.battleTrap?.color,
-                                move: (localGameState?.spaces?.length || 0) + 1,
-                                socket_id: 'socket_id_1',
-                            }
-                        }
-
-                        console.log("single-player", newSpace)
-
-                        // addSpace(newSpace)
-                        addSpace({
-                            space: newSpace,
-                            player_color: currentPlayer?.battleTrap?.color
-                        })
-
+                    if (Math.abs(dx) + Math.abs(dy) !== 1) {
+                        alert("Too far away! You can only move one space at a time.");
+                        return;
                     }
 
-                    if (searchParamsObject.server == "local-play") {
-                        console.log("local-play")
+                    const targetOccupied = flatSpaces?.some(s => s.x == clickableData.x && s.y == clickableData.y && s.checked);
+                    if (targetOccupied) {
+                        alert("A wall is there! That space is already occupied.");
+                        return;
                     }
 
-                    socket.emit('game:battle-trap-move', {
-                        game_id: server,
-                        x: clickableData.x,
-                        y: clickableData.y
-                    });
+                    handlePlayerMove({ x: dx, y: dy })
+
+                    // socket.emit('game:battle-trap-move', {
+                    //     game_id: server,
+                    //     x: clickableData.x,
+                    //     y: clickableData.y
+                    // });
 
                     return
 
@@ -383,6 +376,10 @@ function GameGrid(props) {
     const { gameState, player, move, boardSize, server, players } = props
     const { spaces } = gameState
 
+    const currentTurn = useStore(state => state.currentTurn);
+    const activePlayer = players[currentTurn]?.battleTrap;
+    const flatSpaces = spaces?.flat() || [];
+
     let starRows = []
 
     for (var i = 0; i < boardSize; i++) {
@@ -405,7 +402,10 @@ function GameGrid(props) {
             let usedMysteryLookup
             // let usedMysteryLookup = gameState?.used_mystery_spots?.find((spot_player) => (spot_player?.race_game?.row == (i + 1)))
 
-            let clickable = false
+            const adx = i - (activePlayer?.x ?? -99);
+            const ady = j - (activePlayer?.y ?? -99);
+            const isOccupied = flatSpaces.some(s => s.x == i && s.y == j && s.checked);
+            const clickable = Math.abs(adx) + Math.abs(ady) === 1 && !isOccupied;
             // if (
             //     player?.battleTrap?.row == (i + 1)
             //     &&
@@ -434,9 +434,7 @@ function GameGrid(props) {
                     server={server}
                     players={players}
                     box_index={j}
-                    // color={
-                    //     (edgeTile) ? 'rgb(160, 120, 73)' : (clickable ? 'rgb(19, 197, 197)' : ((hasMysteryLookup && !usedMysteryLookup) ? 'rgb(255, 193, 7)' : ''))
-                    // }
+                    color={clickable ? 'lime' : undefined}
                     clickable={clickable}
                     clickableData={{
                         x: i,
@@ -451,7 +449,7 @@ function GameGrid(props) {
                     user_color={
                         spaces?.flat()?.find(space_obj => (space_obj.x == i && space_obj.y == j && space_obj.checked))?.checked?.socket_id
                     }
-                    flatSpaces={spaces?.flat()}
+                    flatSpaces={flatSpaces}
                 // hasMystery={hasMysteryLookup}
                 // usedMysteryLookup={usedMysteryLookup}
                 // setHoveredList={setHoveredList}

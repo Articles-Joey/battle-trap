@@ -17,6 +17,8 @@ import IsDev from '@/components/UI/IsDev';
 import { useSocketStore } from '@/hooks/useSocketStore';
 import { useStore } from '@/hooks/useStore';
 import TwoDimensionalMap from '@/components/Game/TwoDimensionalMap';
+import usePlayerMoveLogic from '@/hooks/usePlayerMoveLogic';
+import TimerManager from '@/components/Game/TimerManager';
 
 const diceNumbersToWords = {
     1: "one",
@@ -96,6 +98,8 @@ export default function BattleTrapGamePage(props) {
     // const params = useParams()
     const server = searchParamsObject?.server
 
+    const handlePlayerMove = usePlayerMoveLogic(server);
+
     const { isFullscreen, requestFullscreen, exitFullscreen } = useFullscreen();
 
     const [showInfoModal, setShowInfoModal] = useState(false)
@@ -146,7 +150,7 @@ export default function BattleTrapGamePage(props) {
     const [currentRollDiceOne, setCurrentRollDiceOne] = useState(null)
     const [currentRollDiceTwo, setCurrentRollDiceTwo] = useState(null)
 
-    const [currentTurnCountdown, setCurrentTurnCountdown] = useState(add(new Date(), { minutes: 1 }))
+    // const [currentTurnCountdown, setCurrentTurnCountdown] = useState(add(new Date(), { minutes: 1 }))
 
     const [showPlayers, setShowPlayers] = useState(true)
 
@@ -200,13 +204,16 @@ export default function BattleTrapGamePage(props) {
         });
     }
 
-    function rollDice() {
+    function rollDice(min = 1, max = 10) {
 
         if (server == 'single-player' || server == 'local-play') {
 
-            setCurrentRoll(
-                Math.floor(Math.random() * 10)
-            )
+            // setCurrentRoll(
+            //     Math.floor(Math.random() * 10)
+            // )
+
+            const roll = Math.floor(Math.random() * (max - min + 1)) + min;
+            setCurrentRoll(roll);
 
         }
 
@@ -287,6 +294,14 @@ export default function BattleTrapGamePage(props) {
 
     useEffect(() => {
 
+        if (
+            !server
+            ||
+            server == 'single-player'
+            ||
+            server == 'local-play'
+        ) return
+
         if (socket.connected) {
             socket.emit('join-room', `game:battle-trap-room-${server}`, {
                 client_version: '1',
@@ -306,21 +321,26 @@ export default function BattleTrapGamePage(props) {
 
     }, [server]);
 
+    // Note index - next turn logic
     useEffect(() => {
 
-        console.log("currentMoveCount changed", currentMoveCount)
+        console.log("currentMoveCount changed", currentMoveCount, currentRoll)
 
         if (
             currentRoll == currentMoveCount
             &&
             currentMoveCount !== false
+            &&
+            currentRoll !== false
         ) {
             console.log("player is done with turn", currentMoveCount)
             // Player is done with their turn
 
             if (currentTurn == 3) {
+                console.log("Last player's turn, back to first player")
                 setCurrentTurn(0)
             } else {
+                console.log("Next player's turn")
                 setCurrentTurn(currentTurn + 1)
             }
 
@@ -328,7 +348,7 @@ export default function BattleTrapGamePage(props) {
             setCurrentMoveCount(0)
         }
 
-    }, [currentMoveCount]);
+    }, [currentMoveCount, currentRoll]);
 
     const currentPlayer = useMemo(() => {
         return players[currentTurn]?.battleTrap
@@ -354,74 +374,12 @@ export default function BattleTrapGamePage(props) {
 
     }, []);
 
-    function handlePlayerMoveLogic(newSpaceData) {
-
-        console.log("currentRoll", currentRoll)
-
-        if (currentRoll === false) {
-            alert("Roll dice before moving!")
-            return
-        }
-
-        incCurrentMoveCount()
-
-        // Logic instead of every hotkey
-
-        // If multi-player and no game state, do nothing
-        let currentPlay = players?.find(player_obj => player_obj.id == socket.id)?.battleTrap
-
-        // Local Play override
-        let currentPlayerColor = players[currentTurn]?.battleTrap?.color
-        console.log("Current Player Color", currentPlayerColor)
-        currentPlay = players?.find(player_obj => player_obj.battleTrap.color == currentPlayerColor)?.battleTrap
-
-        console.log("Forward with the current player", currentPlay)
-
-        if (
-            server == 'single-player'
-            ||
-            server == 'local-play'
-        ) {
-
-            let newSpace = {
-                x: currentPlay?.x + newSpaceData.x,
-                y: currentPlay?.y + newSpaceData.y,
-                checked: {
-                    move: (localGameState?.spaces?.length || 0) + 1,
-                    color: currentPlayerColor,
-                    socket_id: 'socket_id_1',
-                }
-            }
-
-            console.log("single-player Forward event", newSpace)
-
-            addSpace({
-                space: newSpace,
-                player_color: currentPlayerColor
-            })
-
-            return
-
-        } else {
-
-            // console.log("currentPlay")
-
-            // TODO - Confirm working because got redone with local play
-
-            socket.emit('game:battle-trap-move', {
-                game_id: server,
-                x: currentPlay?.x + newSpaceData.x,
-                y: currentPlay?.y + newSpaceData.y
-            });
-
-        }
-
-    }
+    
 
     useHotkeys('w', () => {
 
         console.log("Back?")
-        handlePlayerMoveLogic({
+        handlePlayerMove({
             x: 0,
             y: 1
         })
@@ -476,7 +434,7 @@ export default function BattleTrapGamePage(props) {
     useHotkeys('s', () => {
 
         console.log("Back?")
-        handlePlayerMoveLogic({
+        handlePlayerMove({
             x: 0,
             y: -1
         })
@@ -496,7 +454,7 @@ export default function BattleTrapGamePage(props) {
     useHotkeys('a', () => {
 
         console.log("Left?")
-        handlePlayerMoveLogic({
+        handlePlayerMove({
             x: -1,
             y: 0
         })
@@ -516,7 +474,7 @@ export default function BattleTrapGamePage(props) {
     useHotkeys('d', () => {
 
         console.log("Right?")
-        handlePlayerMoveLogic({
+        handlePlayerMove({
             x: 1,
             y: 0
         })
@@ -535,6 +493,8 @@ export default function BattleTrapGamePage(props) {
 
     return (
         <div className={`battle-trap-game-page ${isFullscreen && 'fullscreen'}`} id={'battle-trap-game-page'}>
+
+            <TimerManager />
 
             {showInfoModal &&
                 <InfoModal
@@ -878,7 +838,7 @@ export default function BattleTrapGamePage(props) {
 
                 </div>
 
-
+                {localGameState?.gameStarted ? '1' : '0'}
 
                 {/* Tile Moves */}
                 <div className="card card-articles card-sm mb-2">
@@ -886,7 +846,7 @@ export default function BattleTrapGamePage(props) {
                     <div className="card-header flex-header">
                         <div>Tile Moves</div>
                         <span className='badge bg-dark'>
-                            <span>8 Left</span>
+                            <span>0 Left</span>
                         </span>
                     </div>
 
@@ -896,9 +856,12 @@ export default function BattleTrapGamePage(props) {
                             {gameState.status == 'In Lobby' ?
                                 <span>Awaiting game start</span>
                                 :
-                                <Countdown
-                                    date={currentTurnCountdown}
-                                />
+                                <span>
+                                    {localGameState?.moveTimer}
+                                </span>
+                                // <Countdown
+                                //     date={gameState?.moveTimer}
+                                // />
                             }
 
 
@@ -1041,7 +1004,7 @@ export default function BattleTrapGamePage(props) {
                                     <ArticlesButton
                                         small
                                         active={i == currentTurn}
-                                        variant='warning'
+                                        variant='articles'
                                         onClick={() => {
                                             setCurrentTurn(i)
                                         }}

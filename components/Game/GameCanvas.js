@@ -130,6 +130,8 @@ function GameCanvas(props) {
         gameState = multiplayerGameState
     }
 
+    const flatSpaces = gameState?.spaces?.flat() || [];
+
     return (
         <Canvas camera={{ position: [-10, 40, 40], fov: 50 }}>
 
@@ -377,72 +379,46 @@ function GameCanvas(props) {
                                 </group>
                             }
 
-                            {/* Movement arrows - Only show for self */}
-                            {
-                                // player_obj.id == socket.id 
-                                true
-                                &&
-                                <group>
+                            {/* Movement arrows - show available moves */}
+                            <group>
 
-                                    {/* Left */}
-                                    {
-                                        gameState?.spaces?.flat().find(space_obj => (
-                                            space_obj.x == (player_obj.battleTrap.x - 1)
-                                            &&
-                                            space_obj.y == (player_obj.battleTrap.y)
-                                            &&
-                                            !space_obj.checked
-                                        )
-                                        )
-                                        &&
-                                        <FlatArrow rotation={[0, -Math.PI / 2, 0]} color="blue" size={10} />
-                                    }
+                                {/* Left */}
+                                {
+                                    player_obj.battleTrap.x - 1 >= 0
+                                    &&
+                                    !flatSpaces.some(s => s.x == (player_obj.battleTrap.x - 1) && s.y == player_obj.battleTrap.y && s.checked)
+                                    &&
+                                    <FlatArrow rotation={[0, -Math.PI / 2, 0]} color="blue" size={10} />
+                                }
 
-                                    {/* Right */}
-                                    {
-                                        gameState?.spaces?.flat().find(space_obj => (
-                                            space_obj.x == (player_obj.battleTrap.x + 1)
-                                            &&
-                                            space_obj.y == (player_obj.battleTrap.y)
-                                            &&
-                                            !space_obj.checked
-                                        )
-                                        )
-                                        &&
-                                        <FlatArrow rotation={[0, Math.PI / 2, 0]} color="blue" size={10} />
-                                    }
+                                {/* Right */}
+                                {
+                                    player_obj.battleTrap.x + 1 < boardSize
+                                    &&
+                                    !flatSpaces.some(s => s.x == (player_obj.battleTrap.x + 1) && s.y == player_obj.battleTrap.y && s.checked)
+                                    &&
+                                    <FlatArrow rotation={[0, Math.PI / 2, 0]} color="blue" size={10} />
+                                }
 
-                                    {/* Back */}
-                                    {
-                                        gameState?.spaces?.flat().find(space_obj => (
-                                            space_obj.x == (player_obj.battleTrap.x)
-                                            &&
-                                            space_obj.y == (player_obj.battleTrap.y - 1)
-                                            // &&
-                                            // !space_obj.checked
-                                        )
-                                        )
-                                        &&
-                                        <FlatArrow rotation={[0, 0, 0]} color="blue" size={10} />
-                                    }
+                                {/* Back */}
+                                {
+                                    player_obj.battleTrap.y - 1 >= 0
+                                    &&
+                                    !flatSpaces.some(s => s.x == player_obj.battleTrap.x && s.y == (player_obj.battleTrap.y - 1) && s.checked)
+                                    &&
+                                    <FlatArrow rotation={[0, 0, 0]} color="blue" size={10} />
+                                }
 
-                                    {/* Forward */}
-                                    {
-                                        gameState?.spaces?.find(space_obj => (
-                                            space_obj.x == player_obj.battleTrap.x
-                                            &&
-                                            space_obj.y == (player_obj.battleTrap.y + 1)
-                                            // &&
-                                            // !space_obj.checked
-                                        ))
-                                        // ||
-                                        // true
-                                        &&
-                                        <FlatArrow rotation={[0, -Math.PI, 0]} color="blue" size={10} />
-                                    }
+                                {/* Forward */}
+                                {
+                                    player_obj.battleTrap.y + 1 < boardSize
+                                    &&
+                                    !flatSpaces.some(s => s.x == player_obj.battleTrap.x && s.y == (player_obj.battleTrap.y + 1) && s.checked)
+                                    &&
+                                    <FlatArrow rotation={[0, -Math.PI, 0]} color="blue" size={10} />
+                                }
 
-                                </group>
-                            }
+                            </group>
 
                             <mesh
                                 position={[0, 0, 0]}

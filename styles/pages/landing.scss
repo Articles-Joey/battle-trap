@@ -22,7 +22,13 @@
 
         #users-bike-viewer {
             background-color: black;
-            min-height: 168px;  
+            min-height: 168px;
+            position: relative;
+
+            > * {
+                position: absolute!important;
+                height: 100%;
+            }
         }
 
     }

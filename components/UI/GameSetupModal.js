@@ -162,6 +162,22 @@ export default function GameSetupModal({
 
     }
 
+    useEffect(() => {
+
+        if (
+            localGameState.moveTime < 3
+            &&
+            localGameState.moveTime !== false
+        ) {
+            alert("Move timer can not be less than 3!")
+            setLocalGameState({
+                ...localGameState,
+                moveTime: 20
+            })
+        }
+
+    }, [localGameState])
+
     return (
         <>
             {/* {lightboxData && (
@@ -188,7 +204,7 @@ export default function GameSetupModal({
                     if (preventClose) {
                         return
                     }
-                    
+
                     setShow(false)
                 }}
                 onHide={() => {
@@ -196,7 +212,7 @@ export default function GameSetupModal({
                     if (preventClose) {
                         return
                     }
-                    
+
                     setShowModal(false)
                 }}
             >
@@ -276,14 +292,22 @@ export default function GameSetupModal({
                                 How big of a board do you want to play on?
                             </div>
 
-                            <div className='mb-3 d-flex align-items-center'>
+                            <div className="small">
+                                Not Ready!
+                            </div>
+
+                            <div
+                                className='mb-3 d-flex align-items-center'
+                                style={{
+                                    pointerEvents: "none"
+                                }}
+                            >
 
                                 <ArticlesButton
                                     onClick={() => {
-
                                         setBoardSize(boardSize - 1)
-
                                     }}
+                                    disabled
                                 >
                                     <i className='fad fa-minus'></i>
                                 </ArticlesButton>
@@ -294,13 +318,87 @@ export default function GameSetupModal({
                                     onClick={() => {
                                         setBoardSize(boardSize + 1)
                                     }}
+                                    disabled
                                 >
                                     <i className='fad fa-plus'></i>
                                 </ArticlesButton>
 
                             </div>
 
-                            {show.type !== 'single-player' &&
+                            {/* Move Timer */}
+                            <div>
+
+                                <div className=''>
+                                    Would you like to add a move timer? Any remaining moves will be forfitted when time runs out.
+                                </div>
+
+                                <div
+                                    className='mb-3 d-flex align-items-center'
+                                >
+
+                                    <ArticlesButton
+                                        active={localGameState?.moveTime == false}
+                                        onClick={() => {
+                                            setLocalGameState({
+                                                ...localGameState,
+                                                moveTime: false
+                                            })
+                                        }}
+                                    >
+                                        {/* <i className='fad fa-minus'></i> */}
+                                        <span>Off</span>
+                                    </ArticlesButton>
+                                    <ArticlesButton
+                                        active={localGameState?.moveTime !== false}
+                                        onClick={() => {
+                                            setLocalGameState({
+                                                ...localGameState,
+                                                moveTime: 20
+                                            })
+                                        }}
+                                    >
+                                        {/* <i className='fad fa-minus'></i> */}
+                                        <span>On</span>
+                                    </ArticlesButton>
+
+                                    {localGameState?.moveTime !== false &&
+                                        <>
+                                            <ArticlesButton
+                                                onClick={() => {
+                                                    setLocalGameState({
+                                                        ...localGameState,
+                                                        moveTime: (localGameState?.moveTime || 0) - 5
+                                                    })
+                                                }}
+                                            >
+                                                <i className='fad fa-minus'></i>
+                                            </ArticlesButton>
+
+                                            <input type="number" min="1" max="100" value={localGameState?.moveTime || 0} onChange={(e) => setLocalGameState({
+                                                ...localGameState,
+                                                moveTime: parseInt(e.target.value, 10)
+                                            })} className="" />
+
+                                            <ArticlesButton
+                                                onClick={() => {
+                                                    setLocalGameState({
+                                                        ...localGameState,
+                                                        moveTime: (localGameState?.moveTime || 0) + 5
+                                                    })
+                                                }}
+                                            >
+                                                <i className='fad fa-plus'></i>
+                                            </ArticlesButton>
+                                        </>
+                                    }
+
+                                </div>
+                            </div>
+
+                            {
+                                // show.type !== 'single-player' 
+                                true
+                                &&
                                 <div>
                                     <div className=''>
                                         How many bots do you want to play against?
@@ -315,6 +413,7 @@ export default function GameSetupModal({
                                         ].map((item, i) =>
                                             <ArticlesButton
                                                 key={`bot-amount-option-${i}`}
+                                                className={`${(show.type == 'single-player' && i == 0) && 'd-none'}`}
                                                 active={
                                                     i
                                                     ==
@@ -618,7 +717,7 @@ export default function GameSetupModal({
                                             checked: {
                                                 color: 'blue',
                                                 move: 1,
-                                                socket_id: 'socket_id_1',
+                                                socket_id: 'socket_id_2',
                                             }
                                         },
                                         {
@@ -627,7 +726,7 @@ export default function GameSetupModal({
                                             checked: {
                                                 color: 'yellow',
                                                 move: 1,
-                                                socket_id: 'socket_id_1',
+                                                socket_id: 'socket_id_3',
                                             }
                                         },
                                         {
@@ -636,7 +735,7 @@ export default function GameSetupModal({
                                             checked: {
                                                 color: 'green',
                                                 move: 1,
-                                                socket_id: 'socket_id_1',
+                                                socket_id: 'socket_id_4',
                                             }
                                         },
                                     ]

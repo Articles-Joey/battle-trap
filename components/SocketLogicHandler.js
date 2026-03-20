@@ -198,6 +198,10 @@ export default function SocketLogicHandler(props) {
             if (socket?.connected) {
                 console.log(`[📶 Socket] Page change emit`)
                 socket.emit('activePage', url);
+
+                if (url == '/play') {
+                    socket.emit('leave-room', 'game:battle-trap-landing')
+                }
             }
 
         };

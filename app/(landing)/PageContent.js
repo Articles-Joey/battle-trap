@@ -81,6 +81,7 @@ export default function BattleTrapLobbyPage(props) {
     const darkMode = useStore((state) => state.darkMode);
     const nickname = useStore((state) => state.nickname)
     const setNickname = useStore((state) => state.setNickname)
+    const randomNickname = useStore((state) => state.randomNickname)
     // const [nickname, setNickname] = useLocalStorageNew("game:nickname", userReduxState.display_name)
 
     // const [character, setCharacter] = useLocalStorageNew("game:battle-trap:character", {})
@@ -121,9 +122,9 @@ export default function BattleTrapLobbyPage(props) {
 
     const [showEditBikeModal, setShowEditBikeModal] = useState(false)
 
-    useEffect(() => {
+    // useEffect(() => {
 
-    }, []);
+    // }, []);
 
     useEffect(() => {
 
@@ -146,7 +147,7 @@ export default function BattleTrapLobbyPage(props) {
             socket.emit('leave-room', 'game:battle-trap-landing')
         };
 
-    }, [])
+    }, [socket])
 
     useEffect(() => {
 
@@ -290,10 +291,10 @@ export default function BattleTrapLobbyPage(props) {
                                                 small
                                                 active={character.model == bike_obj.model}
                                                 onClick={() => {
-                                                    setCharacter(prev => ({
-                                                        ...prev,
+                                                    setCharacter({
+                                                        ...character,
                                                         model: bike_obj.model
-                                                    }))
+                                                    })
                                                 }}
                                             >
                                                 Select
@@ -537,29 +538,42 @@ export default function BattleTrapLobbyPage(props) {
 
                                 <label htmlFor="nickname">Nickname</label>
 
-                                <div className="form-group articles mb-0">
+                                <div className='d-flex justify-content-center'>
 
-                                    {/* <SingleInput
-                                        center
-                                        value={nickname}
-                                        setValue={setNickname}
-                                    /> */}
-                                    <input
-                                        autoComplete='off'
-                                        // id={item_key}
-                                        type="text"
-                                        className='text-center'
-                                        // autoFocus={autoFocus && true}
-                                        // onBlur={onBlur}
-                                        // placeholder={placeholder}
-                                        value={nickname}
-                                        // onKeyDown={onKeyDown}
-                                        onChange={(e) => {
-                                            setNickname(e.target.value)
+                                    <div className="form-group articles mb-0">
+
+                                        {/* <SingleInput
+                                            center
+                                            value={nickname}
+                                            setValue={setNickname}
+                                        /> */}
+                                        <input
+                                            autoComplete='off'
+                                            // id={item_key}
+                                            type="text"
+                                            className='text-center'
+                                            // autoFocus={autoFocus && true}
+                                            // onBlur={onBlur}
+                                            // placeholder={placeholder}
+                                            value={nickname}
+                                            // onKeyDown={onKeyDown}
+                                            onChange={(e) => {
+                                                setNickname(e.target.value)
+                                            }}
+                                        // className={`form-control ${className} ${small ? 'form-control-sm' : ''} ${center ? 'text-center' : ''}`}
+                                        // disabled={disabled}
+                                        />
+                                    </div>
+
+                                    <ArticlesButton
+                                        small
+                                        onClick={() => {
+                                            randomNickname()
                                         }}
-                                    // className={`form-control ${className} ${small ? 'form-control-sm' : ''} ${center ? 'text-center' : ''}`}
-                                    // disabled={disabled}
-                                    />
+                                    >
+                                        <i className="fas fa-random"></i>
+                                    </ArticlesButton>
+
                                 </div>
 
                                 <div style={{ fontSize: '0.8rem' }}>Visible to all players</div>
@@ -687,7 +701,7 @@ export default function BattleTrapLobbyPage(props) {
 
                     <div className="text-center">
                         <div>Classic Play Servers</div>
-                        <div className='small mb-1'>20 seconds to complete your turn.</div>
+                        <div className='small mb-1'>Turn based gameplay.</div>
                     </div>
 
                     <div className='servers mb-3'>
@@ -743,13 +757,16 @@ export default function BattleTrapLobbyPage(props) {
                                             pathname: `/play`,
                                             query: { server: id }
                                         }}
+                                        style={{
+                                            pointerEvents: (!connected) ? "none" : "auto",
+                                        }}
                                     >
                                         <ArticlesButton
                                             className="px-5"
                                             small
                                             disabled={!connected}
                                         >
-                                            Join
+                                            Join {!connected && "(Offline)"}
                                         </ArticlesButton>
                                     </Link>
 

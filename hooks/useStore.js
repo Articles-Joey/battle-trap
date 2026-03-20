@@ -69,11 +69,16 @@ export const useStore = create()(
       // toggleDarkMode: () => set({ darkMode: !get().darkMode }),
 
       randomNickname: () => {
-        const adjectives = ['Swift', 'Brave', 'Cunning', 'Mighty', 'Sneaky', 'Fierce', 'Nimble', 'Sly'];
-        const animals = ['Tiger', 'Eagle', 'Shark', 'Panther', 'Wolf', 'Falcon', 'Dragon', 'Leopard'];
+        const adjectives = [
+          'Quantum', 'Neon', 'Binary', 'Pixel', 'Nano', 'Cyber', 'Glitch', 'Viral', 'Crypto', 'Turbo', 'Robo', 'Virtual', 'Cloud', 'Circuit', 'Data', 'AI', 'Meta', 'Hyper', 'Logic', 'Vector'
+        ];
+        const nouns = [
+          'Bot', 'Byte', 'Core', 'Node', 'Script', 'Stack', 'Array', 'Cache', 'Kernel', 'Matrix', 'Packet', 'Pixel', 'Proxy', 'Pulse', 'Synth', 'Terminal', 'Wire', 'Drive', 'Chip', 'Loop'
+        ];
         const adjective = adjectives[Math.floor(Math.random() * adjectives.length)];
-        const animal = animals[Math.floor(Math.random() * animals.length)];
-        return `${adjective}${animal}${Math.floor(Math.random() * 1000)}`;
+        const noun = nouns[Math.floor(Math.random() * nouns.length)];
+        const nickname = `${adjective}${noun}${Math.floor(Math.random() * 1000)}`;
+        set({ nickname });
       },
       nickname: '',
       setNickname: (nickname) => set({ nickname }),
@@ -117,6 +122,8 @@ export const useStore = create()(
 
       defaultLocalGameState: {
         boardSize: 8,
+        moveTime: 20,
+        moveTimer: null,
         localPlayPlayerCount: 2,
         gameStarted: false,
         // currentTurn: 0,
@@ -178,6 +185,7 @@ export const useStore = create()(
     {
       name: 'battle-trap-store', // name of the item in the storage (must be unique)
       // storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
+      version: 1,
       partialize: (state) => ({
         theme: state.theme,
         nickname: state.nickname,

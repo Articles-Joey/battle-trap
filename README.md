@@ -20,7 +20,7 @@ NEXT_PUBLIC_MODEL_SOURCE = LOCAL
 
 ## Multiplayer
 
-Aiming to have multiplayer via P2P and Websockets. Websocket backend code is not in this repo or available at this time. P2P code will be included here.
+This game offers multiplayer in a few ways. When using the classic play servers, websockets will be used to play the game on our server. Local Play is available for playing a game with friends/bots on the same device by taking turns. When everything else is done I plan to add peer-to-peer multiplayer support.
 
 ## Board Game Version
 
