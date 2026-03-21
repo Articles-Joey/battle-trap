@@ -709,6 +709,7 @@ export default function GameSetupModal({
                                                 color: 'red',
                                                 move: 1,
                                                 socket_id: 'socket_id_1',
+                                                playerMove: 0
                                             }
                                         },
                                         {
@@ -718,6 +719,7 @@ export default function GameSetupModal({
                                                 color: 'blue',
                                                 move: 1,
                                                 socket_id: 'socket_id_2',
+                                                playerMove: 0
                                             }
                                         },
                                         {
@@ -727,6 +729,7 @@ export default function GameSetupModal({
                                                 color: 'yellow',
                                                 move: 1,
                                                 socket_id: 'socket_id_3',
+                                                playerMove: 0
                                             }
                                         },
                                         {
@@ -736,6 +739,7 @@ export default function GameSetupModal({
                                                 color: 'green',
                                                 move: 1,
                                                 socket_id: 'socket_id_4',
+                                                playerMove: 0
                                             }
                                         },
                                     ]

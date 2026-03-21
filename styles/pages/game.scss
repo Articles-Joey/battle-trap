@@ -1,5 +1,17 @@
 @use "@/styles/components/global.scss" as *;
 
+.fullscreen.battle-trap-game-page {
+    .menu-card {
+        position: absolute;
+        z-index: 2;
+        top: 50%;
+        left: 1rem;
+        transform: translateY(-50%);
+        height: auto;
+        background-color: rgba(0, 0, 0, 0.75);
+    }
+}
+
 .battle-trap-game-page {
 
     // .game-wrap {

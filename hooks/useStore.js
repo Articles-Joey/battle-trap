@@ -130,9 +130,20 @@ export const useStore = create()(
         // Note - Spaces gets initialized more when game starts in useEffect
         spaces: []
       },
+      resetGameState: () => set({ 
+        localGameState: get().defaultLocalGameState,
+        currentTurn: 0,
+        currentRoll: false,
+        currentMoveCount: 0,
+      }),
 
       localGameState: false,
       setLocalGameState: (gameState) => set({ localGameState: gameState }),
+
+      gameState: {
+
+      },
+      setGameState: (gameState) => set({ gameState }),
 
       addSpace: (data) => {
 
@@ -175,6 +186,17 @@ export const useStore = create()(
 
       },
 
+      setPlayerDead: (player_color) => {
+        const players = get().players;
+        const newPlayers = players.map(player => {
+          if (player?.battleTrap?.color === player_color) {
+            return { ...player, battleTrap: { ...player.battleTrap, dead: true } };
+          }
+          return player;
+        });
+        set({ players: newPlayers });
+      },
+
       lobbyDetails: {
         players: [],
         games: [],
@@ -185,7 +207,7 @@ export const useStore = create()(
     {
       name: 'battle-trap-store', // name of the item in the storage (must be unique)
       // storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
-      version: 1,
+      version: 2,
       partialize: (state) => ({
         theme: state.theme,
         nickname: state.nickname,

@@ -69,6 +69,10 @@ const Wall = (props) => {
                             (obj.checked.move - 1) == checked.checked.move
                             ||
                             (obj.checked.move + 1) == checked.checked.move
+                            ||
+                            (obj.checked.playerMove - 1) == checked.checked.playerMove
+                            ||
+                            (obj.checked.playerMove + 1) == checked.checked.playerMove
                         )
                     )
 
@@ -94,6 +98,10 @@ const Wall = (props) => {
                             (obj.checked.move - 1) == checked.checked.move
                             ||
                             (obj.checked.move + 1) == checked.checked.move
+                            ||
+                            (obj.checked.playerMove - 1) == checked.checked.playerMove
+                            ||
+                            (obj.checked.playerMove + 1) == checked.checked.playerMove
                         )
                     )
 
@@ -122,6 +130,10 @@ const Wall = (props) => {
                             (obj.checked.move - 1) == checked.checked.move
                             ||
                             (obj.checked.move + 1) == checked.checked.move
+                            ||
+                            (obj.checked.playerMove - 1) == checked.checked.playerMove
+                            ||
+                            (obj.checked.playerMove + 1) == checked.checked.playerMove
                         )
                     )
 
@@ -147,6 +159,10 @@ const Wall = (props) => {
                             (obj.checked.move - 1) == checked.checked.move
                             ||
                             (obj.checked.move + 1) == checked.checked.move
+                            ||
+                            (obj.checked.playerMove - 1) == checked.checked.playerMove
+                            ||
+                            (obj.checked.playerMove + 1) == checked.checked.playerMove
                         )
                     )
 
@@ -325,17 +341,6 @@ function Box(props) {
 
                     const dx = clickableData.x - currentPlay.x;
                     const dy = clickableData.y - currentPlay.y;
-
-                    if (Math.abs(dx) + Math.abs(dy) !== 1) {
-                        alert("Too far away! You can only move one space at a time.");
-                        return;
-                    }
-
-                    const targetOccupied = flatSpaces?.some(s => s.x == clickableData.x && s.y == clickableData.y && s.checked);
-                    if (targetOccupied) {
-                        alert("A wall is there! That space is already occupied.");
-                        return;
-                    }
 
                     handlePlayerMove({ x: dx, y: dy })
 

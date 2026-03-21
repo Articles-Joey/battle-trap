@@ -59,6 +59,7 @@ import Ad from '@articles-media/articles-dev-box/Ad';
 import useUserDetails from '@articles-media/articles-dev-box/useUserDetails';
 import useUserToken from '@articles-media/articles-dev-box/useUserToken';
 import { PieMenu } from '@articles-media/articles-gamepad-helper';
+import { usePathname } from 'next/navigation';
 
 const ReturnToLauncherButton = dynamic(() =>
     import('@articles-media/articles-dev-box/ReturnToLauncherButton'),
@@ -68,6 +69,11 @@ const ReturnToLauncherButton = dynamic(() =>
 const game_name = "Battle Trap";
 
 export default function BattleTrapLobbyPage(props) {
+
+    const pathname = usePathname();
+
+    // const defaultLocalGameState = useStore(state => state.defaultLocalGameState);
+    // const setLocalGameState = useStore(state => state.setLocalGameState);
 
     const socket = useSocketStore((state) => state.socket)
     const connectSocket = useSocketStore((state) => state.connectSocket)
@@ -107,6 +113,8 @@ export default function BattleTrapLobbyPage(props) {
     // const showSettingsModal = useStore((state) => state.showSettingsModal)
     const setShowSettingsModal = useStore((state) => state.setShowSettingsModal)
 
+    const resetGameState = useStore((state) => state.resetGameState)
+
     // const showCreditsModal = useStore((state) => state.showCreditsModal)
     const setShowCreditsModal = useStore((state) => state.setShowCreditsModal)
 
@@ -125,6 +133,14 @@ export default function BattleTrapLobbyPage(props) {
     // useEffect(() => {
 
     // }, []);
+
+    useEffect(() => {
+
+        if (pathname == "/") {
+            resetGameState()
+        }
+
+    }, [pathname])
 
     useEffect(() => {
 

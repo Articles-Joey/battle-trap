@@ -18,6 +18,7 @@ import { useStore } from "@/hooks/useStore";
 import CornerBuildings from "./CornerBuildings";
 import FillerBuildings from "./FillerBuildings";
 import { SkyBoxCitySkyLine } from "./SkyBoxCitySkyLine";
+import useCurrentPlayer from "@/hooks/useCurrentPlayer";
 // const RenderModel = dynamic(() => import('@/components/Games/Battle Trap/RenderModel'), {
 //     ssr: false,
 // });
@@ -77,6 +78,58 @@ const FlatArrow = (props) => {
     );
 };
 
+function MovementArrows({ player_obj, flatSpaces, boardSize }) {
+    const currentRoll = useStore(state => state.currentRoll);
+    const d12Texture = useTexture('/img/d12.svg');
+
+    const Dice = ({ position }) => (
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={position}>
+            <planeGeometry args={[1.5, 1.5]} />
+            <meshBasicMaterial map={d12Texture} transparent={true} />
+        </mesh>
+    );
+
+    const Arrow = ({ show, position, rotation }) => show
+        ? (currentRoll === false
+            ? <Dice position={position} />
+            : <FlatArrow rotation={rotation} color="blue" size={10} />)
+        : null;
+
+    return (
+        <group>
+
+            {/* Left */}
+            <Arrow
+                show={player_obj.battleTrap.x - 1 >= 0 && !flatSpaces.some(s => s.x == (player_obj.battleTrap.x - 1) && s.y == player_obj.battleTrap.y && s.checked)}
+                position={[-2, 0.15, 0]}
+                rotation={[0, -Math.PI / 2, 0]}
+            />
+
+            {/* Right */}
+            <Arrow
+                show={player_obj.battleTrap.x + 1 < boardSize && !flatSpaces.some(s => s.x == (player_obj.battleTrap.x + 1) && s.y == player_obj.battleTrap.y && s.checked)}
+                position={[2, 0.15, 0]}
+                rotation={[0, Math.PI / 2, 0]}
+            />
+
+            {/* Back */}
+            <Arrow
+                show={player_obj.battleTrap.y - 1 >= 0 && !flatSpaces.some(s => s.x == player_obj.battleTrap.x && s.y == (player_obj.battleTrap.y - 1) && s.checked)}
+                position={[0, 0.15, 2]}
+                rotation={[0, 0, 0]}
+            />
+
+            {/* Forward */}
+            <Arrow
+                show={player_obj.battleTrap.y + 1 < boardSize && !flatSpaces.some(s => s.x == player_obj.battleTrap.x && s.y == (player_obj.battleTrap.y + 1) && s.checked)}
+                position={[0, 0.15, -2]}
+                rotation={[0, -Math.PI, 0]}
+            />
+
+        </group>
+    );
+}
+
 function GameCanvas(props) {
 
     // const searchParams = useSearchParams()
@@ -90,23 +143,13 @@ function GameCanvas(props) {
     }));
 
     const localGameState = useStore(state => state.localGameState);
-    const defaultLocalGameState = useStore(state => state.defaultLocalGameState);
-    const setLocalGameState = useStore(state => state.setLocalGameState);
+    const currentPlayer = useCurrentPlayer()
+
+    // const defaultLocalGameState = useStore(state => state.defaultLocalGameState);
+    // const setLocalGameState = useStore(state => state.setLocalGameState);
+    // const resetGameState = useStore(state => state.resetGameState);
     const theme = useStore(state => state.theme);
     // const addSpace = useStore(state => state.addSpace);
-
-    useEffect(() => {
-
-        console.log("localGameState", localGameState, defaultLocalGameState)
-
-        if (!localGameState) {
-            console.log("Set state to default")
-            setLocalGameState(
-                defaultLocalGameState
-            )
-        }
-
-    }, [])
 
     // const GPUTier = useDetectGPU()
 
@@ -154,7 +197,7 @@ function GameCanvas(props) {
 
             {theme == "Light" && <SkyBoxCitySkyLine
                 position={[0, -30, 0]}
-                // scale={500}
+            // scale={500}
             />}
 
             <CornerBuildings
@@ -173,55 +216,9 @@ function GameCanvas(props) {
                     0]}
             />
 
-            <mesh
-                rotation={[-Math.PI / 2, 0, 0]}
-                position={[
-                    -((boardSize) / 2) * 2,
-                    1,
-                    ((boardSize) / 2) * 2
-                ]}
-            >
-                <planeGeometry attach="geometry" args={[5, 5]} />
-                <meshStandardMaterial attach="material" color={'red'} transparent={true} opacity={0.5} />
-            </mesh>
-
-            <mesh
-                rotation={[-Math.PI / 2, 0, 0]}
-                position={[
-                    ((boardSize)),
-                    1,
-                    -((boardSize))
-                ]}
-            >
-                <planeGeometry attach="geometry" args={[5, 5]} />
-                <meshStandardMaterial attach="material" color={'blue'} transparent={true} opacity={0.5} />
-            </mesh>
-
-            <mesh
-                rotation={[-Math.PI / 2, 0, 0]}
-                position={[
-                    ((boardSize)),
-                    1,
-                    ((boardSize))
-                ]}
-            >
-                <planeGeometry attach="geometry" args={[5, 5]} />
-                <meshStandardMaterial attach="material" color={'green'} transparent={true} opacity={0.5} />
-            </mesh>
-
-
-
-            <mesh
-                rotation={[-Math.PI / 2, 0, 0]}
-                position={[
-                    -((boardSize) / 2) * 2,
-                    1,
-                    -((boardSize) / 2 * 2)
-                ]}
-            >
-                <planeGeometry attach="geometry" args={[5, 5]} />
-                <meshStandardMaterial attach="material" color={'yellow'} transparent={true} opacity={0.5} />
-            </mesh>
+            {/* <AreaHighlights 
+                boardSize={boardSize}
+            /> */}
 
             {/* <GroundPlane
                 args={[(boardSize * 2), (boardSize * 2)]}
@@ -380,45 +377,15 @@ function GameCanvas(props) {
                             }
 
                             {/* Movement arrows - show available moves */}
-                            <group>
-
-                                {/* Left */}
-                                {
-                                    player_obj.battleTrap.x - 1 >= 0
-                                    &&
-                                    !flatSpaces.some(s => s.x == (player_obj.battleTrap.x - 1) && s.y == player_obj.battleTrap.y && s.checked)
-                                    &&
-                                    <FlatArrow rotation={[0, -Math.PI / 2, 0]} color="blue" size={10} />
-                                }
-
-                                {/* Right */}
-                                {
-                                    player_obj.battleTrap.x + 1 < boardSize
-                                    &&
-                                    !flatSpaces.some(s => s.x == (player_obj.battleTrap.x + 1) && s.y == player_obj.battleTrap.y && s.checked)
-                                    &&
-                                    <FlatArrow rotation={[0, Math.PI / 2, 0]} color="blue" size={10} />
-                                }
-
-                                {/* Back */}
-                                {
-                                    player_obj.battleTrap.y - 1 >= 0
-                                    &&
-                                    !flatSpaces.some(s => s.x == player_obj.battleTrap.x && s.y == (player_obj.battleTrap.y - 1) && s.checked)
-                                    &&
-                                    <FlatArrow rotation={[0, 0, 0]} color="blue" size={10} />
-                                }
-
-                                {/* Forward */}
-                                {
-                                    player_obj.battleTrap.y + 1 < boardSize
-                                    &&
-                                    !flatSpaces.some(s => s.x == player_obj.battleTrap.x && s.y == (player_obj.battleTrap.y + 1) && s.checked)
-                                    &&
-                                    <FlatArrow rotation={[0, -Math.PI, 0]} color="blue" size={10} />
-                                }
-
-                            </group>
+                            {
+                                (currentPlayer?.color == player_obj?.battleTrap?.color)
+                                &&
+                                <MovementArrows
+                                    player_obj={player_obj}
+                                    flatSpaces={flatSpaces}
+                                    boardSize={boardSize}
+                                />
+                            }
 
                             <mesh
                                 position={[0, 0, 0]}
@@ -488,3 +455,63 @@ function GameCanvas(props) {
 }
 
 export default memo(GameCanvas)
+
+function AreaHighlights({
+    boardSize
+}) {
+
+    return (
+        <>
+
+            <mesh
+                rotation={[-Math.PI / 2, 0, 0]}
+                position={[
+                    -((boardSize) / 2) * 2,
+                    1,
+                    ((boardSize) / 2) * 2
+                ]}
+            >
+                <planeGeometry attach="geometry" args={[5, 5]} />
+                <meshStandardMaterial attach="material" color={'red'} transparent={true} opacity={0.5} />
+            </mesh>
+
+            <mesh
+                rotation={[-Math.PI / 2, 0, 0]}
+                position={[
+                    ((boardSize)),
+                    1,
+                    -((boardSize))
+                ]}
+            >
+                <planeGeometry attach="geometry" args={[5, 5]} />
+                <meshStandardMaterial attach="material" color={'blue'} transparent={true} opacity={0.5} />
+            </mesh>
+
+            <mesh
+                rotation={[-Math.PI / 2, 0, 0]}
+                position={[
+                    ((boardSize)),
+                    1,
+                    ((boardSize))
+                ]}
+            >
+                <planeGeometry attach="geometry" args={[5, 5]} />
+                <meshStandardMaterial attach="material" color={'green'} transparent={true} opacity={0.5} />
+            </mesh>
+
+            <mesh
+                rotation={[-Math.PI / 2, 0, 0]}
+                position={[
+                    -((boardSize) / 2) * 2,
+                    1,
+                    -((boardSize) / 2 * 2)
+                ]}
+            >
+                <planeGeometry attach="geometry" args={[5, 5]} />
+                <meshStandardMaterial attach="material" color={'yellow'} transparent={true} opacity={0.5} />
+            </mesh>
+
+        </>
+    )
+
+}

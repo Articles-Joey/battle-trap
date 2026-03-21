@@ -26,6 +26,10 @@
         color: white;
         border-color: white;
     }
+
+    .btn-warning {
+        --bs-btn-active-bg: #8f7320;
+    }
 }
 
 .btn {
