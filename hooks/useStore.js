@@ -211,6 +211,7 @@ export const useStore = create()(
       partialize: (state) => ({
         theme: state.theme,
         nickname: state.nickname,
+        character: state.character,
         darkMode: state.darkMode,
         threeDimensional: state.threeDimensional,
         // defaultLocalGameState: state.defaultLocalGameState,

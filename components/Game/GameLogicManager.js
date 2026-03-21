@@ -9,6 +9,7 @@ import { useSocketStore } from "@/hooks/useSocketStore";
 import { useHotkeys } from "react-hotkeys-hook";
 import useCurrentPlayer from "@/hooks/useCurrentPlayer";
 import useRollDice from "@/hooks/useRollDice";
+import useBotTurnLogic from "@/hooks/useBotTurnLogic";
 
 export default function GameLogicManager() {
 
@@ -61,6 +62,7 @@ export default function GameLogicManager() {
     const currentPlayer = useCurrentPlayer()
 
     const rollDice = useRollDice(server);
+    const calculateBotTurnLogic = useBotTurnLogic(server);
 
     useEffect(() => {
 
@@ -76,17 +78,21 @@ export default function GameLogicManager() {
     // Bot turn logic
     useEffect(() => {
 
-        console.log("currentTurn changed and is now", currentTurn)
+        if (!currentPlayer?.bot || currentPlayer?.dead) return;
 
-        if (currentPlayer?.bot) {
-            console.log("It's a bot turn, set turn timeout")
+        console.log("Bot turn logic triggered")
 
-            const botTurnTimeout = setTimeout(() => {
-                console.log("Bot turn timeout")
-            }, 2000)
-        }
+        // Delay roll slightly longer so the player can see the turn change.
+        // Delay each subsequent move so it feels natural.
+        const delay = currentRoll === false ? 600 : 800;
 
-    }, [currentTurn]);
+        const timeout = setTimeout(() => {
+            calculateBotTurnLogic();
+        }, delay);
+
+        return () => clearTimeout(timeout);
+
+    }, [currentTurn, currentRoll, currentMoveCount, calculateBotTurnLogic]);
 
     // Note - Timer logic
     useEffect(() => {

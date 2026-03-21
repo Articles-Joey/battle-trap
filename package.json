@@ -4,8 +4,8 @@
   "private": false,
   "homepage": "https://battle-trap.articles.media",
   "scripts": {
-    "dev": "next dev -p 3014",
-    "build": "next build",
+    "dev": "next dev --webpack -p 3014",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "next lint"
   },
@@ -23,7 +23,7 @@
     "bootstrap": "^5.3.8",
     "classnames": "^2.5.1",
     "date-fns": "^4.1.0",
-    "next": "^15.5.9",
+    "next": "^16.2.1",
     "qrcode.react": "^4.2.0",
     "react": "^19.2.3",
     "react-bootstrap": "^2.10.10",
@@ -38,7 +38,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "babel-plugin-react-compiler": "^1.0.0",
-    "eslint": "^9",
-    "eslint-config-next": "^15.5.9"
+    "eslint": "^10",
+    "eslint-config-next": "^16.2.1"
   }
 }

@@ -17,6 +17,7 @@ export default function GameSetupModal({
 
     const nickname = useStore((state) => state.nickname)
     const setNickname = useStore((state) => state.setNickname)
+    const character = useStore((state) => state.character)
 
     const [showModal, setShowModal] = useState(true)
 
@@ -135,7 +136,8 @@ export default function GameSetupModal({
                     ...determineLocationFromPlayerNumberAndBoardSize(new_i),
                     // y: determineLocationFromPlayerNumberAndBoardSize(new_i),
                     character: {
-                        model: "low_poly_chopper.glb"
+                        model: "low_poly_chopper.glb",
+                        ...character,                        
                     }
                 }
             })),

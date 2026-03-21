@@ -944,7 +944,7 @@ export default function BattleTrapLobbyPage(props) {
             </div>
 
             <GameScoreboard
-                game="Catching Game"
+                game="Battle Trap"
                 style="Default"
                 darkMode={darkMode ? true : false}
             />
