@@ -46,6 +46,9 @@ export default function SideMenu() {
     const theme = useStore(state => state.theme);
     const setTheme = useStore(state => state.setTheme);
 
+    const showMenu = useStore(state => state.showMenu);
+    // const toggleShowMenu = useStore(state => state.toggleShowMenu);
+
     const { isFullscreen, requestFullscreen, exitFullscreen } = useFullscreen();
 
     const threeDimensional = useStore(state => state.threeDimensional);
@@ -92,7 +95,7 @@ export default function SideMenu() {
     const [showPlayers, setShowPlayers] = useState(true)
 
     return (
-        <div className='menu-card'>
+        <div className={`menu-card ${showMenu && 'show'}`}>
 
             {server == "single-player" &&
                 <div className="d-none card card-articles card-sm mb-2">
@@ -254,7 +257,9 @@ export default function SideMenu() {
                         if (isFullscreen) {
                             exitFullscreen()
                         } else {
-                            requestFullscreen('battle-trap-game-page')
+                            requestFullscreen(
+                                // 'battle-trap-game-page'
+                            )
                         }
                     }}
                 >

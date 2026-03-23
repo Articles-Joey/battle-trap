@@ -11,6 +11,8 @@ import ArticlesButton from "./Button";
 import Link from "next/link";
 import { useModalNavigation } from "@/hooks/useModalNavigation";
 
+import B from "@articles-media/articles-gamepad-helper/dist/img/Xbox UI/B.svg";
+
 export default function CreditsModal({
     show,
     setShow,
@@ -114,7 +116,7 @@ export default function CreditsModal({
                         }}
                         className="d-flex align-items-center"
                     >
-                        <img src="/img/Xbox UI/B.svg" className="me-1" alt="Close" />
+                        <img src={B.src} className="controller-only me-1" alt="Close" />
                         Close
                     </ArticlesButton>
 

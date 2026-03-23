@@ -4,7 +4,7 @@ const useFullscreen = () => {
     const [isFullscreen, setIsFullscreen] = useState(false);
 
     const requestFullscreen = (elementId) => {
-        const element = document.getElementById(elementId);
+        const element = elementId ? document.getElementById(elementId) : document.body;
 
         if (element) {
 

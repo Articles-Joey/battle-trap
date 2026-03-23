@@ -86,7 +86,7 @@ export default function GameSetupModal({
 
     }, [show])
 
-    function determineLocationFromPlayerNumberAndBoardSize(playerNumber) {
+    function determineStartLocationFromPlayerNumberAndBoardSize(playerNumber) {
 
         // return { x: 0, y: 0 };
 
@@ -133,11 +133,11 @@ export default function GameSetupModal({
                 battleTrap: {
                     nickname: new_i == 0 ? (nickname || `Player ${new_i + 1}`) : `Player ${new_i + 1}`,
                     color: "red",
-                    ...determineLocationFromPlayerNumberAndBoardSize(new_i),
-                    // y: determineLocationFromPlayerNumberAndBoardSize(new_i),
+                    ...determineStartLocationFromPlayerNumberAndBoardSize(new_i),
+                    // y: determineStartLocationFromPlayerNumberAndBoardSize(new_i),
                     character: {
                         model: "low_poly_chopper.glb",
-                        ...character,                        
+                        ...character,
                     }
                 }
             })),
@@ -151,7 +151,7 @@ export default function GameSetupModal({
                     difficulty: "Medium",
                     nickname: `Bot ${new_i + 1}`,
                     color: "red",
-                    ...determineLocationFromPlayerNumberAndBoardSize(1 + new_i + 4 - bot_count),
+                    ...determineStartLocationFromPlayerNumberAndBoardSize(1 + new_i + 4 - bot_count),
                     // x: 0,
                     // y: 0,
                     character: {
@@ -294,14 +294,14 @@ export default function GameSetupModal({
                                 How big of a board do you want to play on?
                             </div>
 
-                            <div className="small">
-                                Not Ready!
+                            <div className="small text-danger mb-1">
+                                Experimental
                             </div>
 
                             <div
                                 className='mb-3 d-flex align-items-center'
                                 style={{
-                                    pointerEvents: "none"
+                                    // pointerEvents: "none"
                                 }}
                             >
 
@@ -309,18 +309,18 @@ export default function GameSetupModal({
                                     onClick={() => {
                                         setBoardSize(boardSize - 1)
                                     }}
-                                    disabled
+                                    disabled={boardSize <= 10}
                                 >
                                     <i className='fad fa-minus'></i>
                                 </ArticlesButton>
 
-                                <input type="number" min="1" max="100" value={boardSize} onChange={(e) => setBoardSize(e.target.value)} className="" />
+                                <input type="number" min="10" max="50" step="1" value={boardSize} onChange={(e) => setBoardSize(e.target.value)} className="" />
 
                                 <ArticlesButton
                                     onClick={() => {
                                         setBoardSize(boardSize + 1)
                                     }}
-                                    disabled
+                                    disabled={boardSize >= 50}
                                 >
                                     <i className='fad fa-plus'></i>
                                 </ArticlesButton>
@@ -330,7 +330,7 @@ export default function GameSetupModal({
                             {/* Move Timer */}
                             <div>
 
-                                <div className=''>
+                                <div className='small mb-1'>
                                     Would you like to add a move timer? Any remaining moves will be forfitted when time runs out.
                                 </div>
 
@@ -351,6 +351,7 @@ export default function GameSetupModal({
                                         <span>Off</span>
                                     </ArticlesButton>
                                     <ArticlesButton
+                                        className='me-3'
                                         active={localGameState?.moveTime !== false}
                                         onClick={() => {
                                             setLocalGameState({
@@ -402,7 +403,7 @@ export default function GameSetupModal({
                                 true
                                 &&
                                 <div>
-                                    <div className=''>
+                                    <div className='small mb-1'>
                                         How many bots do you want to play against?
                                     </div>
 
@@ -559,11 +560,11 @@ export default function GameSetupModal({
                                 )}
                             </div> */}
 
-                            <div className=''>
+                            <div className='small mb-1'>
                                 Player Data
                             </div>
 
-                            <div className='p-3'>
+                            <div className='border px-3 pt-2'>
                                 {[
                                     // ...Array(4 - botData.length)
                                     ...tempPlayers
@@ -703,6 +704,7 @@ export default function GameSetupModal({
 
                                 setLocalGameState({
                                     ...localGameState,
+                                    boardSize: boardSize,
                                     spaces: [
                                         {
                                             x: 0,

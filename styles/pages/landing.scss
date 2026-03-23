@@ -2,10 +2,27 @@
 
 .battle-trap-lobby-page {
 
+    .scoreboard {
+
+        @include media-breakpoint-down(lg) {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            max-width: 100%;
+
+            .card {
+                max-width: 300px;
+                width: 300px;
+            }
+        }
+
+    }
+
     .model-preview {
         position: relative;
         width: 100%;
-        flex-shrink: 0;              
+        flex-shrink: 0;
 
         @include media-breakpoint-up(lg) {
             width: 50%;
@@ -25,8 +42,8 @@
             min-height: 168px;
             position: relative;
 
-            > * {
-                position: absolute!important;
+            >* {
+                position: absolute !important;
                 height: 100%;
             }
         }

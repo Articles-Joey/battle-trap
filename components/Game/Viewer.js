@@ -2,6 +2,7 @@ import { useRef } from 'react'
 
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, ContactShadows } from '@react-three/drei'
+import { SkyBox } from './SkyBox'
 
 export default function Viewer({ autoRotate, scale, children }) {
 
@@ -18,6 +19,11 @@ export default function Viewer({ autoRotate, scale, children }) {
 
     return (
         <Canvas camera={{ position: [-100, 30, 10], fov: 50 }}>
+
+            <SkyBox
+                position={[0, 0, 0]}
+                scale={500}
+            />
 
             <hemisphereLight intensity={1} />
 

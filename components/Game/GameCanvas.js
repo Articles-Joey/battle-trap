@@ -23,7 +23,7 @@ import useCurrentPlayer from "@/hooks/useCurrentPlayer";
 //     ssr: false,
 // });
 
-const boardSize = 20;
+// const boardSize = 20;
 
 const FlatArrow = (props) => {
 
@@ -79,6 +79,9 @@ const FlatArrow = (props) => {
 };
 
 function MovementArrows({ player_obj, flatSpaces, boardSize }) {
+
+    // const boardSize = useStore(state => state.boardSize);
+
     const currentRoll = useStore(state => state.currentRoll);
     const d12Texture = useTexture('/img/d12.svg');
 
@@ -130,6 +133,45 @@ function MovementArrows({ player_obj, flatSpaces, boardSize }) {
     );
 }
 
+function getPlayerRotation(lookup, player_obj, server) {
+    let rotation = [0, 0, 0];
+    let axis = 'y';
+
+    if (!lookup || !player_obj?.battleTrap) return { rotation, axis };
+
+    if (
+        lookup.x == player_obj.battleTrap.x
+        &&
+        lookup.y < player_obj.battleTrap.y
+    ) {
+        rotation = [0, 0, 0];
+        axis = 'y';
+    } else if (
+        lookup.x == player_obj.battleTrap.x
+        &&
+        lookup.y > player_obj.battleTrap.y
+    ) {
+        rotation = [0, -Math.PI, 0];
+        axis = 'y';
+    } else if (
+        lookup.x < player_obj.battleTrap.x
+        &&
+        lookup.y == player_obj.battleTrap.y
+    ) {
+        rotation = [0, -Math.PI / 2, 0];
+        axis = 'x';
+    } else if (
+        lookup.x > player_obj.battleTrap.x
+        &&
+        lookup.y == player_obj.battleTrap.y
+    ) {
+        rotation = [0, Math.PI / 2, 0];
+        axis = 'x';
+    }
+
+    return { rotation, axis };
+}
+
 function GameCanvas(props) {
 
     // const searchParams = useSearchParams()
@@ -142,6 +184,7 @@ function GameCanvas(props) {
         socket: state.socket,
     }));
 
+    const boardSize = useStore(state => state.boardSize);
     const localGameState = useStore(state => state.localGameState);
     const currentPlayer = useCurrentPlayer()
 
@@ -270,9 +313,9 @@ function GameCanvas(props) {
                     // }
                 ]?.map(player_obj => {
 
-                    let rotation;
+                    // let rotation;
 
-                    let axis;
+                    // let axis;
 
                     // console.log(gameState?.spaces?.flat())
 
@@ -288,57 +331,7 @@ function GameCanvas(props) {
 
                     console.log("Last move lookup", lookup)
 
-                    // if (
-                    //     !player_obj?.battleTrap?.x
-                    //     &&
-                    //     !player_obj?.battleTrap?.y
-                    //     &&
-                    //     !player_obj?.battleTrap?.x == 0
-                    //     &&
-                    //     !player_obj?.battleTrap?.y == 0
-                    // ) {
-                    //     return
-                    // }
-
-                    if (
-                        lookup?.x == player_obj.battleTrap?.x
-                        &&
-                        lookup?.y < player_obj.battleTrap?.y
-                    ) {
-                        console.log('1')
-                        rotation = [0, 0, 0]
-                        axis = 'y'
-                    }
-
-                    if (
-                        lookup?.x == player_obj.battleTrap?.x
-                        &&
-                        lookup?.y > player_obj.battleTrap?.y
-                    ) {
-                        console.log('2')
-                        rotation = [0, -Math.PI, 0]
-                        axis = 'y'
-                    }
-
-                    if (
-                        lookup?.x < player_obj.battleTrap?.x
-                        &&
-                        lookup?.y == player_obj.battleTrap?.y
-                    ) {
-                        console.log('3')
-                        rotation = [0, -Math.PI / 2, 0]
-                        axis = 'x'
-                    }
-
-                    if (
-                        lookup?.x > player_obj.battleTrap?.x
-                        &&
-                        lookup?.y == player_obj.battleTrap?.y
-                    ) {
-                        console.log('4')
-                        rotation = [0, Math.PI / 2, 0]
-                        axis = 'x'
-                    }
+                    const { rotation, axis } = getPlayerRotation(lookup, player_obj, server);
 
                     console.log(rotation)
 

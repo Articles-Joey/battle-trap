@@ -83,6 +83,10 @@ export const useStore = create()(
       nickname: '',
       setNickname: (nickname) => set({ nickname }),
 
+      showMenu: false,
+      setShowMenu: (value) => set({ showMenu: value }),
+      toggleShowMenu: () => set({ showMenu: !get().showMenu }),
+
       showInfoModal: false,
       setShowInfoModal: (value) => set({ showInfoModal: value }),
       toggleInfoModal: () => set({ showInfoModal: !get().showInfoModal }),
@@ -202,6 +206,10 @@ export const useStore = create()(
         games: [],
       },
       setLobbyDetails: (lobbyDetails) => set({ lobbyDetails }),
+
+      showEditBikeModal: false,
+      setShowEditBikeModal: (value) => set({ showEditBikeModal: value }),
+      toggleEditBikeModal: () => set({ showEditBikeModal: !get().showEditBikeModal }),
 
     }),
     {

@@ -157,9 +157,6 @@ export default function GameLogicManager() {
     // Note - Trapped player detection
     useEffect(() => {
 
-        // TODO - Not fully working, marking other players as dead when not
-        return
-
         if (!localGameState?.spaces || localGameState?.spaces?.length <= 4) return;
 
         const flatSpaces = localGameState.spaces;
@@ -206,19 +203,24 @@ export default function GameLogicManager() {
             console.log("player is done with turn", currentMoveCount)
             // Player is done with their turn
 
-            if (currentTurn == 3) {
-                console.log("Last player's turn, back to first player")
-                setCurrentTurn(0)
-            } else {
-                console.log("Next player's turn")
-                setCurrentTurn(currentTurn + 1)
+            const totalPlayers = players?.length || 4;
+            let nextTurn = currentTurn;
+            for (let i = 1; i <= totalPlayers; i++) {
+                const candidate = (currentTurn + i) % totalPlayers;
+                if (!players[candidate]?.battleTrap?.dead) {
+                    nextTurn = candidate;
+                    break;
+                }
             }
+
+            console.log("Next player's turn", nextTurn)
+            setCurrentTurn(nextTurn)
 
             setCurrentRoll(false)
             setCurrentMoveCount(0)
         }
 
-    }, [currentMoveCount, currentRoll]);
+    }, [currentMoveCount, currentRoll, players]);
 
     useEffect(() => {
 

@@ -2,7 +2,7 @@
 
 ![Game Preview](/public/img/game-preview.webp)
 
-Battle trap is a single player and multiplayer game where you must last the longest in the board without colliding with another players trail. Inspired by Tron, players can move there player when it is their turn. 
+Turn based game where you control a bike on the grid. Avoid obstacles and try to outmaneuver your opponents to win.
 
 ## Getting Started
 
@@ -21,6 +21,25 @@ NEXT_PUBLIC_MODEL_SOURCE = LOCAL
 ## Multiplayer
 
 This game offers multiplayer in a few ways. When using the classic play servers, websockets will be used to play the game on our server. Local Play is available for playing a game with friends/bots on the same device by taking turns. When everything else is done I plan to add peer-to-peer multiplayer support.
+
+## TODO
+
+Things needed before done
+
+- Smarter and adjustable bots
+- Scoreboard for websocket games played
+- Better background scene
+
+## Roadmap
+
+Beyond finishing the base game and multiplayer logic I have some other ideas.
+
+- Save/Load for single/local games
+- Add scaling additional moves in late game (Refer to board game)
+- Power-ups placed on map. 
+    - Bomb (Kills 3x3 around player that lands on it)
+    - Extra Moves (Moves added to turn)
+    - Blockage (Places random walls around map)
 
 ## Board Game Version
 

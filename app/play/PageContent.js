@@ -24,6 +24,7 @@ import TwoDimensionalMap from '@/components/Game/TwoDimensionalMap';
 import GameLogicManager from '@/components/Game/GameLogicManager';
 import useRollDice from '@/hooks/useRollDice';
 import SideMenu from '@/components/UI/SideMenu';
+import MenuBar from '@/components/UI/MenuBar';
 
 const ArticlesModal = dynamic(
     () => import('@/components/UI/ArticlesModal'),
@@ -78,7 +79,7 @@ export default function BattleTrapGamePage(props) {
     const setPlayers = useStore(state => state.setPlayers);
 
     const currentTurn = useStore(state => state.currentTurn);
-    const setCurrentTurn = useStore(state => state.setCurrentTurn);
+    // const setCurrentTurn = useStore(state => state.setCurrentTurn);
 
     const currentRoll = useStore(state => state.currentRoll);
     const setCurrentRoll = useStore(state => state.setCurrentRoll);
@@ -334,6 +335,8 @@ export default function BattleTrapGamePage(props) {
                     style={{ objectFit: 'cover' }}
                 />
             </div>
+
+            <MenuBar />
 
             <SideMenu />
 

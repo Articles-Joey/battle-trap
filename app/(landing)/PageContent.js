@@ -11,7 +11,7 @@ import dynamic from 'next/dynamic'
 // import { toggleCustomTheme, setCustomThemeModal } from '@/redux/actions/siteActions';
 
 // import SingleInput from '@/components/Articles/SingleInput';
-import { useLocalStorageNew } from '@/hooks/useLocalStorageNew';
+// import { useLocalStorageNew } from '@/hooks/useLocalStorageNew';
 
 import ArticlesButton from '@/components/UI/Button';
 import useFullscreen from '@/hooks/useFullScreen';
@@ -19,26 +19,26 @@ import IsDev from '@/components/UI/IsDev';
 import { useSocketStore } from '@/hooks/useSocketStore';
 import { Box, Paper, Tooltip } from '@mui/material';
 import { useStore } from '@/hooks/useStore';
-import GameInfoModal from '@/components/UI/InfoModal';
+// import GameInfoModal from '@/components/UI/InfoModal';
 // import ArticlesSignInButton from '@/components/ArticlesSignInButton';
 
 // const Ad = dynamic(() => import('@/components/ArticlesAd'), {
 //     ssr: false,
 // });
 
-const ArticlesModal = dynamic(() => import('@/components/UI/ArticlesModal'), {
-    ssr: false,
-});
+// const ArticlesModal = dynamic(() => import('@/components/UI/ArticlesModal'), {
+//     ssr: false,
+// });
 
 // const InfoModal = dynamic(
 //     () => import('@/components/Games/InfoModal'),
 //     { ssr: false }
 // )
 
-const SettingsModal = dynamic(
-    () => import('@/components/UI/SettingsModal'),
-    { ssr: false }
-)
+// const SettingsModal = dynamic(
+//     () => import('@/components/UI/SettingsModal'),
+//     { ssr: false }
+// )
 
 const GameSetupModal = dynamic(
     () => import('@/components/UI/GameSetupModal'),
@@ -52,6 +52,11 @@ const Viewer = dynamic(() => import('@/components/Game/Viewer'), {
 const RenderModel = dynamic(() => import('@/components/Game/RenderModel'), {
     ssr: false,
 });
+
+// import CustomizeBikeModal from '@/components/UI/CustomizeBikeModal';
+const CustomizeBikeModal = dynamic(() => import('@/components/UI/CustomizeBikeModal'), {
+    ssr: false,
+})
 
 import GameScoreboard from '@articles-media/articles-dev-box/GameScoreboard';
 import Ad from '@articles-media/articles-dev-box/Ad';
@@ -91,9 +96,9 @@ export default function BattleTrapLobbyPage(props) {
     // const [nickname, setNickname] = useLocalStorageNew("game:nickname", userReduxState.display_name)
 
     // const [character, setCharacter] = useLocalStorageNew("game:battle-trap:character", {})
-    const characters = useStore((state) => state.characters)
+    // const characters = useStore((state) => state.characters)
     const character = useStore((state) => state.character)
-    const setCharacter = useStore((state) => state.setCharacter)
+    // const setCharacter = useStore((state) => state.setCharacter)
 
     const { isFullscreen, requestFullscreen, exitFullscreen } = useFullscreen();
 
@@ -128,7 +133,9 @@ export default function BattleTrapLobbyPage(props) {
 
     const [autoRotate, setAutoRotate] = useState(true)
 
-    const [showEditBikeModal, setShowEditBikeModal] = useState(false)
+    // const [showEditBikeModal, setShowEditBikeModal] = useState(false)
+    const showEditBikeModal = useStore(state => state.showEditBikeModal);
+    const setShowEditBikeModal = useStore(state => state.setShowEditBikeModal);
 
     // useEffect(() => {
 
@@ -268,87 +275,7 @@ export default function BattleTrapLobbyPage(props) {
             } */}
 
             {showEditBikeModal &&
-                <ArticlesModal
-                    show={showEditBikeModal}
-                    setShow={setShowEditBikeModal}
-                    title="Customize Bike"
-                // scrollable
-                >
-
-                    <div>
-                        <div className='ratio ratio-16x9'>
-                            <div className='w-100 h-100'>
-                                <Viewer
-                                    autoRotate={autoRotate}
-                                >
-
-                                    <RenderModel character={character} />
-
-                                </Viewer>
-                            </div>
-                        </div>
-                    </div>
-
-                    <hr />
-
-                    <div className="fw-bold">Bike Types</div>
-
-                    <div className=''>
-                        {characters.map(bike_obj => {
-                            return (
-                                <div key={bike_obj.name} className='d-flex align-items-start mb-2'>
-
-                                    <div
-                                        className="ratio ratio-16x9 bg-black me-2 flex-shrink-0"
-                                        style={{ width: '100px' }}
-                                    >
-                                        <div className='d-flex justify-content-center align-items-center'>
-                                            <ArticlesButton
-                                                small
-                                                active={character.model == bike_obj.model}
-                                                onClick={() => {
-                                                    setCharacter({
-                                                        ...character,
-                                                        model: bike_obj.model
-                                                    })
-                                                }}
-                                            >
-                                                Select
-                                            </ArticlesButton>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <div className='fw-bold mb-0'>{bike_obj.name}</div>
-                                        {/* <div className='small'>{bike_obj.description}</div> */}
-                                    </div>
-
-                                </div>
-                            )
-                        })}
-                    </div>
-
-                    {/* <hr />
-
-                    <div className='d-flex justify-content-center text-center'>
-
-                        <a href='https://articles.media' target="_blank" rel="noreferrer" className='w-100'>
-                            <Image
-                                priority
-                                width={60}
-                                height={60}
-                                src={`${process.env.NEXT_PUBLIC_CDN}profile_photos/starter/articles.jpg`}
-                                alt="Articles Media Logo"
-                                className='mb-2'
-                            />
-                            <div>
-                                Visit Articles Media
-                            </div>
-                        </a>
-
-                    </div> */}
-
-                </ArticlesModal>
+                <CustomizeBikeModal />
             }
 
             <div className="background">
@@ -401,12 +328,12 @@ export default function BattleTrapLobbyPage(props) {
                             }}
                         >
                             <i className="fad fa-info-circle"></i>
-                            Controls & Info
+                            Info
                         </ArticlesButton>
 
                         <ArticlesButton
                             small
-                            className="mx-0"
+                            className="mx-0 me-4"
                             onClick={() => {
                                 setShowSettingsModal(true)
                             }}
@@ -422,8 +349,20 @@ export default function BattleTrapLobbyPage(props) {
                                 setShowCreditsModal(true)
                             }}
                         >
-                            <i className="fad fa-cog"></i>
+                            <i className="fad fa-list-alt"></i>
                             Credits
+                        </ArticlesButton>
+
+                        <ArticlesButton
+                            small
+                            className="mx-0"
+                            active={isFullscreen}
+                            onClick={() => {
+                                isFullscreen ? exitFullscreen() : requestFullscreen()
+                            }}
+                        >
+                            <i className="fad fa-expand-wide me-2"></i>
+                            <span>{isFullscreen ? "Exit Fullscreen" : "Fullscreen"}</span>
                         </ArticlesButton>
 
                         {/* <ArticlesButton
@@ -433,32 +372,33 @@ export default function BattleTrapLobbyPage(props) {
                             Private Game
                         </ArticlesButton> */}
 
-                        <ArticlesButton
-                            className="mx-0"
-                            small
-                            onClick={() => {
-                                if (connected) {
-                                    disconnectSocket()
-                                } else {
-                                    connectSocket(
-                                        // 'http://localhost:3000'
-                                    );
-                                }
-                            }}
-                        >
-                            <i className="fad fa-plug"></i>
-                            {connected ? "Disconnect" : "Connect"}
-                        </ArticlesButton>
-
-                        <IsDev inline>
-                            <ArticlesButton
-                                variant="warning"
-                                className="mx-1"
-                                small
-                            >
-                                Reset Server
-                            </ArticlesButton>
-                        </IsDev>
+                        <div>
+                            <IsDev inline>
+                                <ArticlesButton
+                                    className="mx-0"
+                                    small
+                                    onClick={() => {
+                                        if (connected) {
+                                            disconnectSocket()
+                                        } else {
+                                            connectSocket(
+                                                // 'http://localhost:3000'
+                                            );
+                                        }
+                                    }}
+                                >
+                                    <i className="fad fa-plug"></i>
+                                    {connected ? "Disconnect" : "Connect"}
+                                </ArticlesButton>
+                                <ArticlesButton
+                                    variant="warning"
+                                    className="mx-1"
+                                    small
+                                >
+                                    Reset Server
+                                </ArticlesButton>
+                            </IsDev>
+                        </div>
 
                     </div>
 
@@ -510,7 +450,8 @@ export default function BattleTrapLobbyPage(props) {
                                         }}
                                         className=""
                                     >
-                                        <i className="fad fa-pen me-0"></i>
+                                        <i className="fad fa-pen me-2"></i>
+                                        Customize
                                     </ArticlesButton>
                                 </Tooltip>
 
