@@ -191,7 +191,8 @@ function GameCanvas(props) {
     // const defaultLocalGameState = useStore(state => state.defaultLocalGameState);
     // const setLocalGameState = useStore(state => state.setLocalGameState);
     // const resetGameState = useStore(state => state.resetGameState);
-    const theme = useStore(state => state.theme);
+    // const theme = useStore(state => state.theme);
+    const darkMode = useStore(state => state.darkMode);
     // const addSpace = useStore(state => state.addSpace);
 
     // const GPUTier = useDetectGPU()
@@ -233,12 +234,12 @@ function GameCanvas(props) {
             // {...props} 
             />
 
-            {theme == "Dark" && <SkyBox
+            {darkMode && <SkyBox
                 position={[0, 0, 0]}
                 scale={500}
             />}
 
-            {theme == "Light" && <SkyBoxCitySkyLine
+            {!darkMode && <SkyBoxCitySkyLine
                 position={[0, -30, 0]}
             // scale={500}
             />}

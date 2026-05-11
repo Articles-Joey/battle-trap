@@ -19,6 +19,10 @@ import IsDev from '@/components/UI/IsDev';
 import { useSocketStore } from '@/hooks/useSocketStore';
 import { Box, Paper, Tooltip } from '@mui/material';
 import { useStore } from '@/hooks/useStore';
+import NicknameInput from '@articles-media/articles-dev-box/NicknameInput';
+
+import GameMenuPrimaryButtonGroup from '@articles-media/articles-dev-box/GameMenuPrimaryButtonGroup';
+
 // import GameInfoModal from '@/components/UI/InfoModal';
 // import ArticlesSignInButton from '@/components/ArticlesSignInButton';
 
@@ -305,7 +309,19 @@ export default function BattleTrapLobbyPage(props) {
                         </span>
                     </div>
 
-                    <div className='d-flex justify-content-center align-items-center my-3 mb-4'>
+                    <div
+                        className='d-flex flex-wrap justify-content-center align-items-center mx-auto mb-3'
+                        style={{
+                            width: '300px',
+                        }}
+                    >
+                        <GameMenuPrimaryButtonGroup
+                            useStore={useStore}
+                            type="Landing"
+                        />
+                    </div>
+
+                    <div className='d-flex justify-content-center align-items-center my-3'>
 
                         {/* <Link href={ROUTES.GAMES} className='mx-1'>
                             <ArticlesButton
@@ -320,7 +336,7 @@ export default function BattleTrapLobbyPage(props) {
                             </ArticlesButton>
                         </Link> */}
 
-                        <ArticlesButton
+                        {/* <ArticlesButton
                             small
                             className="mx-0"
                             onClick={() => {
@@ -329,9 +345,9 @@ export default function BattleTrapLobbyPage(props) {
                         >
                             <i className="fad fa-info-circle"></i>
                             Info
-                        </ArticlesButton>
+                        </ArticlesButton> */}
 
-                        <ArticlesButton
+                        {/* <ArticlesButton
                             small
                             className="mx-0 me-4"
                             onClick={() => {
@@ -340,9 +356,9 @@ export default function BattleTrapLobbyPage(props) {
                         >
                             <i className="fad fa-cog"></i>
                             Settings
-                        </ArticlesButton>
+                        </ArticlesButton> */}
 
-                        <ArticlesButton
+                        {/* <ArticlesButton
                             small
                             className="mx-0"
                             onClick={() => {
@@ -351,9 +367,9 @@ export default function BattleTrapLobbyPage(props) {
                         >
                             <i className="fad fa-list-alt"></i>
                             Credits
-                        </ArticlesButton>
+                        </ArticlesButton> */}
 
-                        <ArticlesButton
+                        {/* <ArticlesButton
                             small
                             className="mx-0"
                             active={isFullscreen}
@@ -363,7 +379,7 @@ export default function BattleTrapLobbyPage(props) {
                         >
                             <i className="fad fa-expand-wide me-2"></i>
                             <span>{isFullscreen ? "Exit Fullscreen" : "Fullscreen"}</span>
-                        </ArticlesButton>
+                        </ArticlesButton> */}
 
                         {/* <ArticlesButton
                             className="mx-1"
@@ -491,63 +507,16 @@ export default function BattleTrapLobbyPage(props) {
                             style={{ "width": "100%", margin: '0rem', border: '1px solid #fff', padding: '1rem 0rem' }}
                         >
 
-                            <div className="card-header d-flex flex-column justify-content-center h-100">
+                            <div 
+                            className="card-header d-flex justify-content-center h-100 align-items-center mx-auto"
+                            style={{
+                                width: '250px',
+                            }}
+                            >
 
-                                <label htmlFor="nickname">Nickname</label>
-
-                                <div className='d-flex justify-content-center'>
-
-                                    <div className="form-group articles mb-0">
-
-                                        {/* <SingleInput
-                                            center
-                                            value={nickname}
-                                            setValue={setNickname}
-                                        /> */}
-                                        <input
-                                            autoComplete='off'
-                                            // id={item_key}
-                                            type="text"
-                                            className='text-center'
-                                            // autoFocus={autoFocus && true}
-                                            // onBlur={onBlur}
-                                            // placeholder={placeholder}
-                                            value={nickname}
-                                            // onKeyDown={onKeyDown}
-                                            onChange={(e) => {
-                                                setNickname(e.target.value)
-                                            }}
-                                        // className={`form-control ${className} ${small ? 'form-control-sm' : ''} ${center ? 'text-center' : ''}`}
-                                        // disabled={disabled}
-                                        />
-                                    </div>
-
-                                    <ArticlesButton
-                                        small
-                                        onClick={() => {
-                                            randomNickname()
-                                        }}
-                                    >
-                                        <i className="fas fa-random"></i>
-                                    </ArticlesButton>
-
-                                </div>
-
-                                <div style={{ fontSize: '0.8rem' }}>Visible to all players</div>
-
-                                {/* <Box
-                                    sx={{
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        mt: 2,
-                                        // maxWidth: '200px',
-                                    }}
-                                >
-                                    <ArticlesSignInButton
-                                        style="Articles"
-                                    />
-                                </Box> */}
+                                <NicknameInput
+                                    useStore={useStore}
+                                />
 
                             </div>
 

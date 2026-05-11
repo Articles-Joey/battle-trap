@@ -1,9 +1,8 @@
-import { Geist, Geist_Mono } from "next/font/google";
-
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import theme from '@/theme';
+import packageInfo from '@/package.json';
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -16,23 +15,10 @@ import "@articles-media/articles-gamepad-helper/dist/style.css";
 
 import SocketLogicHandler from "@/components/SocketLogicHandler";
 import LayoutClient from "@/app/layout-client";
-import DarkModeHandler from "@/components/UI/DarkModeHandler";
-import GlobalClientModals from "@/components/UI/GlobalClientModals";
-import { Suspense } from "react";
-
-// const geistSans = Geist({
-//   variable: "--font-geist-sans",
-//   subsets: ["latin"],
-// });
-
-// const geistMono = Geist_Mono({
-//   variable: "--font-geist-mono",
-//   subsets: ["latin"],
-// });
 
 export const metadata = {
-  title: "Battle Trap",
-  description: "Tron inspired turn based multiplayer game by Articles Media",
+  title: process.env.NEXT_PUBLIC_GAME_NAME,
+  description: packageInfo.description,
 };
 
 export default function RootLayout({ children }) {
@@ -40,24 +26,13 @@ export default function RootLayout({ children }) {
     <html lang="en">
 
       <head>
-        
-        {/* <link
-          rel="stylesheet"
-          href={`${process.env.NEXT_PUBLIC_CDN}fonts/fontawsome/css/all.min.css`}
-        /> */}
 
       </head>
 
-      <body
-      // className={`${geistSans.variable} ${geistMono.variable}`}
-      >
+      <body>
 
-        <Suspense>
-          <SocketLogicHandler />
-          <DarkModeHandler />
-          <GlobalClientModals />
-          <LayoutClient />
-        </Suspense>
+        <SocketLogicHandler />
+        <LayoutClient />
 
         <AppRouterCacheProvider options={{ enableCssLayer: true }}>
           <ThemeProvider theme={theme}>

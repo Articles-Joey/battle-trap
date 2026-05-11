@@ -43,8 +43,10 @@ export default function SideMenu() {
         socket: state.socket,
     }));
 
-    const theme = useStore(state => state.theme);
-    const setTheme = useStore(state => state.setTheme);
+    // const theme = useStore(state => state.theme);
+    // const setTheme = useStore(state => state.setTheme);
+    // const darkMode = useStore(state => state.darkMode);
+    // const setDarkMode = useStore(state => state.setDarkMode);
 
     const showMenu = useStore(state => state.showMenu);
     // const toggleShowMenu = useStore(state => state.toggleShowMenu);
@@ -298,44 +300,6 @@ export default function SideMenu() {
             </div>
 
             <div className='mb-3 d-flex'>
-
-                <div className='w-50'>
-                    <DropdownButton
-                        variant="articles w-100"
-                        size='sm'
-                        id="dropdown-basic-button"
-                        className="dropdown-articles"
-                        title={
-                            <span>
-                                <i className="fad fa-eyedropper"></i>
-                                <span>Theme: {theme == "Dark" ? 'Dark' : 'Light'}</span>
-                                {/* <span>{darkMode ? 'On' : 'Off'}</span> */}
-                            </span>
-                        }
-                    >
-
-                        <div style={{ maxHeight: '600px', overflowY: 'auto', width: '200px' }}>
-
-                            {[
-                                true, false
-                            ]
-                                .map(location =>
-                                    <Dropdown.Item
-                                        key={location}
-                                        onClick={() => {
-                                            // setDarkMode(location)
-                                            setTheme(theme == "Dark" ? "Light" : "Dark")
-                                        }}
-                                        className="d-flex justify-content-between"
-                                    >
-                                        {location ? 'Dark' : 'Light'}
-                                    </Dropdown.Item>
-                                )}
-
-                        </div>
-
-                    </DropdownButton>
-                </div>
 
                 <ArticlesButton
                     className="w-50"

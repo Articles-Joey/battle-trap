@@ -1,19 +1,19 @@
 "use client"
 import { useState, useEffect, useRef, useMemo } from 'react';
 
-import Link from 'next/link'
+// import Link from 'next/link'
 import Image from 'next/image';
 import dynamic from 'next/dynamic'
 import { useSearchParams, useRouter, usePathname, useParams } from 'next/navigation';
 
 // import BasicLoading from '@/components/loading/BasicLoading';
 // import Countdown from 'react-countdown';
-import { add } from 'date-fns';
-import { Accordion, Card, Dropdown, DropdownButton } from 'react-bootstrap';
+// import { add } from 'date-fns';
+// import { Accordion, Card, Dropdown, DropdownButton } from 'react-bootstrap';
 import ArticlesButton from '@/components/UI/Button';
 import useFullscreen from '@/hooks/useFullScreen';
 // import { useHotkeys } from 'react-hotkeys-hook';
-import IsDev from '@/components/UI/IsDev';
+// import IsDev from '@/components/UI/IsDev';
 import { useSocketStore } from '@/hooks/useSocketStore';
 import { useStore } from '@/hooks/useStore';
 
@@ -24,27 +24,29 @@ import TwoDimensionalMap from '@/components/Game/TwoDimensionalMap';
 import GameLogicManager from '@/components/Game/GameLogicManager';
 import useRollDice from '@/hooks/useRollDice';
 import SideMenu from '@/components/UI/SideMenu';
-import MenuBar from '@/components/UI/MenuBar';
+import classNames from 'classnames';
+// import MenuBar from '@/components/UI/MenuBar';
+// import AudioHandler from '@/components/Game/AudioHandler';
 
 const ArticlesModal = dynamic(
     () => import('@/components/UI/ArticlesModal'),
     { ssr: false }
 )
 
-const InviteModal = dynamic(
-    () => import('@/components/UI/InviteModal'),
-    { ssr: false }
-)
+// const InviteModal = dynamic(
+//     () => import('@/components/UI/InviteModal'),
+//     { ssr: false }
+// )
 
-const InfoModal = dynamic(
-    () => import('@/components/UI/InfoModal'),
-    { ssr: false }
-)
+// const InfoModal = dynamic(
+//     () => import('@/components/UI/InfoModal'),
+//     { ssr: false }
+// )
 
-const SettingsModal = dynamic(
-    () => import('@/components/UI/SettingsModal'),
-    { ssr: false }
-)
+// const SettingsModal = dynamic(
+//     () => import('@/components/UI/SettingsModal'),
+//     { ssr: false }
+// )
 
 const GameCanvas = dynamic(() => import('@/components/Game/GameCanvas'), {
     ssr: false,
@@ -62,9 +64,6 @@ export default function BattleTrapGamePage(props) {
     } = useSocketStore(state => ({
         socket: state.socket,
     }));
-
-    const theme = useStore(state => state.theme);
-    const setTheme = useStore(state => state.setTheme);
 
     const threeDimensional = useStore(state => state.threeDimensional);
     const setThreeDimensional = useStore(state => state.setThreeDimensional);
@@ -107,37 +106,9 @@ export default function BattleTrapGamePage(props) {
         difficulty: "Easy"
     })
 
-    // const [players, setPlayers] = useState([]);
-
-    // const [players, setPlayers] = useState([
-    //     {
-    //         id: '123',
-    //         battleTrap: {
-    //             nickname: "Player 1",
-    //             color: "red",
-    //             x: 0,
-    //             y: 0,
-    //             character: {
-    //                 model: "low_poly_chopper.glb"
-    //             }
-    //         }
-    //     },
-    //     {
-    //         id: '124',
-    //         battleTrap: {
-    //             nickname: "Player 2",
-    //             color: "blue",
-    //             x: 5,
-    //             y: 5,
-    //             character: {
-    //                 model: "low_poly_chopper.glb"
-    //             }
-    //         }
-    //     }
-    // ]);
-
-    // const [gameState, setGameState] = useState(false)
     const gameState = useStore(state => state.gameState);
+    const showMenu = useStore(state => state.showMenu);
+    const sidebar = useStore(state => state.sidebar);
 
     // const dispatch = useDispatch()
 
@@ -246,30 +217,40 @@ export default function BattleTrapGamePage(props) {
     }, [players, currentTurn]);
 
     return (
-        <div className={`battle-trap-game-page ${isFullscreen && 'fullscreen'}`} id={'battle-trap-game-page'}>
+        <div
+            className={classNames(
+                `${process.env.NEXT_PUBLIC_GAME_KEY}-game-page`,
+                {
+                    'menu-open': showMenu,
+                    'fullscreen': useFullscreen().isFullscreen,
+                    'show-sidebar': sidebar,
+                }
+            )}
+            id={`${process.env.NEXT_PUBLIC_GAME_KEY}-game-page`}
+        >
 
             <GameLogicManager />
 
-            {showInfoModal &&
+            {/* {showInfoModal &&
                 <InfoModal
                     show={showInfoModal}
                     setShow={setShowInfoModal}
                 />
-            }
+            } */}
 
-            {showSettingsModal &&
+            {/* {showSettingsModal &&
                 <SettingsModal
                     show={showSettingsModal}
                     setShow={setShowSettingsModal}
                 />
-            }
+            } */}
 
-            {showInviteModal &&
+            {/* {showInviteModal &&
                 <InviteModal
                     show={showInviteModal}
                     setShow={setShowInviteModal}
                 />
-            }
+            } */}
 
             {players.length == 0 &&
                 <GameSetupModal
@@ -336,7 +317,7 @@ export default function BattleTrapGamePage(props) {
                 />
             </div>
 
-            <MenuBar />
+            {/* <MenuBar /> */}
 
             <SideMenu />
 

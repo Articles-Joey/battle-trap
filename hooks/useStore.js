@@ -1,15 +1,20 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 
+import typicalZustandStoreExcludes from '@articles-media/articles-dev-box/typicalZustandStoreExcludes';
+import typicalZustandStoreStateSlice from '@articles-media/articles-dev-box/typicalZustandStoreStateSlice';
+
+import randomNicknameConfig from '@/util/randomNicknameConfig';
+
 export const useStore = create()(
   persist(
     (set, get) => ({
 
-      theme: null, // 'Light' | 'Dark' | null
-      setTheme: (theme) => set({ theme }),
-
-      darkMode: null,
-      setDarkMode: (darkMode) => set({ darkMode }),
+      ...typicalZustandStoreStateSlice(
+        set,
+        get,
+        randomNicknameConfig,
+      ),
 
       characters: [
         {
@@ -65,44 +70,6 @@ export const useStore = create()(
       threeDimensional: true, // 'Light' | 'Dark' | null
       setThreeDimensional: (threeDimensional) => set({ threeDimensional }),
 
-      // darkMode: true,
-      // toggleDarkMode: () => set({ darkMode: !get().darkMode }),
-
-      randomNickname: () => {
-        const adjectives = [
-          'Quantum', 'Neon', 'Binary', 'Pixel', 'Nano', 'Cyber', 'Glitch', 'Viral', 'Crypto', 'Turbo', 'Robo', 'Virtual', 'Cloud', 'Circuit', 'Data', 'AI', 'Meta', 'Hyper', 'Logic', 'Vector'
-        ];
-        const nouns = [
-          'Bot', 'Byte', 'Core', 'Node', 'Script', 'Stack', 'Array', 'Cache', 'Kernel', 'Matrix', 'Packet', 'Pixel', 'Proxy', 'Pulse', 'Synth', 'Terminal', 'Wire', 'Drive', 'Chip', 'Loop'
-        ];
-        const adjective = adjectives[Math.floor(Math.random() * adjectives.length)];
-        const noun = nouns[Math.floor(Math.random() * nouns.length)];
-        const nickname = `${adjective}${noun}${Math.floor(Math.random() * 1000)}`;
-        set({ nickname });
-      },
-      nickname: '',
-      setNickname: (nickname) => set({ nickname }),
-
-      showMenu: false,
-      setShowMenu: (value) => set({ showMenu: value }),
-      toggleShowMenu: () => set({ showMenu: !get().showMenu }),
-
-      showInfoModal: false,
-      setShowInfoModal: (value) => set({ showInfoModal: value }),
-      toggleInfoModal: () => set({ showInfoModal: !get().showInfoModal }),
-
-      loginInfoModal: false,
-      setLoginInfoModal: (value) => set({ loginInfoModal: value }),
-      toggleLoginInfoModal: () => set({ loginInfoModal: !get().loginInfoModal }),
-
-      showSettingsModal: false,
-      setShowSettingsModal: (value) => set({ showSettingsModal: value }),
-      toggleSettingsModal: () => set({ showSettingsModal: !get().showSettingsModal }),
-
-      showCreditsModal: false,
-      setShowCreditsModal: (value) => set({ showCreditsModal: value }),
-      toggleCreditsModal: () => set({ showCreditsModal: !get().showCreditsModal }),
-
       players: [],
       setPlayers: (players) => set({ players }),
 
@@ -134,7 +101,7 @@ export const useStore = create()(
         // Note - Spaces gets initialized more when game starts in useEffect
         spaces: []
       },
-      resetGameState: () => set({ 
+      resetGameState: () => set({
         localGameState: get().defaultLocalGameState,
         currentTurn: 0,
         currentRoll: false,
@@ -213,17 +180,17 @@ export const useStore = create()(
 
     }),
     {
-      name: 'battle-trap-store', // name of the item in the storage (must be unique)
-      // storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
+      name: `${process.env.NEXT_PUBLIC_GAME_KEY}-storage`,
       version: 2,
-      partialize: (state) => ({
-        theme: state.theme,
-        nickname: state.nickname,
-        character: state.character,
-        darkMode: state.darkMode,
-        threeDimensional: state.threeDimensional,
-        // defaultLocalGameState: state.defaultLocalGameState,
-      }),
+      onRehydrateStorage: (state) => {
+        return () => state.setHasHydrated(true)
+      },
+      partialize: (state) =>
+        Object.fromEntries(
+          Object.entries(state).filter(([key]) => ![
+            ...typicalZustandStoreExcludes,
+          ].includes(key))
+        ),
     },
   ),
 )

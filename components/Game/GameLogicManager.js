@@ -19,11 +19,11 @@ export default function GameLogicManager() {
         socket: state.socket,
     }));
 
-    const theme = useStore(state => state.theme);
-    const setTheme = useStore(state => state.setTheme);
+    // const theme = useStore(state => state.theme);
+    // const setTheme = useStore(state => state.setTheme);
 
-    const threeDimensional = useStore(state => state.threeDimensional);
-    const setThreeDimensional = useStore(state => state.setThreeDimensional);
+    // const threeDimensional = useStore(state => state.threeDimensional);
+    // const setThreeDimensional = useStore(state => state.setThreeDimensional);
 
     const nickname = useStore(state => state.nickname);
     const character = useStore(state => state.character);
