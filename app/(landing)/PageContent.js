@@ -57,7 +57,7 @@ const ReturnToLauncherButton = dynamic(() =>
     { ssr: false }
 );
 
-const game_name = "Battle Trap";
+const game_name = process.env.NEXT_PUBLIC_GAME_NAME;
 
 export default function BattleTrapLobbyPage(props) {
 
@@ -267,7 +267,9 @@ export default function BattleTrapLobbyPage(props) {
 
                 <div className="mb-3 mb-lg-5 mx-auto" style={{ "maxWidth": "800px" }}>
 
-                    <h1 className="mb-1 text-center">Battle Trap</h1>
+                    <h1 className="mb-1 text-center">
+                        {process.env.NEXT_PUBLIC_GAME_NAME}
+                    </h1>
 
                     <div className='text-center mb-3'>
                         <span className="">Select a server to join.</span>
@@ -763,7 +765,7 @@ export default function BattleTrapLobbyPage(props) {
             </div>
 
             <GameScoreboard
-                game="Battle Trap"
+                game={process.env.NEXT_PUBLIC_GAME_NAME}
                 style="Default"
                 darkMode={darkMode ? true : false}
             />
@@ -771,7 +773,7 @@ export default function BattleTrapLobbyPage(props) {
             <Ad
                 style="Default"
                 section={"Games"}
-                section_id={game_name}
+                section_id={process.env.NEXT_PUBLIC_GAME_NAME}
                 darkMode={darkMode ? true : false}
                 user_ad_token={userToken}
                 userDetails={userDetails}
