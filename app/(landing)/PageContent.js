@@ -20,29 +20,11 @@ import { useSocketStore } from '@/hooks/useSocketStore';
 import { Box, Paper, Tooltip } from '@mui/material';
 import { useStore } from '@/hooks/useStore';
 import NicknameInput from '@articles-media/articles-dev-box/NicknameInput';
-
+const SessionButton = dynamic(() =>
+    import('@articles-media/articles-dev-box/SessionButton'),
+    { ssr: false }
+);
 import GameMenuPrimaryButtonGroup from '@articles-media/articles-dev-box/GameMenuPrimaryButtonGroup';
-
-// import GameInfoModal from '@/components/UI/InfoModal';
-// import ArticlesSignInButton from '@/components/ArticlesSignInButton';
-
-// const Ad = dynamic(() => import('@/components/ArticlesAd'), {
-//     ssr: false,
-// });
-
-// const ArticlesModal = dynamic(() => import('@/components/UI/ArticlesModal'), {
-//     ssr: false,
-// });
-
-// const InfoModal = dynamic(
-//     () => import('@/components/Games/InfoModal'),
-//     { ssr: false }
-// )
-
-// const SettingsModal = dynamic(
-//     () => import('@/components/UI/SettingsModal'),
-//     { ssr: false }
-// )
 
 const GameSetupModal = dynamic(
     () => import('@/components/UI/GameSetupModal'),
@@ -257,26 +239,12 @@ export default function BattleTrapLobbyPage(props) {
                 />
             </Suspense>
 
-            {/* {showInfoModal &&
-                <GameInfoModal
-                    show={showInfoModal}
-                    setShow={setShowInfoModal}
-                />
-            } */}
-
             {showGameSetupModal &&
                 <GameSetupModal
                     show={showGameSetupModal}
                     setShow={setShowGameSetupModal}
                 />
             }
-
-            {/* {showSettingsModal &&
-                <SettingsModal
-                    show={showSettingsModal}
-                    setShow={setShowSettingsModal}
-                />
-            } */}
 
             {showEditBikeModal &&
                 <CustomizeBikeModal />
@@ -322,71 +290,6 @@ export default function BattleTrapLobbyPage(props) {
                     </div>
 
                     <div className='d-flex justify-content-center align-items-center my-3'>
-
-                        {/* <Link href={ROUTES.GAMES} className='mx-1'>
-                            <ArticlesButton
-                                className={``}
-                                small
-                                onClick={() => {
-
-                                }}
-                            >
-                                <i className="fad fa-sign-out fa-rotate-180"></i>
-                                Leave Game
-                            </ArticlesButton>
-                        </Link> */}
-
-                        {/* <ArticlesButton
-                            small
-                            className="mx-0"
-                            onClick={() => {
-                                setShowInfoModal(true)
-                            }}
-                        >
-                            <i className="fad fa-info-circle"></i>
-                            Info
-                        </ArticlesButton> */}
-
-                        {/* <ArticlesButton
-                            small
-                            className="mx-0 me-4"
-                            onClick={() => {
-                                setShowSettingsModal(true)
-                            }}
-                        >
-                            <i className="fad fa-cog"></i>
-                            Settings
-                        </ArticlesButton> */}
-
-                        {/* <ArticlesButton
-                            small
-                            className="mx-0"
-                            onClick={() => {
-                                setShowCreditsModal(true)
-                            }}
-                        >
-                            <i className="fad fa-list-alt"></i>
-                            Credits
-                        </ArticlesButton> */}
-
-                        {/* <ArticlesButton
-                            small
-                            className="mx-0"
-                            active={isFullscreen}
-                            onClick={() => {
-                                isFullscreen ? exitFullscreen() : requestFullscreen()
-                            }}
-                        >
-                            <i className="fad fa-expand-wide me-2"></i>
-                            <span>{isFullscreen ? "Exit Fullscreen" : "Fullscreen"}</span>
-                        </ArticlesButton> */}
-
-                        {/* <ArticlesButton
-                            className="mx-1"
-                            small
-                        >
-                            Private Game
-                        </ArticlesButton> */}
 
                         <div>
                             <IsDev inline>
@@ -507,11 +410,11 @@ export default function BattleTrapLobbyPage(props) {
                             style={{ "width": "100%", margin: '0rem', border: '1px solid #fff', padding: '1rem 0rem' }}
                         >
 
-                            <div 
-                            className="card-header d-flex justify-content-center h-100 align-items-center mx-auto"
-                            style={{
-                                width: '250px',
-                            }}
+                            <div
+                                className="card-header d-flex justify-content-center h-100 align-items-center mx-auto"
+                                style={{
+                                    width: '250px',
+                                }}
                             >
 
                                 <NicknameInput
@@ -848,7 +751,13 @@ export default function BattleTrapLobbyPage(props) {
                 </div>
 
                 <div className='d-flex justify-content-center align-items-center'>
-                    <div style={{ width: '300px' }}><ReturnToLauncherButton /></div>
+                    <div style={{ width: '300px' }}>
+                        <SessionButton
+                            port={process.env.NEXT_PUBLIC_GAME_PORT}
+                            friendsButton={true}
+                        />
+                        <ReturnToLauncherButton />
+                    </div>
                 </div>
 
             </div>

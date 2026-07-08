@@ -20,6 +20,9 @@ export const useAudioStore = create()(
 
       audioSettings: initialAudioSettings,
       setAudioSettings: (newValue) => set({ audioSettings: newValue }),
+      resetAudioSettings: () => set({
+        audioSettings: initialAudioSettings
+      }),
 
       playSoundEffect: () => {
         const audioSettings = get().audioSettings;
@@ -30,10 +33,6 @@ export const useAudioStore = create()(
         audio.volume = (audioSettings?.game_volume ?? 50) / 100;
         audio.play();
       },
-
-      resetAudioSettings: () => set({
-        audioSettings: initialAudioSettings
-      })
 
     }),
     {

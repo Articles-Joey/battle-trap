@@ -7,12 +7,13 @@ import { useStore } from '@/hooks/useStore';
 import { useAudioStore } from '@/hooks/useAudioStore';
 import useTouchControlsStore from '@/hooks/useTouchControlsStore';
 import { useSocketStore } from '@/hooks/useSocketStore';
-
+import HotkeyHandler from '@articles-media/articles-dev-box/HotkeyHandler';
 import DarkModeHandler from "@articles-media/articles-dev-box/DarkModeHandler";
 import GlobalBody from '@articles-media/articles-dev-box/GlobalBody';
 // import ToontownModeHandler from '@articles-media/articles-dev-box/ToontownModeHandler';
 import GlobalClientModals from '@articles-media/articles-dev-box/GlobalClientModals';
 import AudioHandler from '@/components/Game/AudioHandler';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 export default function LayoutClient({ children }) {
 
@@ -24,6 +25,10 @@ export default function LayoutClient({ children }) {
             />
             <AudioHandler />
             <Suspense>
+                <HotkeyHandler
+                    useStore={useStore}
+                    useHotkeys={useHotkeys}
+                />
                 <GlobalClientModals
                     useStore={useStore}
                     useAudioStore={useAudioStore}
