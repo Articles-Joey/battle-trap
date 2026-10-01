@@ -9,19 +9,21 @@ Title: Low Poly Chopper
 import { useRef } from "react";
 import { useGLTF } from "@react-three/drei";
 
-let link = `${process.env.NEXT_PUBLIC_CDN}games/Battle Trap/`
+let link = `${process.env.NEXT_PUBLIC_CDN}games/Battle Trap/`;
 
 // Will load from local public folder instead of CDN
 if (process.env.NEXT_PUBLIC_MODEL_SOURCE == "LOCAL") {
-    link = `/models/Player/`
+    link = `/models/Player/`;
 }
 
 export function LowPolyChopper(props) {
-
     const { nodes, materials } = useGLTF(`${link}low_poly_chopper.glb`);
 
     return (
-        <group {...props} dispose={null}>
+        <group
+            {...props}
+            dispose={null}
+        >
             <group
                 position={[0, 145, 341.451]}
                 rotation={[-Math.PI / 2, 0, 0]}
@@ -58,7 +60,10 @@ export function LowPolyChopper(props) {
                     material={materials["Material.001"]}
                 />
             </group>
-            <group rotation={[-Math.PI / 2, 0, 0]} scale={100}>
+            <group
+                rotation={[-Math.PI / 2, 0, 0]}
+                scale={100}
+            >
                 <mesh
                     castShadow
                     receiveShadow
@@ -95,11 +100,13 @@ export function LowPolyChopper(props) {
 }
 
 export function LowPolyScooter(props) {
-
     const { nodes, materials } = useGLTF(`${link}low_poly_scooter.glb`);
 
     return (
-        <group {...props} dispose={null}>
+        <group
+            {...props}
+            dispose={null}
+        >
             <group
                 position={[0.11, 1.386, -0.332]}
                 rotation={[-Math.PI / 2, 0, 0]}
@@ -166,7 +173,10 @@ export function LowPolyScooter(props) {
                     material={materials["Material.014"]}
                 />
             </group>
-            <group position={[-0.022, 0.847, -0.351]} rotation={[Math.PI / 2, 0, 0]}>
+            <group
+                position={[-0.022, 0.847, -0.351]}
+                rotation={[Math.PI / 2, 0, 0]}
+            >
                 <mesh
                     castShadow
                     receiveShadow
@@ -314,11 +324,13 @@ export function LowPolyScooter(props) {
 }
 
 export function LowPolyTricycle(props) {
-
     const { nodes, materials } = useGLTF(`${link}low_poly_tricycle.glb`);
 
     return (
-        <group {...props} dispose={null}>
+        <group
+            {...props}
+            dispose={null}
+        >
             <group rotation={[-Math.PI / 2, 0, Math.PI]}>
                 <mesh
                     castShadow
@@ -368,11 +380,13 @@ export function LowPolyTricycle(props) {
 }
 
 export function Unicycle(props) {
-
     const { nodes, materials } = useGLTF(`${link}unicycle.glb`);
 
     return (
-        <group {...props} dispose={null}>
+        <group
+            {...props}
+            dispose={null}
+        >
             <mesh
                 castShadow
                 receiveShadow
@@ -435,11 +449,13 @@ export function Unicycle(props) {
 }
 
 export function ToiletTricycle(props) {
-
     const { nodes, materials } = useGLTF(`${link}toilet_tricycle.glb`);
 
     return (
-        <group {...props} dispose={null}>
+        <group
+            {...props}
+            dispose={null}
+        >
             <group position={[0, 0, 2.182]}>
                 <mesh
                     castShadow
@@ -450,7 +466,10 @@ export function ToiletTricycle(props) {
                     scale={0.903}
                 />
             </group>
-            <group position={[-12.82, 0.945, 1.148]} rotation={[0, 0, Math.PI]}>
+            <group
+                position={[-12.82, 0.945, 1.148]}
+                rotation={[0, 0, Math.PI]}
+            >
                 <mesh
                     castShadow
                     receiveShadow

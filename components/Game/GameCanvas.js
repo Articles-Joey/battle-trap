@@ -1,5 +1,12 @@
-import { Canvas } from "@react-three/fiber"
-import { Sky, useDetectGPU, useTexture, OrbitControls, Text, Billboard } from "@react-three/drei";
+import { Canvas } from "@react-three/fiber";
+import {
+    Sky,
+    useDetectGPU,
+    useTexture,
+    OrbitControls,
+    Text,
+    Billboard,
+} from "@react-three/drei";
 
 import GameGrid from "./GameGrid";
 
@@ -26,16 +33,23 @@ import useCurrentPlayer from "@/hooks/useCurrentPlayer";
 // const boardSize = 20;
 
 const FlatArrow = (props) => {
-
     return (
-        <group
-            {...props}
-        >
-
+        <group {...props}>
             {/* Shaft */}
-            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.1, 1.5]}>
-                <planeGeometry attach="geometry" args={[0.4, 1]} />
-                <meshStandardMaterial attach="material" color={'red'} transparent={true} opacity={0.5} />
+            <mesh
+                rotation={[-Math.PI / 2, 0, 0]}
+                position={[0, 0.1, 1.5]}
+            >
+                <planeGeometry
+                    attach="geometry"
+                    args={[0.4, 1]}
+                />
+                <meshStandardMaterial
+                    attach="material"
+                    color={"red"}
+                    transparent={true}
+                    opacity={0.5}
+                />
             </mesh>
 
             {/* Head */}
@@ -45,15 +59,33 @@ const FlatArrow = (props) => {
             </mesh> */}
 
             {/* Left Blockout */}
-            <mesh rotation={[-Math.PI / 2, 0, -Math.PI / 4]} position={[-0.212, 0.1, 2]}>
-                <planeGeometry attach="geometry" args={[1, 0.4]} />
-                <meshStandardMaterial attach="material" color={'red'} />
+            <mesh
+                rotation={[-Math.PI / 2, 0, -Math.PI / 4]}
+                position={[-0.212, 0.1, 2]}
+            >
+                <planeGeometry
+                    attach="geometry"
+                    args={[1, 0.4]}
+                />
+                <meshStandardMaterial
+                    attach="material"
+                    color={"red"}
+                />
             </mesh>
 
             {/* Right Blockout */}
-            <mesh rotation={[-Math.PI / 2, 0, Math.PI / 4]} position={[0.212, 0.1, 2]}>
-                <planeGeometry attach="geometry" args={[1, 0.4]} />
-                <meshStandardMaterial attach="material" color={'red'} />
+            <mesh
+                rotation={[-Math.PI / 2, 0, Math.PI / 4]}
+                position={[0.212, 0.1, 2]}
+            >
+                <planeGeometry
+                    attach="geometry"
+                    args={[1, 0.4]}
+                />
+                <meshStandardMaterial
+                    attach="material"
+                    color={"red"}
+                />
             </mesh>
 
             {/* <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.5, 1.5]}>
@@ -73,126 +105,160 @@ const FlatArrow = (props) => {
                 />
 
             </mesh> */}
-
         </group>
     );
 };
 
 function MovementArrows({ player_obj, flatSpaces, boardSize }) {
-
     // const boardSize = useStore(state => state.boardSize);
 
-    const currentRoll = useStore(state => state.currentRoll);
-    const d12Texture = useTexture('/img/d12.svg');
+    const currentRoll = useStore((state) => state.currentRoll);
+    const d12Texture = useTexture("/img/d12.svg");
 
     const Dice = ({ position }) => (
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={position}>
+        <mesh
+            rotation={[-Math.PI / 2, 0, 0]}
+            position={position}
+        >
             <planeGeometry args={[1.5, 1.5]} />
-            <meshBasicMaterial map={d12Texture} transparent={true} />
+            <meshBasicMaterial
+                map={d12Texture}
+                transparent={true}
+            />
         </mesh>
     );
 
-    const Arrow = ({ show, position, rotation }) => show
-        ? (currentRoll === false
-            ? <Dice position={position} />
-            : <FlatArrow rotation={rotation} color="blue" size={10} />)
-        : null;
+    const Arrow = ({ show, position, rotation }) =>
+        show ? (
+            currentRoll === false ? (
+                <Dice position={position} />
+            ) : (
+                <FlatArrow
+                    rotation={rotation}
+                    color="blue"
+                    size={10}
+                />
+            )
+        ) : null;
 
     return (
         <group>
-
             {/* Left */}
             <Arrow
-                show={player_obj.battleTrap.x - 1 >= 0 && !flatSpaces.some(s => s.x == (player_obj.battleTrap.x - 1) && s.y == player_obj.battleTrap.y && s.checked)}
+                show={
+                    player_obj.battleTrap.x - 1 >= 0 &&
+                    !flatSpaces.some(
+                        (s) =>
+                            s.x == player_obj.battleTrap.x - 1 &&
+                            s.y == player_obj.battleTrap.y &&
+                            s.checked,
+                    )
+                }
                 position={[-2, 0.15, 0]}
                 rotation={[0, -Math.PI / 2, 0]}
             />
 
             {/* Right */}
             <Arrow
-                show={player_obj.battleTrap.x + 1 < boardSize && !flatSpaces.some(s => s.x == (player_obj.battleTrap.x + 1) && s.y == player_obj.battleTrap.y && s.checked)}
+                show={
+                    player_obj.battleTrap.x + 1 < boardSize &&
+                    !flatSpaces.some(
+                        (s) =>
+                            s.x == player_obj.battleTrap.x + 1 &&
+                            s.y == player_obj.battleTrap.y &&
+                            s.checked,
+                    )
+                }
                 position={[2, 0.15, 0]}
                 rotation={[0, Math.PI / 2, 0]}
             />
 
             {/* Back */}
             <Arrow
-                show={player_obj.battleTrap.y - 1 >= 0 && !flatSpaces.some(s => s.x == player_obj.battleTrap.x && s.y == (player_obj.battleTrap.y - 1) && s.checked)}
+                show={
+                    player_obj.battleTrap.y - 1 >= 0 &&
+                    !flatSpaces.some(
+                        (s) =>
+                            s.x == player_obj.battleTrap.x &&
+                            s.y == player_obj.battleTrap.y - 1 &&
+                            s.checked,
+                    )
+                }
                 position={[0, 0.15, 2]}
                 rotation={[0, 0, 0]}
             />
 
             {/* Forward */}
             <Arrow
-                show={player_obj.battleTrap.y + 1 < boardSize && !flatSpaces.some(s => s.x == player_obj.battleTrap.x && s.y == (player_obj.battleTrap.y + 1) && s.checked)}
+                show={
+                    player_obj.battleTrap.y + 1 < boardSize &&
+                    !flatSpaces.some(
+                        (s) =>
+                            s.x == player_obj.battleTrap.x &&
+                            s.y == player_obj.battleTrap.y + 1 &&
+                            s.checked,
+                    )
+                }
                 position={[0, 0.15, -2]}
                 rotation={[0, -Math.PI, 0]}
             />
-
         </group>
     );
 }
 
 function getPlayerRotation(lookup, player_obj, server) {
     let rotation = [0, 0, 0];
-    let axis = 'y';
+    let axis = "y";
 
     if (!lookup || !player_obj?.battleTrap) return { rotation, axis };
 
     if (
-        lookup.x == player_obj.battleTrap.x
-        &&
+        lookup.x == player_obj.battleTrap.x &&
         lookup.y < player_obj.battleTrap.y
     ) {
         rotation = [0, 0, 0];
-        axis = 'y';
+        axis = "y";
     } else if (
-        lookup.x == player_obj.battleTrap.x
-        &&
+        lookup.x == player_obj.battleTrap.x &&
         lookup.y > player_obj.battleTrap.y
     ) {
         rotation = [0, -Math.PI, 0];
-        axis = 'y';
+        axis = "y";
     } else if (
-        lookup.x < player_obj.battleTrap.x
-        &&
+        lookup.x < player_obj.battleTrap.x &&
         lookup.y == player_obj.battleTrap.y
     ) {
         rotation = [0, -Math.PI / 2, 0];
-        axis = 'x';
+        axis = "x";
     } else if (
-        lookup.x > player_obj.battleTrap.x
-        &&
+        lookup.x > player_obj.battleTrap.x &&
         lookup.y == player_obj.battleTrap.y
     ) {
         rotation = [0, Math.PI / 2, 0];
-        axis = 'x';
+        axis = "x";
     }
 
     return { rotation, axis };
 }
 
 function GameCanvas(props) {
-
     // const searchParams = useSearchParams()
     // const searchParamsObject = Object.fromEntries(searchParams.entries());
     // const server = searchParamsObject?.server
 
-    const {
-        socket,
-    } = useSocketStore(state => ({
+    const { socket } = useSocketStore((state) => ({
         socket: state.socket,
     }));
 
-    const boardSize = useStore(state => state.boardSize);
-    const localGameState = useStore(state => state.localGameState);
-    const currentPlayer = useCurrentPlayer()
+    const boardSize = useStore((state) => state.boardSize);
+    const localGameState = useStore((state) => state.localGameState);
+    const currentPlayer = useCurrentPlayer();
 
     // const defaultLocalGameState = useStore(state => state.defaultLocalGameState);
     // const setLocalGameState = useStore(state => state.setLocalGameState);
     // const resetGameState = useStore(state => state.resetGameState);
     // const theme = useStore(state => state.theme);
-    const darkMode = useStore(state => state.darkMode);
+    const darkMode = useStore((state) => state.darkMode);
     // const addSpace = useStore(state => state.addSpace);
 
     // const GPUTier = useDetectGPU()
@@ -203,25 +269,20 @@ function GameCanvas(props) {
         players,
         move,
         cameraInfo,
-        server
+        server,
     } = props;
 
-    let gameState
-    if (
-        server == 'single-player'
-        ||
-        server == 'local-play'
-    ) {
-        gameState = localGameState
+    let gameState;
+    if (server == "single-player" || server == "local-play") {
+        gameState = localGameState;
     } else {
-        gameState = multiplayerGameState
+        gameState = multiplayerGameState;
     }
 
     const flatSpaces = gameState?.spaces?.flat() || [];
 
     return (
         <Canvas camera={{ position: [-10, 40, 40], fov: 50 }}>
-
             <OrbitControls
             // autoRotate={gameState.status == 'In Lobby'}
             />
@@ -229,35 +290,32 @@ function GameCanvas(props) {
             <Sky
                 // distance={450000}
                 sunPosition={[0, -10, 0]}
-            // inclination={0}
-            // azimuth={0.25}
-            // {...props} 
+                // inclination={0}
+                // azimuth={0.25}
+                // {...props}
             />
 
-            {darkMode && <SkyBox
-                position={[0, 0, 0]}
-                scale={500}
-            />}
+            {darkMode && (
+                <SkyBox
+                    position={[0, 0, 0]}
+                    scale={500}
+                />
+            )}
 
-            {!darkMode && <SkyBoxCitySkyLine
-                position={[0, -30, 0]}
-            // scale={500}
-            />}
+            {!darkMode && (
+                <SkyBoxCitySkyLine
+                    position={[0, -30, 0]}
+                    // scale={500}
+                />
+            )}
 
-            <CornerBuildings
-                boardSize={boardSize}
-            />
+            <CornerBuildings boardSize={boardSize} />
 
-            <FillerBuildings
-                boardSize={boardSize}
-            />
+            <FillerBuildings boardSize={boardSize} />
 
             <GroundPlane
-                args={[(boardSize * 5.4), (boardSize * 5.4)]}
-                position={[
-                    0,
-                    -0.1,
-                    0]}
+                args={[boardSize * 5.4, boardSize * 5.4]}
+                position={[0, -0.1, 0]}
             />
 
             {/* <AreaHighlights 
@@ -280,14 +338,18 @@ function GameCanvas(props) {
             /> */}
 
             <ambientLight intensity={5} />
-            <spotLight intensity={30000} position={[-50, 100, 50]} angle={5} penumbra={1} />
+            <spotLight
+                intensity={30000}
+                position={[-50, 100, 50]}
+                angle={5}
+                penumbra={1}
+            />
 
             {/* <pointLight position={[-10, -10, -10]} /> */}
 
-            <group position={[-(boardSize), 0, (boardSize - 2)]}>
-
+            <group position={[-boardSize, 0, boardSize - 2]}>
                 {[
-                    ...players
+                    ...players,
                     // {
                     //     id: '123',
                     //     battleTrap: {
@@ -312,36 +374,45 @@ function GameCanvas(props) {
                     //         }
                     //     }
                     // }
-                ]?.map(player_obj => {
-
+                ]?.map((player_obj) => {
                     // let rotation;
 
                     // let axis;
 
                     // console.log(gameState?.spaces?.flat())
 
-                    let lastMove = (gameState.move - 2)
+                    let lastMove = gameState.move - 2;
 
-                    console.log("Last move number", lastMove)
+                    console.log("Last move number", lastMove);
 
-                    let lookup = gameState?.spaces?.flat().find(space_obj => (
-                        space_obj.checked.move == lastMove
-                        &&
-                        space_obj.checked.socket_id == player_obj.id
-                    ))
+                    let lookup = gameState?.spaces
+                        ?.flat()
+                        .find(
+                            (space_obj) =>
+                                space_obj.checked.move == lastMove &&
+                                space_obj.checked.socket_id == player_obj.id,
+                        );
 
-                    console.log("Last move lookup", lookup)
+                    console.log("Last move lookup", lookup);
 
-                    const { rotation, axis } = getPlayerRotation(lookup, player_obj, server);
+                    const { rotation, axis } = getPlayerRotation(
+                        lookup,
+                        player_obj,
+                        server,
+                    );
 
-                    console.log(rotation)
+                    console.log(rotation);
 
                     return (
-                        <group key={player_obj.id} position={[(player_obj.battleTrap.x * 2), 0, -(player_obj.battleTrap.y * 2)]}>
-
-                            <Billboard
-
-                            >
+                        <group
+                            key={player_obj.id}
+                            position={[
+                                player_obj.battleTrap.x * 2,
+                                0,
+                                -(player_obj.battleTrap.y * 2),
+                            ]}
+                        >
+                            <Billboard>
                                 <Text
                                     position={[0, 2, 0]}
                                     color="pink"
@@ -360,31 +431,36 @@ function GameCanvas(props) {
                                 rotation={rotation}
                             /> */}
 
-                            {player_obj?.battleTrap?.character?.model &&
+                            {player_obj?.battleTrap?.character?.model && (
                                 <group
                                     scale={0.03}
                                     rotation={rotation}
                                     position={[0, 0.2, 0]}
                                 >
-                                    <RenderModel character={player_obj?.battleTrap?.character} />
+                                    <RenderModel
+                                        character={
+                                            player_obj?.battleTrap?.character
+                                        }
+                                    />
                                 </group>
-                            }
+                            )}
 
                             {/* Movement arrows - show available moves */}
-                            {
-                                (currentPlayer?.color == player_obj?.battleTrap?.color)
-                                &&
+                            {currentPlayer?.color ==
+                                player_obj?.battleTrap?.color && (
                                 <MovementArrows
                                     player_obj={player_obj}
                                     flatSpaces={flatSpaces}
                                     boardSize={boardSize}
                                 />
-                            }
+                            )}
 
                             <mesh
                                 position={[0, 0, 0]}
                                 rotation={
-                                    axis == 'x' ? [0, -Math.PI / 2, 0] : [0, 0, 0]
+                                    axis == "x"
+                                        ? [0, -Math.PI / 2, 0]
+                                        : [0, 0, 0]
                                 }
                             >
                                 <boxGeometry args={[0.2, 0.5, 2]} />
@@ -407,23 +483,28 @@ function GameCanvas(props) {
                                 />
                             </mesh>} */}
 
-                            <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]} >
+                            <mesh
+                                position={[0, 0.05, 0]}
+                                rotation={[-Math.PI / 2, 0, 0]}
+                            >
                                 <planeGeometry args={[2, 2]} />
                                 <meshStandardMaterial
-                                    color={player_obj.battleTrap?.dead ? 'red' : player_obj.battleTrap?.color}
+                                    color={
+                                        player_obj.battleTrap?.dead
+                                            ? "red"
+                                            : player_obj.battleTrap?.color
+                                    }
                                     transparent={true}
                                     opacity={1}
                                 />
                             </mesh>
-
                         </group>
-                    )
+                    );
                 })}
-
             </group>
 
             <group
-                position={[-(boardSize), 0, (boardSize - 2)]}
+                position={[-boardSize, 0, boardSize - 2]}
                 rotation={[0, Math.PI / 2, 0]}
             >
                 <GameGrid
@@ -435,7 +516,7 @@ function GameCanvas(props) {
                     // gameState={localGameState}
 
                     players={players}
-                // move={move}
+                    // move={move}
                 />
             </group>
 
@@ -443,69 +524,78 @@ function GameCanvas(props) {
                 players={players}
                 gameState={gameState}
             /> */}
-
         </Canvas>
-    )
+    );
 }
 
-export default memo(GameCanvas)
+export default memo(GameCanvas);
 
-function AreaHighlights({
-    boardSize
-}) {
-
+function AreaHighlights({ boardSize }) {
     return (
         <>
-
             <mesh
                 rotation={[-Math.PI / 2, 0, 0]}
-                position={[
-                    -((boardSize) / 2) * 2,
-                    1,
-                    ((boardSize) / 2) * 2
-                ]}
+                position={[-(boardSize / 2) * 2, 1, (boardSize / 2) * 2]}
             >
-                <planeGeometry attach="geometry" args={[5, 5]} />
-                <meshStandardMaterial attach="material" color={'red'} transparent={true} opacity={0.5} />
+                <planeGeometry
+                    attach="geometry"
+                    args={[5, 5]}
+                />
+                <meshStandardMaterial
+                    attach="material"
+                    color={"red"}
+                    transparent={true}
+                    opacity={0.5}
+                />
             </mesh>
 
             <mesh
                 rotation={[-Math.PI / 2, 0, 0]}
-                position={[
-                    ((boardSize)),
-                    1,
-                    -((boardSize))
-                ]}
+                position={[boardSize, 1, -boardSize]}
             >
-                <planeGeometry attach="geometry" args={[5, 5]} />
-                <meshStandardMaterial attach="material" color={'blue'} transparent={true} opacity={0.5} />
+                <planeGeometry
+                    attach="geometry"
+                    args={[5, 5]}
+                />
+                <meshStandardMaterial
+                    attach="material"
+                    color={"blue"}
+                    transparent={true}
+                    opacity={0.5}
+                />
             </mesh>
 
             <mesh
                 rotation={[-Math.PI / 2, 0, 0]}
-                position={[
-                    ((boardSize)),
-                    1,
-                    ((boardSize))
-                ]}
+                position={[boardSize, 1, boardSize]}
             >
-                <planeGeometry attach="geometry" args={[5, 5]} />
-                <meshStandardMaterial attach="material" color={'green'} transparent={true} opacity={0.5} />
+                <planeGeometry
+                    attach="geometry"
+                    args={[5, 5]}
+                />
+                <meshStandardMaterial
+                    attach="material"
+                    color={"green"}
+                    transparent={true}
+                    opacity={0.5}
+                />
             </mesh>
 
             <mesh
                 rotation={[-Math.PI / 2, 0, 0]}
-                position={[
-                    -((boardSize) / 2) * 2,
-                    1,
-                    -((boardSize) / 2 * 2)
-                ]}
+                position={[-(boardSize / 2) * 2, 1, -((boardSize / 2) * 2)]}
             >
-                <planeGeometry attach="geometry" args={[5, 5]} />
-                <meshStandardMaterial attach="material" color={'yellow'} transparent={true} opacity={0.5} />
+                <planeGeometry
+                    attach="geometry"
+                    args={[5, 5]}
+                />
+                <meshStandardMaterial
+                    attach="material"
+                    color={"yellow"}
+                    transparent={true}
+                    opacity={0.5}
+                />
             </mesh>
-
         </>
-    )
-
+    );
 }

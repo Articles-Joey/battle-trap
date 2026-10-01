@@ -1,60 +1,52 @@
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
-import { useThree } from '@react-three/fiber';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { useThree } from "@react-three/fiber";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
-import { useHotkeys } from 'react-hotkeys-hook';
-import { throttle } from 'lodash';
+import { useHotkeys } from "react-hotkeys-hook";
+import { throttle } from "lodash";
 
-const CameraController = ({
-    onCameraChange
-}) => {
-
+const CameraController = ({ onCameraChange }) => {
     const { camera, gl } = useThree();
 
     useEffect(() => {
-
         const controls = new OrbitControls(camera, gl.domElement);
 
         controls.minDistance = 3;
         controls.maxDistance = 40;
 
         // Subscribe to the OrbitControls change event
-        controls.addEventListener('change', handleControlsChange);
+        controls.addEventListener("change", handleControlsChange);
 
         return () => {
             controls.dispose();
         };
-
     }, [camera, gl]);
 
     useEffect(() => {
-
         // const controls = new OrbitControls(camera, gl.domElement);
-
         // camera.position.set(20, 15, 14);
         // controls.target.set(20, 0, 0);
-
     }, []);
 
     const handleMovement = (direction) => {
         switch (direction) {
-            case 'forward':
+            case "forward":
                 camera.position.z -= 0.1;
                 break;
-            case 'backward':
+            case "backward":
                 camera.position.z += 0.1;
                 break;
-            case 'left':
+            case "left":
                 camera.position.x -= 0.1;
                 break;
-            case 'right':
+            case "right":
                 camera.position.x += 0.1;
                 break;
-            case 'up':
+            case "up":
                 camera.position.y += 0.1;
                 break;
-            case 'down':
+            case "down":
                 camera.position.y -= 0.1;
                 break;
             default:
@@ -77,35 +69,43 @@ const CameraController = ({
     };
 
     const throttledMoveForward = throttle(() => {
-        handleMovement('forward');
+        handleMovement("forward");
     }, 16);
 
     const throttledMoveBackward = throttle(() => {
-        handleMovement('backward');
+        handleMovement("backward");
     }, 16);
 
     const throttledMoveLeft = throttle(() => {
-        handleMovement('left');
+        handleMovement("left");
     }, 16);
 
     const throttledMoveRight = throttle(() => {
-        handleMovement('right');
+        handleMovement("right");
     }, 16);
 
     const throttledMoveUp = throttle(() => {
-        handleMovement('up');
+        handleMovement("up");
     }, 16);
 
     const throttledMoveDown = throttle(() => {
-        handleMovement('down');
+        handleMovement("down");
     }, 16);
 
-    useHotkeys('w', throttledMoveForward, { enableOnTags: ['INPUT', 'TEXTAREA'] });
-    useHotkeys('s', throttledMoveBackward, { enableOnTags: ['INPUT', 'TEXTAREA'] });
-    useHotkeys('a', throttledMoveLeft, { enableOnTags: ['INPUT', 'TEXTAREA'] });
-    useHotkeys('d', throttledMoveRight, { enableOnTags: ['INPUT', 'TEXTAREA'] });
-    useHotkeys(' ', throttledMoveUp, { enableOnTags: ['INPUT', 'TEXTAREA'] });
-    useHotkeys('ctrl', throttledMoveDown, { enableOnTags: ['INPUT', 'TEXTAREA'] });
+    useHotkeys("w", throttledMoveForward, {
+        enableOnTags: ["INPUT", "TEXTAREA"],
+    });
+    useHotkeys("s", throttledMoveBackward, {
+        enableOnTags: ["INPUT", "TEXTAREA"],
+    });
+    useHotkeys("a", throttledMoveLeft, { enableOnTags: ["INPUT", "TEXTAREA"] });
+    useHotkeys("d", throttledMoveRight, {
+        enableOnTags: ["INPUT", "TEXTAREA"],
+    });
+    useHotkeys(" ", throttledMoveUp, { enableOnTags: ["INPUT", "TEXTAREA"] });
+    useHotkeys("ctrl", throttledMoveDown, {
+        enableOnTags: ["INPUT", "TEXTAREA"],
+    });
 
     return null;
 };

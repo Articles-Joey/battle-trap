@@ -8,14 +8,14 @@ i {
     margin-right: 0.2rem;
 }
 
-button, .btn {
+button,
+.btn {
     white-space: pre;
     font-size: 0.7rem !important;
 }
 
 .battle-trap-lobby-page,
 .battle-trap-game-page {
-
     .background {
         position: fixed;
         top: 0;
@@ -35,5 +35,4 @@ button, .btn {
         position: relative;
         z-index: 1;
     }
-
 }

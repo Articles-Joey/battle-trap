@@ -1,49 +1,48 @@
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 const initialAudioSettings = {
-  enabled: false,
-  game_volume: 50,
-  music_volume: 50,
-}
+    enabled: false,
+    game_volume: 50,
+    music_volume: 50,
+};
 
 export const useAudioStore = create()(
-  persist(
-    (set, get) => ({
+    persist(
+        (set, get) => ({
+            _hasHydrated: false,
+            setHasHydrated: (state) => {
+                set({
+                    _hasHydrated: state,
+                });
+            },
 
-      _hasHydrated: false,
-      setHasHydrated: (state) => {
-        set({
-          _hasHydrated: state
-        });
-      },
+            audioSettings: initialAudioSettings,
+            setAudioSettings: (newValue) => set({ audioSettings: newValue }),
+            resetAudioSettings: () =>
+                set({
+                    audioSettings: initialAudioSettings,
+                }),
 
-      audioSettings: initialAudioSettings,
-      setAudioSettings: (newValue) => set({ audioSettings: newValue }),
-      resetAudioSettings: () => set({
-        audioSettings: initialAudioSettings
-      }),
-
-      playSoundEffect: () => {
-        const audioSettings = get().audioSettings;
-        if (!audioSettings?.enabled) return;
-        const audio = new Audio(
-          '/audio/mondamusic-retro-arcade-game-music-487316-compress.mp3'
-        );
-        audio.volume = (audioSettings?.game_volume ?? 50) / 100;
-        audio.play();
-      },
-
-    }),
-    {
-      name: 'audio-store', // name of the item in the storage (must be unique)
-      version: 1,
-      onRehydrateStorage: () => (state) => {
-        state.setHasHydrated(true)
-      },
-      partialize: (state) => ({
-        audioSettings: state.audioSettings,
-      }),
-    },
-  ),
-)
+            playSoundEffect: () => {
+                const audioSettings = get().audioSettings;
+                if (!audioSettings?.enabled) return;
+                const audio = new Audio(
+                    "/audio/mondamusic-retro-arcade-game-music-487316-compress.mp3",
+                );
+                audio.volume = (audioSettings?.game_volume ?? 50) / 100;
+                audio.play();
+            },
+        }),
+        {
+            name: "audio-store", // name of the item in the storage (must be unique)
+            version: 1,
+            onRehydrateStorage: () => (state) => {
+                state.setHasHydrated(true);
+            },
+            partialize: (state) => ({
+                audioSettings: state.audioSettings,
+            }),
+        },
+    ),
+);

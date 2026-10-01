@@ -1,47 +1,41 @@
 import { useEffect, useState } from "react";
 
-import { Modal, Form } from "react-bootstrap"
+import { Modal, Form } from "react-bootstrap";
 
 import ArticlesButton from "@/components/UI/Button";
 import Link from "next/link";
 import { useStore } from "@/hooks/useStore";
 import { usePathname } from "next/navigation";
 
-export default function GameSetupModal({
-    show,
-    setShow,
-    preventClose,
-}) {
+export default function GameSetupModal({ show, setShow, preventClose }) {
+    const pathname = usePathname();
 
-    const pathname = usePathname()
+    const nickname = useStore((state) => state.nickname);
+    const setNickname = useStore((state) => state.setNickname);
+    const character = useStore((state) => state.character);
 
-    const nickname = useStore((state) => state.nickname)
-    const setNickname = useStore((state) => state.setNickname)
-    const character = useStore((state) => state.character)
+    const [showModal, setShowModal] = useState(true);
 
-    const [showModal, setShowModal] = useState(true)
+    const [lightboxData, setLightboxData] = useState(null);
 
-    const [lightboxData, setLightboxData] = useState(null)
+    const [tab, setTab] = useState("Controls");
 
-    const [tab, setTab] = useState('Controls')
+    const [tempPlayers, setTempPlayers] = useState([]);
 
-    const [tempPlayers, setTempPlayers] = useState([])
+    const [botData, setBotData] = useState([]);
 
-    const [botData, setBotData] = useState([])
+    const players = useStore((state) => state.players);
+    const setPlayers = useStore((state) => state.setPlayers);
 
-    const players = useStore(state => state.players);
-    const setPlayers = useStore(state => state.setPlayers);
+    const boardSize = useStore((state) => state.boardSize);
+    const setBoardSize = useStore((state) => state.setBoardSize);
 
-    const boardSize = useStore(state => state.boardSize);
-    const setBoardSize = useStore(state => state.setBoardSize);
-
-    const localGameState = useStore(state => state.localGameState);
-    const setLocalGameState = useStore(state => state.setLocalGameState);
+    const localGameState = useStore((state) => state.localGameState);
+    const setLocalGameState = useStore((state) => state.setLocalGameState);
 
     useEffect(() => {
-
-        if (show.type == 'single-player') {
-            setPlayersFromBotCount(3)
+        if (show.type == "single-player") {
+            setPlayersFromBotCount(3);
             // setBotData([
             //     ...[...Array(3).keys()].map(i => (
             //         {
@@ -51,9 +45,8 @@ export default function GameSetupModal({
             // ])
         }
 
-        if (show.type == 'local-play') {
-
-            setPlayersFromBotCount(2)
+        if (show.type == "local-play") {
+            setPlayersFromBotCount(2);
 
             // setBotData([
             //     ...[...Array(3).keys()].map(i => (
@@ -81,13 +74,10 @@ export default function GameSetupModal({
             //     })),
 
             // ])
-
         }
-
-    }, [show])
+    }, [show]);
 
     function determineStartLocationFromPlayerNumberAndBoardSize(playerNumber) {
-
         // return { x: 0, y: 0 };
 
         switch (playerNumber) {
@@ -95,25 +85,25 @@ export default function GameSetupModal({
                 return {
                     x: 0,
                     y: 0,
-                    color: 'red',
+                    color: "red",
                 };
             case 2:
                 return {
                     x: boardSize - 1,
                     y: boardSize - 1,
-                    color: 'blue',
+                    color: "blue",
                 };
             case 3:
                 return {
                     x: 0,
                     y: boardSize - 1,
-                    color: 'yellow',
+                    color: "yellow",
                 };
             case 4:
                 return {
                     x: boardSize - 1,
                     y: 0,
-                    color: 'green',
+                    color: "green",
                 };
         }
 
@@ -123,62 +113,55 @@ export default function GameSetupModal({
     }
 
     function setPlayersFromBotCount(bot_count) {
-
         setTempPlayers([
-
-            ...[
-                ...Array(4 - bot_count)
-            ].map((item, new_i) => ({
+            ...[...Array(4 - bot_count)].map((item, new_i) => ({
                 id: `player-${new_i}`,
                 battleTrap: {
-                    nickname: new_i == 0 ? (nickname || `Player ${new_i + 1}`) : `Player ${new_i + 1}`,
+                    nickname:
+                        new_i == 0
+                            ? nickname || `Player ${new_i + 1}`
+                            : `Player ${new_i + 1}`,
                     color: "red",
-                    ...determineStartLocationFromPlayerNumberAndBoardSize(new_i),
+                    ...determineStartLocationFromPlayerNumberAndBoardSize(
+                        new_i,
+                    ),
                     // y: determineStartLocationFromPlayerNumberAndBoardSize(new_i),
                     character: {
                         model: "low_poly_chopper.glb",
                         ...character,
-                    }
-                }
+                    },
+                },
             })),
 
-            ...[
-                ...Array(bot_count)
-            ].map((item, new_i) => ({
+            ...[...Array(bot_count)].map((item, new_i) => ({
                 id: `bot-${new_i}`,
                 battleTrap: {
                     bot: true,
                     difficulty: "Medium",
                     nickname: `Bot ${new_i + 1}`,
                     color: "red",
-                    ...determineStartLocationFromPlayerNumberAndBoardSize(1 + new_i + 4 - bot_count),
+                    ...determineStartLocationFromPlayerNumberAndBoardSize(
+                        1 + new_i + 4 - bot_count,
+                    ),
                     // x: 0,
                     // y: 0,
                     character: {
-                        model: "low_poly_chopper.glb"
-                    }
-                }
+                        model: "low_poly_chopper.glb",
+                    },
+                },
             })),
-
-        ])
-
+        ]);
     }
 
     useEffect(() => {
-
-        if (
-            localGameState.moveTime < 3
-            &&
-            localGameState.moveTime !== false
-        ) {
-            alert("Move timer can not be less than 3!")
+        if (localGameState.moveTime < 3 && localGameState.moveTime !== false) {
+            alert("Move timer can not be less than 3!");
             setLocalGameState({
                 ...localGameState,
-                moveTime: 20
-            })
+                moveTime: 20,
+            });
         }
-
-    }, [localGameState])
+    }, [localGameState]);
 
     return (
         <>
@@ -196,44 +179,39 @@ export default function GameSetupModal({
 
             <Modal
                 className="articles-modal"
-                size='md'
+                size="md"
                 show={showModal}
                 // To much jumping with little content for now
                 // centered
                 scrollable
                 onExited={() => {
-
                     if (preventClose) {
-                        return
+                        return;
                     }
 
-                    setShow(false)
+                    setShow(false);
                 }}
                 onHide={() => {
-
                     if (preventClose) {
-                        return
+                        return;
                     }
 
-                    setShowModal(false)
+                    setShowModal(false);
                 }}
             >
-
-                <Modal.Header closeButton={pathname !== '/play' ? true : false}>
+                <Modal.Header closeButton={pathname !== "/play" ? true : false}>
                     <Modal.Title>Game Setup</Modal.Title>
                 </Modal.Header>
 
                 <Modal.Body className="flex-column p-0">
-
-                    {show.type == 'single-player' &&
-                        <div className='d-none p-3 border-bottom'>
-
-                            <div className='mb-3'>
+                    {show.type == "single-player" && (
+                        <div className="d-none p-3 border-bottom">
+                            <div className="mb-3">
                                 Adjust bot difficulty as needed.
                             </div>
 
-                            <div className=''>
-                                {botData.map((item, i) =>
+                            <div className="">
+                                {botData.map((item, i) => (
                                     <div
                                         key={`bot-data-option-${i}`}
                                         // active={i == botData}
@@ -247,50 +225,62 @@ export default function GameSetupModal({
                                             // )
                                         }}
                                     >
-
-                                        <div>Bot {i + 1}: {item.difficulty}</div>
-
-                                        <div className='p-2'>
-                                            {[
-                                                'Easy',
-                                                'Medium',
-                                                'Hard',
-                                            ].map((difficulty_item, difficulty_i) =>
-                                                <ArticlesButton
-                                                    key={`bot-difficulty-option-${difficulty_item}`}
-                                                    active={difficulty_item == botData[i].difficulty}
-                                                    onClick={() => {
-
-                                                        let newData = botData.map((bot, index) => {
-                                                            if (index == i) {
-                                                                return {
-                                                                    ...bot,
-                                                                    difficulty: difficulty_item
-                                                                }
-                                                            }
-                                                            return bot
-                                                        })
-
-                                                        setBotData(newData)
-
-                                                    }}
-                                                >
-                                                    {difficulty_item}
-                                                </ArticlesButton>
-                                            )}
+                                        <div>
+                                            Bot {i + 1}: {item.difficulty}
                                         </div>
 
+                                        <div className="p-2">
+                                            {["Easy", "Medium", "Hard"].map(
+                                                (
+                                                    difficulty_item,
+                                                    difficulty_i,
+                                                ) => (
+                                                    <ArticlesButton
+                                                        key={`bot-difficulty-option-${difficulty_item}`}
+                                                        active={
+                                                            difficulty_item ==
+                                                            botData[i]
+                                                                .difficulty
+                                                        }
+                                                        onClick={() => {
+                                                            let newData =
+                                                                botData.map(
+                                                                    (
+                                                                        bot,
+                                                                        index,
+                                                                    ) => {
+                                                                        if (
+                                                                            index ==
+                                                                            i
+                                                                        ) {
+                                                                            return {
+                                                                                ...bot,
+                                                                                difficulty:
+                                                                                    difficulty_item,
+                                                                            };
+                                                                        }
+                                                                        return bot;
+                                                                    },
+                                                                );
+
+                                                            setBotData(newData);
+                                                        }}
+                                                    >
+                                                        {difficulty_item}
+                                                    </ArticlesButton>
+                                                ),
+                                            )}
+                                        </div>
                                     </div>
-                                )}
+                                ))}
                             </div>
-
                         </div>
-                    }
+                    )}
 
-                    {(show.type == 'single-player' || show.type == 'local-play') &&
-                        <div className='p-3 border-bottom'>
-
-                            <div className=''>
+                    {(show.type == "single-player" ||
+                        show.type == "local-play") && (
+                        <div className="p-3 border-bottom">
+                            <div className="">
                                 How big of a board do you want to play on?
                             </div>
 
@@ -299,213 +289,244 @@ export default function GameSetupModal({
                             </div>
 
                             <div
-                                className='mb-3 d-flex align-items-center'
-                                style={{
-                                    // pointerEvents: "none"
-                                }}
+                                className="mb-3 d-flex align-items-center"
+                                style={
+                                    {
+                                        // pointerEvents: "none"
+                                    }
+                                }
                             >
-
                                 <ArticlesButton
                                     onClick={() => {
-                                        setBoardSize(boardSize - 1)
+                                        setBoardSize(boardSize - 1);
                                     }}
                                     disabled={boardSize <= 10}
                                 >
-                                    <i className='fad fa-minus'></i>
+                                    <i className="fad fa-minus"></i>
                                 </ArticlesButton>
 
-                                <input type="number" min="10" max="50" step="1" value={boardSize} onChange={(e) => setBoardSize(e.target.value)} className="" />
+                                <input
+                                    type="number"
+                                    min="10"
+                                    max="50"
+                                    step="1"
+                                    value={boardSize}
+                                    onChange={(e) =>
+                                        setBoardSize(e.target.value)
+                                    }
+                                    className=""
+                                />
 
                                 <ArticlesButton
                                     onClick={() => {
-                                        setBoardSize(boardSize + 1)
+                                        setBoardSize(boardSize + 1);
                                     }}
                                     disabled={boardSize >= 50}
                                 >
-                                    <i className='fad fa-plus'></i>
+                                    <i className="fad fa-plus"></i>
                                 </ArticlesButton>
-
                             </div>
 
                             {/* Move Timer */}
                             <div>
-
-                                <div className='small mb-1'>
-                                    Would you like to add a move timer? Any remaining moves will be forfitted when time runs out.
+                                <div className="small mb-1">
+                                    Would you like to add a move timer? Any
+                                    remaining moves will be forfitted when time
+                                    runs out.
                                 </div>
 
-                                <div
-                                    className='mb-3 d-flex align-items-center'
-                                >
-
+                                <div className="mb-3 d-flex align-items-center">
                                     <ArticlesButton
-                                        active={localGameState?.moveTime == false}
+                                        active={
+                                            localGameState?.moveTime == false
+                                        }
                                         onClick={() => {
                                             setLocalGameState({
                                                 ...localGameState,
-                                                moveTime: false
-                                            })
+                                                moveTime: false,
+                                            });
                                         }}
                                     >
                                         {/* <i className='fad fa-minus'></i> */}
                                         <span>Off</span>
                                     </ArticlesButton>
                                     <ArticlesButton
-                                        className='me-3'
-                                        active={localGameState?.moveTime !== false}
+                                        className="me-3"
+                                        active={
+                                            localGameState?.moveTime !== false
+                                        }
                                         onClick={() => {
                                             setLocalGameState({
                                                 ...localGameState,
-                                                moveTime: 20
-                                            })
+                                                moveTime: 20,
+                                            });
                                         }}
                                     >
                                         {/* <i className='fad fa-minus'></i> */}
                                         <span>On</span>
                                     </ArticlesButton>
 
-                                    {localGameState?.moveTime !== false &&
+                                    {localGameState?.moveTime !== false && (
                                         <>
                                             <ArticlesButton
                                                 onClick={() => {
                                                     setLocalGameState({
                                                         ...localGameState,
-                                                        moveTime: (localGameState?.moveTime || 0) - 5
-                                                    })
+                                                        moveTime:
+                                                            (localGameState?.moveTime ||
+                                                                0) - 5,
+                                                    });
                                                 }}
                                             >
-                                                <i className='fad fa-minus'></i>
+                                                <i className="fad fa-minus"></i>
                                             </ArticlesButton>
 
-                                            <input type="number" min="1" max="100" value={localGameState?.moveTime || 0} onChange={(e) => setLocalGameState({
-                                                ...localGameState,
-                                                moveTime: parseInt(e.target.value, 10)
-                                            })} className="" />
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                max="100"
+                                                value={
+                                                    localGameState?.moveTime ||
+                                                    0
+                                                }
+                                                onChange={(e) =>
+                                                    setLocalGameState({
+                                                        ...localGameState,
+                                                        moveTime: parseInt(
+                                                            e.target.value,
+                                                            10,
+                                                        ),
+                                                    })
+                                                }
+                                                className=""
+                                            />
 
                                             <ArticlesButton
                                                 onClick={() => {
                                                     setLocalGameState({
                                                         ...localGameState,
-                                                        moveTime: (localGameState?.moveTime || 0) + 5
-                                                    })
+                                                        moveTime:
+                                                            (localGameState?.moveTime ||
+                                                                0) + 5,
+                                                    });
                                                 }}
                                             >
-                                                <i className='fad fa-plus'></i>
+                                                <i className="fad fa-plus"></i>
                                             </ArticlesButton>
                                         </>
-                                    }
-
+                                    )}
                                 </div>
                             </div>
 
                             {
-                                // show.type !== 'single-player' 
-                                true
-                                &&
-                                <div>
-                                    <div className='small mb-1'>
-                                        How many bots do you want to play against?
+                                // show.type !== 'single-player'
+                                true && (
+                                    <div>
+                                        <div className="small mb-1">
+                                            How many bots do you want to play
+                                            against?
+                                        </div>
+
+                                        <div className="mb-3">
+                                            {["0", "1", "2", "3"].map(
+                                                (item, i) => (
+                                                    <ArticlesButton
+                                                        key={`bot-amount-option-${i}`}
+                                                        className={`${show.type == "single-player" && i == 0 && "d-none"}`}
+                                                        active={
+                                                            i ==
+                                                            tempPlayers.filter(
+                                                                (player) =>
+                                                                    player
+                                                                        .battleTrap
+                                                                        ?.bot,
+                                                            ).length
+                                                        }
+                                                        onClick={() => {
+                                                            // let newData = [...Array(parseInt(item)).keys()].map(i => (
+                                                            //     {
+                                                            //         difficulty: "Easy"
+                                                            //     }
+                                                            // ))
+
+                                                            setPlayersFromBotCount(
+                                                                i,
+                                                            );
+
+                                                            // setPlayers([
+
+                                                            //     // ...[
+                                                            //     //     ...Array(4 - botData.length)
+                                                            //     // ].map((item, i) => ({
+
+                                                            //     // })),
+
+                                                            //     // {
+                                                            //     //     id: '1',
+                                                            //     //     battleTrap: {
+                                                            //     //         nickname: nickname || "Player 1",
+                                                            //     //         color: "red",
+                                                            //     //         x: 0,
+                                                            //     //         y: 0,
+                                                            //     //         character: {
+                                                            //     //             model: "low_poly_chopper.glb"
+                                                            //     //         }
+                                                            //     //     }
+                                                            //     // },
+
+                                                            //     // {
+                                                            //     //     id: '2',
+                                                            //     //     battleTrap: {
+                                                            //     //         nickname: "Player 2",
+                                                            //     //         color: "blue",
+                                                            //     //         x: boardSize - 1,
+                                                            //     //         y: boardSize - 1,
+                                                            //     //         character: {
+                                                            //     //             model: "low_poly_chopper.glb"
+                                                            //     //         }
+                                                            //     //     }
+                                                            //     // },
+                                                            //     // {
+                                                            //     //     id: '3',
+                                                            //     //     battleTrap: {
+                                                            //     //         nickname: "Player 3",
+                                                            //     //         color: "yellow",
+                                                            //     //         x: 0,
+                                                            //     //         y: boardSize - 1,
+                                                            //     //         character: {
+                                                            //     //             model: "low_poly_chopper.glb"
+                                                            //     //         }
+                                                            //     //     }
+                                                            //     // },
+                                                            //     // {
+                                                            //     //     id: '4',
+                                                            //     //     battleTrap: {
+                                                            //     //         nickname: "Player 4",
+                                                            //     //         color: "green",
+                                                            //     //         x: boardSize - 1,
+                                                            //     //         y: 0,
+                                                            //     //         character: {
+                                                            //     //             model: "low_poly_chopper.glb"
+                                                            //     //         }
+                                                            //     //     }
+                                                            //     // }
+
+                                                            // ])
+
+                                                            // console.log(
+                                                            //     newData
+                                                            // )
+
+                                                            // setBotData(newData)
+                                                        }}
+                                                    >
+                                                        {item}
+                                                    </ArticlesButton>
+                                                ),
+                                            )}
+                                        </div>
                                     </div>
-
-                                    <div className='mb-3'>
-                                        {[
-                                            '0',
-                                            '1',
-                                            '2',
-                                            '3'
-                                        ].map((item, i) =>
-                                            <ArticlesButton
-                                                key={`bot-amount-option-${i}`}
-                                                className={`${(show.type == 'single-player' && i == 0) && 'd-none'}`}
-                                                active={
-                                                    i
-                                                    ==
-                                                    tempPlayers.filter(player => player.battleTrap?.bot).length
-                                                }
-                                                onClick={() => {
-
-                                                    // let newData = [...Array(parseInt(item)).keys()].map(i => (
-                                                    //     {
-                                                    //         difficulty: "Easy"
-                                                    //     }
-                                                    // ))
-
-                                                    setPlayersFromBotCount(i)
-
-                                                    // setPlayers([
-
-                                                    //     // ...[
-                                                    //     //     ...Array(4 - botData.length)
-                                                    //     // ].map((item, i) => ({
-
-                                                    //     // })),
-
-                                                    //     // {
-                                                    //     //     id: '1',
-                                                    //     //     battleTrap: {
-                                                    //     //         nickname: nickname || "Player 1",
-                                                    //     //         color: "red",
-                                                    //     //         x: 0,
-                                                    //     //         y: 0,
-                                                    //     //         character: {
-                                                    //     //             model: "low_poly_chopper.glb"
-                                                    //     //         }
-                                                    //     //     }
-                                                    //     // },
-
-
-
-                                                    //     // {
-                                                    //     //     id: '2',
-                                                    //     //     battleTrap: {
-                                                    //     //         nickname: "Player 2",
-                                                    //     //         color: "blue",
-                                                    //     //         x: boardSize - 1,
-                                                    //     //         y: boardSize - 1,
-                                                    //     //         character: {
-                                                    //     //             model: "low_poly_chopper.glb"
-                                                    //     //         }
-                                                    //     //     }
-                                                    //     // },
-                                                    //     // {
-                                                    //     //     id: '3',
-                                                    //     //     battleTrap: {
-                                                    //     //         nickname: "Player 3",
-                                                    //     //         color: "yellow",
-                                                    //     //         x: 0,
-                                                    //     //         y: boardSize - 1,
-                                                    //     //         character: {
-                                                    //     //             model: "low_poly_chopper.glb"
-                                                    //     //         }
-                                                    //     //     }
-                                                    //     // },
-                                                    //     // {
-                                                    //     //     id: '4',
-                                                    //     //     battleTrap: {
-                                                    //     //         nickname: "Player 4",
-                                                    //     //         color: "green",
-                                                    //     //         x: boardSize - 1,
-                                                    //     //         y: 0,
-                                                    //     //         character: {
-                                                    //     //             model: "low_poly_chopper.glb"
-                                                    //     //         }
-                                                    //     //     }
-                                                    //     // }
-
-                                                    // ])
-
-                                                    // console.log(
-                                                    //     newData
-                                                    // )
-
-                                                    // setBotData(newData)
-                                                }}
-                                            >
-                                                {item}
-                                            </ArticlesButton>
-                                        )}
-                                    </div>
-                                </div>
+                                )
                             }
 
                             {/* <div className='d-none p-2 border-bottom mb-3'>
@@ -560,36 +581,35 @@ export default function GameSetupModal({
                                 )}
                             </div> */}
 
-                            <div className='small mb-1'>
-                                Player Data
-                            </div>
+                            <div className="small mb-1">Player Data</div>
 
-                            <div className='border px-3 pt-2'>
+                            <div className="border px-3 pt-2">
                                 {[
                                     // ...Array(4 - botData.length)
-                                    ...tempPlayers
-                                ].map((item, i) =>
+                                    ...tempPlayers,
+                                ].map((item, i) => (
                                     <div
                                         key={`player-info-${i}`}
                                         className="mb-2"
                                         // active={i == botData.length}
                                         onClick={() => {
-
                                             // let newData = [...Array(parseInt(item)).keys()].map(i => (
                                             //     {
                                             //         difficulty: "Easy"
                                             //     }
                                             // ))
-
                                             // console.log(
                                             //     newData
                                             // )
-
                                             // setBotData(newData)
                                         }}
                                     >
-
-                                        <div>Enter nickname for {item?.battleTrap?.bot ? 'bot' : 'player'}</div>
+                                        <div>
+                                            Enter nickname for{" "}
+                                            {item?.battleTrap?.bot
+                                                ? "bot"
+                                                : "player"}
+                                        </div>
                                         <input
                                             type="text"
                                             className="form-control"
@@ -597,110 +617,123 @@ export default function GameSetupModal({
                                             value={item?.battleTrap?.nickname}
                                             onChange={(e) => {
                                                 // e.preventDefault();
-                                                setTempPlayers(tempPlayers.map((player, index) => {
-                                                    if (index == i) {
-                                                        return {
-                                                            ...player,
-                                                            battleTrap: {
-                                                                ...player.battleTrap,
-                                                                nickname: e.target.value
+                                                setTempPlayers(
+                                                    tempPlayers.map(
+                                                        (player, index) => {
+                                                            if (index == i) {
+                                                                return {
+                                                                    ...player,
+                                                                    battleTrap:
+                                                                        {
+                                                                            ...player.battleTrap,
+                                                                            nickname:
+                                                                                e
+                                                                                    .target
+                                                                                    .value,
+                                                                        },
+                                                                };
                                                             }
-                                                        }
-                                                    }
-                                                    return player
-                                                }))
+                                                            return player;
+                                                        },
+                                                    ),
+                                                );
                                             }}
                                         />
 
-                                        {item?.battleTrap?.bot &&
-                                            <div className='p-2'>
-                                                {[
-                                                    'Easy',
-                                                    'Medium',
-                                                    'Hard',
-                                                ].map((difficulty_item, difficulty_i) =>
-                                                    <ArticlesButton
-                                                        key={`bot-difficulty-option-${difficulty_item}`}
-                                                        active={difficulty_item == item?.battleTrap?.difficulty}
-                                                        onClick={() => {
-
-                                                            setTempPlayers(
-                                                                // players
-                                                                tempPlayers.map((player, index) => {
-                                                                    if (index == i) {
-                                                                        return {
-                                                                            ...player,
-                                                                            battleTrap: {
-                                                                                ...player.battleTrap,
-                                                                                difficulty: difficulty_item
+                                        {item?.battleTrap?.bot && (
+                                            <div className="p-2">
+                                                {["Easy", "Medium", "Hard"].map(
+                                                    (
+                                                        difficulty_item,
+                                                        difficulty_i,
+                                                    ) => (
+                                                        <ArticlesButton
+                                                            key={`bot-difficulty-option-${difficulty_item}`}
+                                                            active={
+                                                                difficulty_item ==
+                                                                item?.battleTrap
+                                                                    ?.difficulty
+                                                            }
+                                                            onClick={() => {
+                                                                setTempPlayers(
+                                                                    // players
+                                                                    tempPlayers.map(
+                                                                        (
+                                                                            player,
+                                                                            index,
+                                                                        ) => {
+                                                                            if (
+                                                                                index ==
+                                                                                i
+                                                                            ) {
+                                                                                return {
+                                                                                    ...player,
+                                                                                    battleTrap:
+                                                                                        {
+                                                                                            ...player.battleTrap,
+                                                                                            difficulty:
+                                                                                                difficulty_item,
+                                                                                        },
+                                                                                };
                                                                             }
-                                                                        }
-                                                                    }
-                                                                    return player
-                                                                })
-                                                            )
-
-                                                        }}
-                                                    >
-                                                        {difficulty_item}
-                                                    </ArticlesButton>
+                                                                            return player;
+                                                                        },
+                                                                    ),
+                                                                );
+                                                            }}
+                                                        >
+                                                            {difficulty_item}
+                                                        </ArticlesButton>
+                                                    ),
                                                 )}
                                             </div>
-                                        }
-
+                                        )}
                                     </div>
-                                )}
+                                ))}
                             </div>
-
                         </div>
-                    }
-
+                    )}
                 </Modal.Body>
 
                 <Modal.Footer className="justify-content-between">
-
                     {/* <div></div> */}
 
-
                     <div>
-
-                        {pathname !== '/play' &&
+                        {pathname !== "/play" && (
                             <ArticlesButton
                                 variant="outline-dark"
                                 onClick={() => {
-                                    setShow(false)
+                                    setShow(false);
                                 }}
                             >
                                 Close
                             </ArticlesButton>
-                        }
+                        )}
 
                         <ArticlesButton
                             variant="outline-danger ms-3"
                             onClick={() => {
                                 // setShow(false)
-                                setTempPlayers([])
-                                setPlayers([])
-                                setBotData([])
+                                setTempPlayers([]);
+                                setPlayers([]);
+                                setBotData([]);
                             }}
                         >
                             Reset
                         </ArticlesButton>
-
                     </div>
-
 
                     <Link
                         className={``}
                         href={{
                             pathname: `/play`,
-                            query: { server: show.type }
+                            query: { server: show.type },
                         }}
                     >
                         <ArticlesButton
-                            variant="success" onClick={() => {
-
-                                setPlayers(tempPlayers)
+                            variant="success"
+                            onClick={() => {
+                                setPlayers(tempPlayers);
 
                                 setLocalGameState({
                                     ...localGameState,
@@ -710,54 +743,51 @@ export default function GameSetupModal({
                                             x: 0,
                                             y: 0,
                                             checked: {
-                                                color: 'red',
+                                                color: "red",
                                                 move: 1,
-                                                socket_id: 'socket_id_1',
-                                                playerMove: 0
-                                            }
+                                                socket_id: "socket_id_1",
+                                                playerMove: 0,
+                                            },
                                         },
                                         {
                                             x: boardSize - 1,
                                             y: boardSize - 1,
                                             checked: {
-                                                color: 'blue',
+                                                color: "blue",
                                                 move: 1,
-                                                socket_id: 'socket_id_2',
-                                                playerMove: 0
-                                            }
+                                                socket_id: "socket_id_2",
+                                                playerMove: 0,
+                                            },
                                         },
                                         {
                                             x: 0,
                                             y: boardSize - 1,
                                             checked: {
-                                                color: 'yellow',
+                                                color: "yellow",
                                                 move: 1,
-                                                socket_id: 'socket_id_3',
-                                                playerMove: 0
-                                            }
+                                                socket_id: "socket_id_3",
+                                                playerMove: 0,
+                                            },
                                         },
                                         {
                                             x: boardSize - 1,
                                             y: 0,
                                             checked: {
-                                                color: 'green',
+                                                color: "green",
                                                 move: 1,
-                                                socket_id: 'socket_id_4',
-                                                playerMove: 0
-                                            }
+                                                socket_id: "socket_id_4",
+                                                playerMove: 0,
+                                            },
                                         },
-                                    ]
-                                })
-
-                            }}>
+                                    ],
+                                });
+                            }}
+                        >
                             Start
                         </ArticlesButton>
                     </Link>
-
                 </Modal.Footer>
-
             </Modal>
         </>
-    )
-
+    );
 }

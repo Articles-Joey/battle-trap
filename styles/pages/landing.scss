@@ -1,9 +1,7 @@
 @use "@/styles/components/global.scss" as *;
 
 .battle-trap-lobby-page {
-
     .scoreboard {
-
         @include media-breakpoint-down(lg) {
             display: flex;
             flex-direction: column;
@@ -16,7 +14,6 @@
                 width: 300px;
             }
         }
-
     }
 
     .model-preview {
@@ -42,12 +39,11 @@
             min-height: 168px;
             position: relative;
 
-            >* {
+            > * {
                 position: absolute !important;
                 height: 100%;
             }
         }
-
     }
 
     .container {
@@ -89,6 +85,7 @@
             grid-gap: 5px 5px;
         }
 
-        .server {}
+        .server {
+        }
     }
 }

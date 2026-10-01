@@ -4,53 +4,33 @@ import { degToRad } from "three/src/math/MathUtils";
 import { SciFiBuildingsPack as SciFiBuildingsPackSquare } from "./SciFiBuildingsPackSquare";
 
 export default function FillerBuildings(props) {
-
     const { boardSize } = props;
 
     return (
         <group>
-
             <SciFiBuildingsPackSquare
-                position={[
-                    0,
-                    0,
-                    boardSize * 1.90
-                ]}
+                position={[0, 0, boardSize * 1.9]}
                 // rotation={[0, degToRad(-30), 0]}
-                colorOverlay='white'
+                colorOverlay="white"
             />
 
             <SciFiBuildingsPackSquare
-                position={[
-                    0,
-                    0,
-                    -boardSize * 1.90
-                ]}
+                position={[0, 0, -boardSize * 1.9]}
                 // rotation={[0, degToRad(-30), 0]}
-                colorOverlay='white'
+                colorOverlay="white"
             />
 
             <SciFiBuildingsPackSquare
-                position={[
-                    boardSize * 1.90,
-                    0,
-                    0
-                ]}
+                position={[boardSize * 1.9, 0, 0]}
                 // rotation={[0, degToRad(-30), 0]}
-                colorOverlay='white'
+                colorOverlay="white"
             />
 
             <SciFiBuildingsPackSquare
-                position={[
-                    -boardSize * 1.90,
-                    0,
-                    0
-                ]}
+                position={[-boardSize * 1.9, 0, 0]}
                 // rotation={[0, degToRad(-30), 0]}
-                colorOverlay='white'
+                colorOverlay="white"
             />
-
         </group>
-    )
-
+    );
 }

@@ -2,21 +2,21 @@
 // import styles from "../page.module.css";
 // import Link from "next/link";
 // import { Box, Typography } from "@mui/material";
-import PageContent from "./PageContent"
+import PageContent from "./PageContent";
 import { Suspense } from "react";
 
 export const metadata = {
-  title: "Play - Battle Trap",
-  robots: {
-    index: false,
-    follow: true,
-  },
+    title: "Play - Battle Trap",
+    robots: {
+        index: false,
+        follow: true,
+    },
 };
 
 export default function Play() {
-  return (
-    <Suspense>
-      <PageContent />
-    </Suspense>
-  );
+    return (
+        <Suspense>
+            <PageContent />
+        </Suspense>
+    );
 }

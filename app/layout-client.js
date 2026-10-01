@@ -1,28 +1,25 @@
-"use client"
-import { Suspense } from 'react';
+"use client";
+import { Suspense } from "react";
 
-import packageInfo from '@/package.json';
+import packageInfo from "@/package.json";
 
-import { useStore } from '@/hooks/useStore';
-import { useAudioStore } from '@/hooks/useAudioStore';
-import useTouchControlsStore from '@/hooks/useTouchControlsStore';
-import { useSocketStore } from '@/hooks/useSocketStore';
-import HotkeyHandler from '@articles-media/articles-dev-box/HotkeyHandler';
+import { useStore } from "@/hooks/useStore";
+import { useAudioStore } from "@/hooks/useAudioStore";
+import useTouchControlsStore from "@/hooks/useTouchControlsStore";
+import { useSocketStore } from "@/hooks/useSocketStore";
+import HotkeyHandler from "@articles-media/articles-dev-box/HotkeyHandler";
 import DarkModeHandler from "@articles-media/articles-dev-box/DarkModeHandler";
-import GlobalBody from '@articles-media/articles-dev-box/GlobalBody';
+import GlobalBody from "@articles-media/articles-dev-box/GlobalBody";
 // import ToontownModeHandler from '@articles-media/articles-dev-box/ToontownModeHandler';
-import GlobalClientModals from '@articles-media/articles-dev-box/GlobalClientModals';
-import AudioHandler from '@/components/Game/AudioHandler';
-import { useHotkeys } from 'react-hotkeys-hook';
+import GlobalClientModals from "@articles-media/articles-dev-box/GlobalClientModals";
+import AudioHandler from "@/components/Game/AudioHandler";
+import { useHotkeys } from "react-hotkeys-hook";
 
 export default function LayoutClient({ children }) {
-
     return (
         <>
             <GlobalBody />
-            <DarkModeHandler
-                useStore={useStore}
-            />
+            <DarkModeHandler useStore={useStore} />
             <AudioHandler />
             <Suspense>
                 <HotkeyHandler
@@ -38,21 +35,37 @@ export default function LayoutClient({ children }) {
                     packageInfo={packageInfo}
                     settingsModalConfig={{
                         tabs: {
-                            'Graphics': {
+                            Graphics: {
                                 darkMode: true,
-                                landingAnimation: true
+                                landingAnimation: true,
                             },
-                            'Audio': {
+                            Audio: {
                                 sliders: [
-                                    ...useAudioStore.getState().audioSettings ? Object.keys(useAudioStore.getState().audioSettings).filter(key => key !== "enabled").map(key => ({
-                                        key,
-                                        label: key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
-                                    }))
-                                        :
-                                        [],
-                                ]
+                                    ...(useAudioStore.getState().audioSettings
+                                        ? Object.keys(
+                                              useAudioStore.getState()
+                                                  .audioSettings,
+                                          )
+                                              .filter(
+                                                  (key) => key !== "enabled",
+                                              )
+                                              .map((key) => ({
+                                                  key,
+                                                  label: key
+                                                      .split("_")
+                                                      .map(
+                                                          (word) =>
+                                                              word
+                                                                  .charAt(0)
+                                                                  .toUpperCase() +
+                                                              word.slice(1),
+                                                      )
+                                                      .join(" "),
+                                              }))
+                                        : []),
+                                ],
                             },
-                            'Controls': {
+                            Controls: {
                                 // touchControls: true
                                 // defaultKeyBindings: {
                                 //     // moveUp: "W",
@@ -61,22 +74,20 @@ export default function LayoutClient({ children }) {
                                 //     // moveRight: "D",
                                 // }
                             },
-                            'Multiplayer': {
+                            Multiplayer: {
                                 serverUrl: true,
                             },
-                            'Other': {
+                            Other: {
                                 // toontownMode: true,
                             },
-                            'Debug': {
+                            Debug: {
                                 showStats: true,
-                                children: <>
-
-                                </>,
-                            }
+                                children: <></>,
+                            },
                         },
                         reset: () => {
                             useAudioStore.getState().resetAudioSettings();
-                        }
+                        },
                     }}
                     infoModalConfig={{
                         previewImage: "img/game-preview.webp",

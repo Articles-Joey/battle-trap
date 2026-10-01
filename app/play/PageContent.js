@@ -1,37 +1,41 @@
-"use client"
-import { useState, useEffect, useRef, useMemo } from 'react';
+"use client";
+import { useState, useEffect, useRef, useMemo } from "react";
 
 // import Link from 'next/link'
-import Image from 'next/image';
-import dynamic from 'next/dynamic'
-import { useSearchParams, useRouter, usePathname, useParams } from 'next/navigation';
+import Image from "next/image";
+import dynamic from "next/dynamic";
+import {
+    useSearchParams,
+    useRouter,
+    usePathname,
+    useParams,
+} from "next/navigation";
 
 // import BasicLoading from '@/components/loading/BasicLoading';
 // import Countdown from 'react-countdown';
 // import { add } from 'date-fns';
 // import { Accordion, Card, Dropdown, DropdownButton } from 'react-bootstrap';
-import ArticlesButton from '@/components/UI/Button';
-import useFullscreen from '@/hooks/useFullScreen';
+import ArticlesButton from "@/components/UI/Button";
+import useFullscreen from "@/hooks/useFullScreen";
 // import { useHotkeys } from 'react-hotkeys-hook';
 // import IsDev from '@/components/UI/IsDev';
-import { useSocketStore } from '@/hooks/useSocketStore';
-import { useStore } from '@/hooks/useStore';
+import { useSocketStore } from "@/hooks/useSocketStore";
+import { useStore } from "@/hooks/useStore";
 
-import TwoDimensionalMap from '@/components/Game/TwoDimensionalMap';
+import TwoDimensionalMap from "@/components/Game/TwoDimensionalMap";
 
 // import usePlayerMoveLogic from '@/hooks/usePlayerMoveLogic';
 
-import GameLogicManager from '@/components/Game/GameLogicManager';
-import useRollDice from '@/hooks/useRollDice';
-import SideMenu from '@/components/UI/SideMenu';
-import classNames from 'classnames';
+import GameLogicManager from "@/components/Game/GameLogicManager";
+import useRollDice from "@/hooks/useRollDice";
+import SideMenu from "@/components/UI/SideMenu";
+import classNames from "classnames";
 // import MenuBar from '@/components/UI/MenuBar';
 // import AudioHandler from '@/components/Game/AudioHandler';
 
-const ArticlesModal = dynamic(
-    () => import('@/components/UI/ArticlesModal'),
-    { ssr: false }
-)
+const ArticlesModal = dynamic(() => import("@/components/UI/ArticlesModal"), {
+    ssr: false,
+});
 
 // const InviteModal = dynamic(
 //     () => import('@/components/UI/InviteModal'),
@@ -48,84 +52,79 @@ const ArticlesModal = dynamic(
 //     { ssr: false }
 // )
 
-const GameCanvas = dynamic(() => import('@/components/Game/GameCanvas'), {
+const GameCanvas = dynamic(() => import("@/components/Game/GameCanvas"), {
     ssr: false,
 });
 
-const GameSetupModal = dynamic(
-    () => import('@/components/UI/GameSetupModal'),
-    { ssr: false }
-)
+const GameSetupModal = dynamic(() => import("@/components/UI/GameSetupModal"), {
+    ssr: false,
+});
 
 export default function BattleTrapGamePage(props) {
-
-    const {
-        socket,
-    } = useSocketStore(state => ({
+    const { socket } = useSocketStore((state) => ({
         socket: state.socket,
     }));
 
-    const threeDimensional = useStore(state => state.threeDimensional);
-    const setThreeDimensional = useStore(state => state.setThreeDimensional);
+    const threeDimensional = useStore((state) => state.threeDimensional);
+    const setThreeDimensional = useStore((state) => state.setThreeDimensional);
 
-    const nickname = useStore(state => state.nickname);
-    const character = useStore(state => state.character);
+    const nickname = useStore((state) => state.nickname);
+    const character = useStore((state) => state.character);
 
-    const localGameState = useStore(state => state.localGameState);
-    const addSpace = useStore(state => state.addSpace);
+    const localGameState = useStore((state) => state.localGameState);
+    const addSpace = useStore((state) => state.addSpace);
 
-    const players = useStore(state => state.players);
-    const setPlayers = useStore(state => state.setPlayers);
+    const players = useStore((state) => state.players);
+    const setPlayers = useStore((state) => state.setPlayers);
 
-    const currentTurn = useStore(state => state.currentTurn);
+    const currentTurn = useStore((state) => state.currentTurn);
     // const setCurrentTurn = useStore(state => state.setCurrentTurn);
 
-    const currentRoll = useStore(state => state.currentRoll);
-    const setCurrentRoll = useStore(state => state.setCurrentRoll);
+    const currentRoll = useStore((state) => state.currentRoll);
+    const setCurrentRoll = useStore((state) => state.setCurrentRoll);
 
-    const currentMoveCount = useStore(state => state.currentMoveCount);
-    const setCurrentMoveCount = useStore(state => state.setCurrentMoveCount)
-    const incCurrentMoveCount = useStore(state => state.incCurrentMoveCount);
+    const currentMoveCount = useStore((state) => state.currentMoveCount);
+    const setCurrentMoveCount = useStore((state) => state.setCurrentMoveCount);
+    const incCurrentMoveCount = useStore((state) => state.incCurrentMoveCount);
 
-    const router = useRouter()
-    const pathname = usePathname()
-    const searchParams = useSearchParams()
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
     const searchParamsObject = Object.fromEntries(searchParams.entries());
     // const params = useParams()
-    const server = searchParamsObject?.server
+    const server = searchParamsObject?.server;
 
     const { isFullscreen, requestFullscreen, exitFullscreen } = useFullscreen();
 
-    const [showInfoModal, setShowInfoModal] = useState(false)
-    const [showSettingsModal, setShowSettingsModal] = useState(false)
+    const [showInfoModal, setShowInfoModal] = useState(false);
+    const [showSettingsModal, setShowSettingsModal] = useState(false);
 
-    const [showInviteModal, setShowInviteModal] = useState(false)
+    const [showInviteModal, setShowInviteModal] = useState(false);
 
-    const [showBotModal, setShowBotModal] = useState(false)
+    const [showBotModal, setShowBotModal] = useState(false);
     const [botOptions, setBotOptions] = useState({
-        difficulty: "Easy"
-    })
+        difficulty: "Easy",
+    });
 
-    const gameState = useStore(state => state.gameState);
-    const showMenu = useStore(state => state.showMenu);
-    const sidebar = useStore(state => state.sidebar);
+    const gameState = useStore((state) => state.gameState);
+    const showMenu = useStore((state) => state.showMenu);
+    const sidebar = useStore((state) => state.sidebar);
 
     // const dispatch = useDispatch()
 
     // const [currentRoll, setCurrentRoll] = useState(null)
 
-    const [currentRollDiceOne, setCurrentRollDiceOne] = useState(null)
-    const [currentRollDiceTwo, setCurrentRollDiceTwo] = useState(null)
+    const [currentRollDiceOne, setCurrentRollDiceOne] = useState(null);
+    const [currentRollDiceTwo, setCurrentRollDiceTwo] = useState(null);
 
     // const [currentTurnCountdown, setCurrentTurnCountdown] = useState(add(new Date(), { minutes: 1 }))
 
-    const [showPlayers, setShowPlayers] = useState(true)
+    const [showPlayers, setShowPlayers] = useState(true);
 
     const subscribeToNewPlayer = () => {
-        socket.on('newPlayer', function (players) {
-
+        socket.on("newPlayer", function (players) {
             console.log("newPlayer received");
-            console.log(players)
+            console.log(players);
 
             // document.getElementById('playerCount').innerHTML = totalPlayerCount;
             // totalPlayerCount >= 4 ? ($('#lobbyStatus').html('[Game In Progress]'), $('#lobbyStatus').css("color", "green")) : ($('#lobbyStatus').html('[Waiting on more players]'), $('#lobbyStatus').css("color", "red"));
@@ -167,9 +166,8 @@ export default function BattleTrapGamePage(props) {
             //     console.log('Don\'t display bug info')
             //     document.getElementById('debug-bug-info').classList.add('d-none')
             // }
-
         });
-    }
+    };
 
     const rollDice = useRollDice(server);
 
@@ -213,7 +211,7 @@ export default function BattleTrapGamePage(props) {
     // }
 
     const currentPlayer = useMemo(() => {
-        return players[currentTurn]?.battleTrap
+        return players[currentTurn]?.battleTrap;
     }, [players, currentTurn]);
 
     return (
@@ -221,14 +219,13 @@ export default function BattleTrapGamePage(props) {
             className={classNames(
                 `${process.env.NEXT_PUBLIC_GAME_KEY}-game-page`,
                 {
-                    'menu-open': showMenu,
-                    'fullscreen': useFullscreen().isFullscreen,
-                    'show-sidebar': sidebar,
-                }
+                    "menu-open": showMenu,
+                    fullscreen: useFullscreen().isFullscreen,
+                    "show-sidebar": sidebar,
+                },
             )}
             id={`${process.env.NEXT_PUBLIC_GAME_KEY}-game-page`}
         >
-
             <GameLogicManager />
 
             {/* {showInfoModal &&
@@ -252,60 +249,54 @@ export default function BattleTrapGamePage(props) {
                 />
             } */}
 
-            {players.length == 0 &&
+            {players.length == 0 && (
                 <GameSetupModal
                     show={{
                         type: server,
                     }}
                     preventClose={true}
                     setShow={() => {
-                        console.error("No leaving on play page!")
+                        console.error("No leaving on play page!");
                     }}
                 />
-            }
+            )}
 
-            {showBotModal &&
+            {showBotModal && (
                 <ArticlesModal
                     show={showBotModal}
                     setShow={setShowBotModal}
                     title="Add a Bot"
                     action={() => {
-
                         socket.emit(`game:battle-trap:add-bot`, {
                             server: server,
                             difficulty: botOptions?.difficulty,
                         });
 
-                        setShowBotModal(false)
-
+                        setShowBotModal(false);
                     }}
-                    actionText={'Add'}
+                    actionText={"Add"}
                 >
-
                     <div className="fw-bold">Difficulty</div>
 
-                    <div className='d-flex'>
-
-                        {["Easy", "Medium", "Hard"].map(item => {
+                    <div className="d-flex">
+                        {["Easy", "Medium", "Hard"].map((item) => {
                             return (
                                 <ArticlesButton
                                     key={item}
                                     active={item == botOptions?.difficulty}
                                     onClick={() => {
                                         setBotOptions({
-                                            difficulty: item
-                                        })
+                                            difficulty: item,
+                                        });
                                     }}
                                 >
                                     {item}
                                 </ArticlesButton>
-                            )
+                            );
                         })}
-
                     </div>
-
                 </ArticlesModal>
-            }
+            )}
 
             <div className="background">
                 <Image
@@ -313,7 +304,7 @@ export default function BattleTrapGamePage(props) {
                     // placeholder={'blur'}
                     alt=""
                     fill
-                    style={{ objectFit: 'cover' }}
+                    style={{ objectFit: "cover" }}
                 />
             </div>
 
@@ -322,28 +313,23 @@ export default function BattleTrapGamePage(props) {
             <SideMenu />
 
             {/* Game Board */}
-            <div className='game-content'>
-
-                {threeDimensional &&
-                    <div className='canvas-three-wrap'>
+            <div className="game-content">
+                {threeDimensional && (
+                    <div className="canvas-three-wrap">
                         <GameCanvas
                             gameState={gameState}
                             server={server}
                             players={players}
                         />
                     </div>
-                }
+                )}
 
-                {!threeDimensional &&
-                    <div className='canvas-two-dimensional-wrap'>
-                        <TwoDimensionalMap
-
-                        />
+                {!threeDimensional && (
+                    <div className="canvas-two-dimensional-wrap">
+                        <TwoDimensionalMap />
                     </div>
-                }
-
+                )}
             </div>
-
         </div>
-    )
+    );
 }

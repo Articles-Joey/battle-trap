@@ -36,7 +36,7 @@ Beyond finishing the base game and multiplayer logic I have some other ideas.
 
 - Save/Load for single/local games
 - Add scaling additional moves in late game (Refer to board game)
-- Power-ups placed on map. 
+- Power-ups placed on map.
     - Bomb (Kills 3x3 around player that lands on it)
     - Extra Moves (Moves added to turn)
     - Blockage (Places random walls around map)
@@ -69,4 +69,4 @@ Player Models
 [Low Poly Scooter](https://sketchfab.com/supakorn.pim)  
 [Low Poly Tricycle](https://sketchfab.com/1-3D.com)  
 [Low Poly Unicycle](https://sketchfab.com/BeastSri)  
-[Toilet Tricycle](https://sketchfab.com/SebastianScaini)   
+[Toilet Tricycle](https://sketchfab.com/SebastianScaini)

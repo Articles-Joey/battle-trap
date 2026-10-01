@@ -1,9 +1,9 @@
-"use client"
-import { useState, useEffect, useContext, useRef, Suspense } from 'react';
+"use client";
+import { useState, useEffect, useContext, useRef, Suspense } from "react";
 
-import Link from 'next/link'
-import Image from 'next/image';
-import dynamic from 'next/dynamic'
+import Link from "next/link";
+import Image from "next/image";
+import dynamic from "next/dynamic";
 
 // import ROUTES from '@/components/constants/routes';
 
@@ -13,77 +13,78 @@ import dynamic from 'next/dynamic'
 // import SingleInput from '@/components/Articles/SingleInput';
 // import { useLocalStorageNew } from '@/hooks/useLocalStorageNew';
 
-import ArticlesButton from '@/components/UI/Button';
-import useFullscreen from '@/hooks/useFullScreen';
-import IsDev from '@/components/UI/IsDev';
-import { useSocketStore } from '@/hooks/useSocketStore';
-import { Box, Paper, Tooltip } from '@mui/material';
-import { useStore } from '@/hooks/useStore';
-import NicknameInput from '@articles-media/articles-dev-box/NicknameInput';
-const SessionButton = dynamic(() =>
-    import('@articles-media/articles-dev-box/SessionButton'),
-    { ssr: false }
+import ArticlesButton from "@/components/UI/Button";
+import useFullscreen from "@/hooks/useFullScreen";
+import IsDev from "@/components/UI/IsDev";
+import { useSocketStore } from "@/hooks/useSocketStore";
+import { Box, Paper, Tooltip } from "@mui/material";
+import { useStore } from "@/hooks/useStore";
+import NicknameInput from "@articles-media/articles-dev-box/NicknameInput";
+const SessionButton = dynamic(
+    () => import("@articles-media/articles-dev-box/SessionButton"),
+    { ssr: false },
 );
-import GameMenuPrimaryButtonGroup from '@articles-media/articles-dev-box/GameMenuPrimaryButtonGroup';
+import GameMenuPrimaryButtonGroup from "@articles-media/articles-dev-box/GameMenuPrimaryButtonGroup";
 
-const GameSetupModal = dynamic(
-    () => import('@/components/UI/GameSetupModal'),
-    { ssr: false }
-)
-
-const Viewer = dynamic(() => import('@/components/Game/Viewer'), {
+const GameSetupModal = dynamic(() => import("@/components/UI/GameSetupModal"), {
     ssr: false,
 });
 
-const RenderModel = dynamic(() => import('@/components/Game/RenderModel'), {
+const Viewer = dynamic(() => import("@/components/Game/Viewer"), {
+    ssr: false,
+});
+
+const RenderModel = dynamic(() => import("@/components/Game/RenderModel"), {
     ssr: false,
 });
 
 // import CustomizeBikeModal from '@/components/UI/CustomizeBikeModal';
-const CustomizeBikeModal = dynamic(() => import('@/components/UI/CustomizeBikeModal'), {
-    ssr: false,
-})
+const CustomizeBikeModal = dynamic(
+    () => import("@/components/UI/CustomizeBikeModal"),
+    {
+        ssr: false,
+    },
+);
 
-import GameScoreboard from '@articles-media/articles-dev-box/GameScoreboard';
-import Ad from '@articles-media/articles-dev-box/Ad';
+import GameScoreboard from "@articles-media/articles-dev-box/GameScoreboard";
+import Ad from "@articles-media/articles-dev-box/Ad";
 
-import useUserDetails from '@articles-media/articles-dev-box/useUserDetails';
-import useUserToken from '@articles-media/articles-dev-box/useUserToken';
-import { PieMenu } from '@articles-media/articles-gamepad-helper';
-import { usePathname } from 'next/navigation';
+import useUserDetails from "@articles-media/articles-dev-box/useUserDetails";
+import useUserToken from "@articles-media/articles-dev-box/useUserToken";
+import { PieMenu } from "@articles-media/articles-gamepad-helper";
+import { usePathname } from "next/navigation";
 
-const ReturnToLauncherButton = dynamic(() =>
-    import('@articles-media/articles-dev-box/ReturnToLauncherButton'),
-    { ssr: false }
+const ReturnToLauncherButton = dynamic(
+    () => import("@articles-media/articles-dev-box/ReturnToLauncherButton"),
+    { ssr: false },
 );
 
 const game_name = process.env.NEXT_PUBLIC_GAME_NAME;
 
 export default function BattleTrapLobbyPage(props) {
-
     const pathname = usePathname();
 
     // const defaultLocalGameState = useStore(state => state.defaultLocalGameState);
     // const setLocalGameState = useStore(state => state.setLocalGameState);
 
-    const socket = useSocketStore((state) => state.socket)
-    const connectSocket = useSocketStore((state) => state.connectSocket)
-    const disconnectSocket = useSocketStore((state) => state.disconnectSocket)
-    const connected = useSocketStore((state) => state.connected)
-    const setConnected = useSocketStore((state) => state.setConnected)
+    const socket = useSocketStore((state) => state.socket);
+    const connectSocket = useSocketStore((state) => state.connectSocket);
+    const disconnectSocket = useSocketStore((state) => state.disconnectSocket);
+    const connected = useSocketStore((state) => state.connected);
+    const setConnected = useSocketStore((state) => state.setConnected);
 
     // const userReduxState = useSelector((state) => state.auth.user_details)
     // const userReduxState = false
 
     const darkMode = useStore((state) => state.darkMode);
-    const nickname = useStore((state) => state.nickname)
-    const setNickname = useStore((state) => state.setNickname)
-    const randomNickname = useStore((state) => state.randomNickname)
+    const nickname = useStore((state) => state.nickname);
+    const setNickname = useStore((state) => state.setNickname);
+    const randomNickname = useStore((state) => state.randomNickname);
     // const [nickname, setNickname] = useLocalStorageNew("game:nickname", userReduxState.display_name)
 
     // const [character, setCharacter] = useLocalStorageNew("game:battle-trap:character", {})
     // const characters = useStore((state) => state.characters)
-    const character = useStore((state) => state.character)
+    const character = useStore((state) => state.character);
     // const setCharacter = useStore((state) => state.setCharacter)
 
     const { isFullscreen, requestFullscreen, exitFullscreen } = useFullscreen();
@@ -93,50 +94,51 @@ export default function BattleTrapLobbyPage(props) {
 
     // const dispatch = useDispatch()
 
-    const [viewerRefreshKey, setViewerRefreshKey] = useState(0)
+    const [viewerRefreshKey, setViewerRefreshKey] = useState(0);
 
     // const [showInfoModal, setShowInfoModal] = useState(false)
     // const [showSettingsModal, setShowSettingsModal] = useState(false)
 
     // const showInfoModal = useStore((state) => state.showInfoModal)
-    const setShowInfoModal = useStore((state) => state.setShowInfoModal)
+    const setShowInfoModal = useStore((state) => state.setShowInfoModal);
 
     // const showSettingsModal = useStore((state) => state.showSettingsModal)
-    const setShowSettingsModal = useStore((state) => state.setShowSettingsModal)
+    const setShowSettingsModal = useStore(
+        (state) => state.setShowSettingsModal,
+    );
 
-    const resetGameState = useStore((state) => state.resetGameState)
+    const resetGameState = useStore((state) => state.resetGameState);
 
     // const showCreditsModal = useStore((state) => state.showCreditsModal)
-    const setShowCreditsModal = useStore((state) => state.setShowCreditsModal)
+    const setShowCreditsModal = useStore((state) => state.setShowCreditsModal);
 
-    const [showGameSetupModal, setShowGameSetupModal] = useState(false)
+    const [showGameSetupModal, setShowGameSetupModal] = useState(false);
 
     // const [lobbyDetails, setLobbyDetails] = useState({
     //     players: [],
     //     games: [],
     // })
-    const lobbyDetails = useStore((state) => state.lobbyDetails)
+    const lobbyDetails = useStore((state) => state.lobbyDetails);
 
-    const [autoRotate, setAutoRotate] = useState(true)
+    const [autoRotate, setAutoRotate] = useState(true);
 
     // const [showEditBikeModal, setShowEditBikeModal] = useState(false)
-    const showEditBikeModal = useStore(state => state.showEditBikeModal);
-    const setShowEditBikeModal = useStore(state => state.setShowEditBikeModal);
+    const showEditBikeModal = useStore((state) => state.showEditBikeModal);
+    const setShowEditBikeModal = useStore(
+        (state) => state.setShowEditBikeModal,
+    );
 
     // useEffect(() => {
 
     // }, []);
 
     useEffect(() => {
-
         if (pathname == "/") {
-            resetGameState()
+            resetGameState();
         }
-
-    }, [pathname])
+    }, [pathname]);
 
     useEffect(() => {
-
         // setShowInfoModal(localStorage.getItem('game:four-frogs:rulesAnControls') === 'true' ? true : false)
 
         // if (userReduxState._id) {
@@ -153,102 +155,95 @@ export default function BattleTrapLobbyPage(props) {
 
         return () => {
             // socket.off('game:battle-trap-landing-details');
-            socket.emit('leave-room', 'game:battle-trap-landing')
+            socket.emit("leave-room", "game:battle-trap-landing");
         };
-
-    }, [socket])
+    }, [socket]);
 
     useEffect(() => {
-
         if (socket.connected) {
-            socket.emit('join-room', 'game:battle-trap-landing');
+            socket.emit("join-room", "game:battle-trap-landing");
         }
 
         // return function cleanup() {
         //     socket.emit('leave-room', 'game:battle-trap-landing')
         // };
-
     }, [socket.connected]);
 
     const {
         data: userToken,
         error: userTokenError,
         isLoading: userTokenLoading,
-        mutate: userTokenMutate
-    } = useUserToken(
-        "3014"
-    );
+        mutate: userTokenMutate,
+    } = useUserToken("3014");
 
     const {
         data: userDetails,
         error: userDetailsError,
         isLoading: userDetailsLoading,
-        mutate: userDetailsMutate
+        mutate: userDetailsMutate,
     } = useUserDetails({
-        token: userToken
+        token: userToken,
     });
 
     return (
         <div className="battle-trap-lobby-page">
-
             <Suspense>
                 <PieMenu
                     options={[
                         {
-                            label: 'Settings',
-                            icon: 'fad fa-cog',
+                            label: "Settings",
+                            icon: "fad fa-cog",
                             callback: () => {
-                                setShowSettingsModal(prev => !prev)
-                            }
+                                setShowSettingsModal((prev) => !prev);
+                            },
                         },
                         {
-                            label: 'Go Back',
-                            icon: 'fad fa-arrow-left',
+                            label: "Go Back",
+                            icon: "fad fa-arrow-left",
                             callback: () => {
-                                window.history.back()
-                            }
+                                window.history.back();
+                            },
                         },
                         {
-                            label: 'Credits',
-                            icon: 'fad fa-info-circle',
+                            label: "Credits",
+                            icon: "fad fa-info-circle",
                             callback: () => {
-                                setShowCreditsModal(true)
-                            }
+                                setShowCreditsModal(true);
+                            },
                         },
                         {
-                            label: 'Game Launcher',
-                            icon: 'fad fa-gamepad',
+                            label: "Game Launcher",
+                            icon: "fad fa-gamepad",
                             callback: () => {
-                                window.location.href = 'https://games.articles.media';
-                            }
+                                window.location.href =
+                                    "https://games.articles.media";
+                            },
                         },
                         {
                             label: `${darkMode ? "Light" : "Dark"} Mode`,
-                            icon: 'fad fa-palette',
+                            icon: "fad fa-palette",
                             callback: () => {
-                                toggleDarkMode()
-                            }
-                        }
+                                toggleDarkMode();
+                            },
+                        },
                     ]}
                     onFinish={(event) => {
-                        console.log("Event", event)
+                        console.log("Event", event);
                         if (event.callback) {
-                            event.callback()
+                            event.callback();
                         }
                     }}
                 />
             </Suspense>
 
-            {showGameSetupModal &&
+            {showGameSetupModal && (
                 <GameSetupModal
                     show={showGameSetupModal}
                     setShow={setShowGameSetupModal}
                 />
-            }
+            )}
 
-            {showEditBikeModal &&
-                <CustomizeBikeModal />
-            }
+            {showEditBikeModal && <CustomizeBikeModal />}
 
             <div className="background">
                 <Image
@@ -256,7 +251,7 @@ export default function BattleTrapLobbyPage(props) {
                     // placeholder={'blur'}
                     alt=""
                     fill
-                    style={{ objectFit: 'cover' }}
+                    style={{ objectFit: "cover" }}
                 />
             </div>
 
@@ -264,25 +259,28 @@ export default function BattleTrapLobbyPage(props) {
                 className="container py-3 py-lg-5"
                 data-theme="Dark"
             >
-
-                <div className="mb-3 mb-lg-5 mx-auto" style={{ "maxWidth": "800px" }}>
-
+                <div
+                    className="mb-3 mb-lg-5 mx-auto"
+                    style={{ maxWidth: "800px" }}
+                >
                     <h1 className="mb-1 text-center">
                         {process.env.NEXT_PUBLIC_GAME_NAME}
                     </h1>
 
-                    <div className='text-center mb-3'>
+                    <div className="text-center mb-3">
                         <span className="">Select a server to join.</span>
-                        <span className='px-2'>|</span>
+                        <span className="px-2">|</span>
                         <span className="fw-bold ">
-                            {lobbyDetails.players.length || 0} player{lobbyDetails.players.length > 1 && 's'} waiting in the lobby.
+                            {lobbyDetails.players.length || 0} player
+                            {lobbyDetails.players.length > 1 && "s"} waiting in
+                            the lobby.
                         </span>
                     </div>
 
                     <div
-                        className='d-flex flex-wrap justify-content-center align-items-center mx-auto mb-3'
+                        className="d-flex flex-wrap justify-content-center align-items-center mx-auto mb-3"
                         style={{
-                            width: '300px',
+                            width: "300px",
                         }}
                     >
                         <GameMenuPrimaryButtonGroup
@@ -291,8 +289,7 @@ export default function BattleTrapLobbyPage(props) {
                         />
                     </div>
 
-                    <div className='d-flex justify-content-center align-items-center my-3'>
-
+                    <div className="d-flex justify-content-center align-items-center my-3">
                         <div>
                             <IsDev inline>
                                 <ArticlesButton
@@ -300,7 +297,7 @@ export default function BattleTrapLobbyPage(props) {
                                     small
                                     onClick={() => {
                                         if (connected) {
-                                            disconnectSocket()
+                                            disconnectSocket();
                                         } else {
                                             connectSocket(
                                                 // 'http://localhost:3000'
@@ -320,15 +317,11 @@ export default function BattleTrapLobbyPage(props) {
                                 </ArticlesButton>
                             </IsDev>
                         </div>
-
                     </div>
 
-                    <div className='d-lg-flex'>
-
-                        <div className='model-preview'>
-
-                            <div className='floating-controls'>
-
+                    <div className="d-lg-flex">
+                        <div className="model-preview">
+                            <div className="floating-controls">
                                 <Tooltip
                                     title="Rotation"
                                     placement="bottom"
@@ -336,7 +329,7 @@ export default function BattleTrapLobbyPage(props) {
                                     <ArticlesButton
                                         active={autoRotate}
                                         onClick={() => {
-                                            setAutoRotate(prev => !prev)
+                                            setAutoRotate((prev) => !prev);
                                         }}
                                         className=""
                                     >
@@ -352,7 +345,9 @@ export default function BattleTrapLobbyPage(props) {
                                         // active={autoRotate}
                                         onClick={() => {
                                             // setAutoRotate(prev => !prev)
-                                            setViewerRefreshKey(prev => prev + 1)
+                                            setViewerRefreshKey(
+                                                (prev) => prev + 1,
+                                            );
                                         }}
                                         className=""
                                     >
@@ -367,7 +362,7 @@ export default function BattleTrapLobbyPage(props) {
                                     <ArticlesButton
                                         onClick={() => {
                                             // requestFullscreen('users-bike-viewer')
-                                            setShowEditBikeModal(true)
+                                            setShowEditBikeModal(true);
                                         }}
                                         className=""
                                     >
@@ -376,57 +371,58 @@ export default function BattleTrapLobbyPage(props) {
                                     </ArticlesButton>
                                 </Tooltip>
 
-                                <div style={{ width: '42px', height: '42px', backgroundColor: 'red', display: 'none' }}>
-
-                                </div>
-
+                                <div
+                                    style={{
+                                        width: "42px",
+                                        height: "42px",
+                                        backgroundColor: "red",
+                                        display: "none",
+                                    }}
+                                ></div>
                             </div>
 
                             <Paper
-                                id='users-bike-viewer'
+                                id="users-bike-viewer"
                                 className="mb-3"
-                                style={{ "width": "100%", margin: '0rem', border: '1px solid #fff' }}
+                                style={{
+                                    width: "100%",
+                                    margin: "0rem",
+                                    border: "1px solid #fff",
+                                }}
                                 sx={{ mr: 2 }}
                             >
-
-                                {!showEditBikeModal &&
+                                {!showEditBikeModal && (
                                     <Viewer
                                         key={viewerRefreshKey}
                                         autoRotate={autoRotate}
                                     >
-
                                         {/* <Bear /> */}
                                         {/* <LowPolyChopper scale={0.1} position={[0, -10, 0]} /> */}
                                         {/* {renderModel(character)} */}
                                         <RenderModel character={character} />
-
                                     </Viewer>
-                                }
-
+                                )}
                             </Paper>
-
                         </div>
 
                         <Paper
                             className="mb-3 mx-auto text-center"
-                            style={{ "width": "100%", margin: '0rem', border: '1px solid #fff', padding: '1rem 0rem' }}
+                            style={{
+                                width: "100%",
+                                margin: "0rem",
+                                border: "1px solid #fff",
+                                padding: "1rem 0rem",
+                            }}
                         >
-
                             <div
                                 className="card-header d-flex justify-content-center h-100 align-items-center mx-auto"
                                 style={{
-                                    width: '250px',
+                                    width: "250px",
                                 }}
                             >
-
-                                <NicknameInput
-                                    useStore={useStore}
-                                />
-
+                                <NicknameInput useStore={useStore} />
                             </div>
-
                         </Paper>
-
                     </div>
 
                     {/* <div className="text-center">
@@ -434,22 +430,24 @@ export default function BattleTrapLobbyPage(props) {
                         <div className='small mb-1'>123</div>
                     </div> */}
 
-                    <div className='servers mb-4'>
-
+                    <div className="servers mb-4">
                         <Paper className="server flex-row flex-header border border-white p-2">
-
                             <div>
-                                <div className='d-flex justify-content-between align-items-center w-100 mb-1'>
-                                    <div className="mb-0" style={{ fontSize: '0.9rem' }}>
+                                <div className="d-flex justify-content-between align-items-center w-100 mb-1">
+                                    <div
+                                        className="mb-0"
+                                        style={{ fontSize: "0.9rem" }}
+                                    >
                                         <b>Single Player</b>
                                     </div>
                                 </div>
 
-                                <div className='d-flex'>
-                                    <div className='d-flex justify-content-start'>
-
-                                    </div>
-                                    <div className='mb-0 ms-0' style={{ fontSize: '0.8rem' }}>
+                                <div className="d-flex">
+                                    <div className="d-flex justify-content-start"></div>
+                                    <div
+                                        className="mb-0 ms-0"
+                                        style={{ fontSize: "0.8rem" }}
+                                    >
                                         Play against bots
                                     </div>
                                 </div>
@@ -476,30 +474,32 @@ export default function BattleTrapLobbyPage(props) {
                                 small
                                 onClick={() => {
                                     setShowGameSetupModal({
-                                        type: 'single-player'
-                                    })
+                                        type: "single-player",
+                                    });
                                 }}
-                            // disabled={!connected}
+                                // disabled={!connected}
                             >
                                 Join
                             </ArticlesButton>
-
                         </Paper>
 
                         <Paper className="server flex-row flex-header border border-white p-2">
-
                             <div>
-                                <div className='d-flex justify-content-between align-items-center w-100 mb-1'>
-                                    <div className="mb-0" style={{ fontSize: '0.9rem' }}>
+                                <div className="d-flex justify-content-between align-items-center w-100 mb-1">
+                                    <div
+                                        className="mb-0"
+                                        style={{ fontSize: "0.9rem" }}
+                                    >
                                         <b>Local Play</b>
                                     </div>
                                 </div>
 
-                                <div className='d-flex'>
-                                    <div className='d-flex justify-content-start'>
-
-                                    </div>
-                                    <div className='mb-0 ms-0' style={{ fontSize: '0.8rem' }}>
+                                <div className="d-flex">
+                                    <div className="d-flex justify-content-start"></div>
+                                    <div
+                                        className="mb-0 ms-0"
+                                        style={{ fontSize: "0.8rem" }}
+                                    >
                                         Play with friends on same device
                                     </div>
                                 </div>
@@ -517,68 +517,95 @@ export default function BattleTrapLobbyPage(props) {
                                 small
                                 onClick={() => {
                                     setShowGameSetupModal({
-                                        type: 'local-play'
-                                    })
+                                        type: "local-play",
+                                    });
                                 }}
-                            // disabled={!connected}
+                                // disabled={!connected}
                             >
                                 Join
                             </ArticlesButton>
                             {/* </Link> */}
-
                         </Paper>
-
                     </div>
 
                     <div className="text-center">
                         <div>Classic Play Servers</div>
-                        <div className='small mb-1'>Turn based gameplay.</div>
+                        <div className="small mb-1">Turn based gameplay.</div>
                     </div>
 
-                    <div className='servers mb-3'>
-                        {[1, 2, 3, 4].map(id => {
-
-                            let game_lookup = lobbyDetails?.games?.find(game => parseInt(game.server_id) == id)
+                    <div className="servers mb-3">
+                        {[1, 2, 3, 4].map((id) => {
+                            let game_lookup = lobbyDetails?.games?.find(
+                                (game) => parseInt(game.server_id) == id,
+                            );
 
                             return (
-                                <Paper key={id} className="server flex-row flex-header border border-white p-2">
-
+                                <Paper
+                                    key={id}
+                                    className="server flex-row flex-header border border-white p-2"
+                                >
                                     <div>
-
-                                        <div className='d-flex justify-content-between align-items-center w-100'>
-                                            <div className="mb-0" style={{ fontSize: '0.9rem' }}><b>Server {id}</b></div>
+                                        <div className="d-flex justify-content-between align-items-center w-100">
+                                            <div
+                                                className="mb-0"
+                                                style={{ fontSize: "0.9rem" }}
+                                            >
+                                                <b>Server {id}</b>
+                                            </div>
                                         </div>
 
-                                        <div className="mb-0" style={{ fontSize: '0.9rem' }}><b>Status: {game_lookup?.status || "Empty"}</b></div>
+                                        <div
+                                            className="mb-0"
+                                            style={{ fontSize: "0.9rem" }}
+                                        >
+                                            <b>
+                                                Status:{" "}
+                                                {game_lookup?.status || "Empty"}
+                                            </b>
+                                        </div>
 
-                                        <div className='d-flex'>
-                                            <div className='d-flex justify-content-start'>
-                                                {[1, 2, 3, 4].map(player_count => {
+                                        <div className="d-flex">
+                                            <div className="d-flex justify-content-start">
+                                                {[1, 2, 3, 4].map(
+                                                    (player_count) => {
+                                                        let playerLookup = false;
+                                                        if (
+                                                            game_lookup?.players
+                                                                ?.length >=
+                                                            player_count
+                                                        )
+                                                            playerLookup = true;
 
-                                                    let playerLookup = false
-                                                    if (game_lookup?.players?.length >= player_count) playerLookup = true
-
-                                                    return (
-                                                        <div
-                                                            key={player_count}
-                                                            className="icon"
-                                                            style={{
-                                                                width: '20px',
-                                                                height: '20px',
-                                                                ...(playerLookup ? {
-                                                                    backgroundColor: 'cyan',
-                                                                } : {
-                                                                    backgroundColor: 'gray',
-                                                                }),
-                                                                border: '1px solid black'
-                                                            }}>
-
-                                                        </div>
-                                                    )
-
-                                                })}
+                                                        return (
+                                                            <div
+                                                                key={
+                                                                    player_count
+                                                                }
+                                                                className="icon"
+                                                                style={{
+                                                                    width: "20px",
+                                                                    height: "20px",
+                                                                    ...(playerLookup
+                                                                        ? {
+                                                                              backgroundColor:
+                                                                                  "cyan",
+                                                                          }
+                                                                        : {
+                                                                              backgroundColor:
+                                                                                  "gray",
+                                                                          }),
+                                                                    border: "1px solid black",
+                                                                }}
+                                                            ></div>
+                                                        );
+                                                    },
+                                                )}
                                             </div>
-                                            <div className='mb-0 ms-1'>{game_lookup?.players?.length || 0}/4 Players</div>
+                                            <div className="mb-0 ms-1">
+                                                {game_lookup?.players?.length ||
+                                                    0}
+                                                /4 Players
+                                            </div>
                                         </div>
                                     </div>
 
@@ -586,10 +613,12 @@ export default function BattleTrapLobbyPage(props) {
                                         className={``}
                                         href={{
                                             pathname: `/play`,
-                                            query: { server: id }
+                                            query: { server: id },
                                         }}
                                         style={{
-                                            pointerEvents: (!connected) ? "none" : "auto",
+                                            pointerEvents: !connected
+                                                ? "none"
+                                                : "auto",
                                         }}
                                     >
                                         <ArticlesButton
@@ -600,10 +629,8 @@ export default function BattleTrapLobbyPage(props) {
                                             Join {!connected && "(Offline)"}
                                         </ArticlesButton>
                                     </Link>
-
                                 </Paper>
-                            )
-
+                            );
                         })}
                     </div>
 
@@ -612,57 +639,85 @@ export default function BattleTrapLobbyPage(props) {
                         <>
                             <div className="text-center">
                                 <div>Live Play Servers</div>
-                                <div className='small mb-1'>Real time and consistent movement.</div>
+                                <div className="small mb-1">
+                                    Real time and consistent movement.
+                                </div>
                             </div>
 
-                            <div className='servers mb-3'>
-                                {[5, 6, 7, 8].map(id => {
-
-                                    let game_lookup = lobbyDetails?.games?.find(game => parseInt(game.server_id) == id)
+                            <div className="servers mb-3">
+                                {[5, 6, 7, 8].map((id) => {
+                                    let game_lookup = lobbyDetails?.games?.find(
+                                        (game) =>
+                                            parseInt(game.server_id) == id,
+                                    );
 
                                     return (
-                                        <div key={id} className="server card rounded-0 flex-row flex-header border border-white p-2">
-
+                                        <div
+                                            key={id}
+                                            className="server card rounded-0 flex-row flex-header border border-white p-2"
+                                        >
                                             <div>
-                                                <div className='d-flex justify-content-between align-items-center w-100 mb-2'>
-                                                    <div className="mb-0" style={{ fontSize: '0.9rem' }}><b>Server {id}</b></div>
+                                                <div className="d-flex justify-content-between align-items-center w-100 mb-2">
+                                                    <div
+                                                        className="mb-0"
+                                                        style={{
+                                                            fontSize: "0.9rem",
+                                                        }}
+                                                    >
+                                                        <b>Server {id}</b>
+                                                    </div>
                                                 </div>
 
-                                                <div className='d-flex'>
-                                                    <div className='d-flex justify-content-start'>
-                                                        {[1, 2, 3, 4].map(player_count => {
+                                                <div className="d-flex">
+                                                    <div className="d-flex justify-content-start">
+                                                        {[1, 2, 3, 4].map(
+                                                            (player_count) => {
+                                                                let playerLookup = false;
+                                                                if (
+                                                                    game_lookup
+                                                                        ?.players
+                                                                        ?.length >=
+                                                                    player_count
+                                                                )
+                                                                    playerLookup = true;
 
-                                                            let playerLookup = false
-                                                            if (game_lookup?.players?.length >= player_count) playerLookup = true
-
-                                                            return (
-                                                                <div
-                                                                    key={player_count}
-                                                                    className="icon"
-                                                                    style={{
-                                                                        width: '20px',
-                                                                        height: '20px',
-                                                                        ...(playerLookup ? {
-                                                                            backgroundColor: 'cyan',
-                                                                        } : {
-                                                                            backgroundColor: 'gray',
-                                                                        }),
-                                                                        border: '1px solid black'
-                                                                    }}>
-
-                                                                </div>
-                                                            )
-
-                                                        })}
+                                                                return (
+                                                                    <div
+                                                                        key={
+                                                                            player_count
+                                                                        }
+                                                                        className="icon"
+                                                                        style={{
+                                                                            width: "20px",
+                                                                            height: "20px",
+                                                                            ...(playerLookup
+                                                                                ? {
+                                                                                      backgroundColor:
+                                                                                          "cyan",
+                                                                                  }
+                                                                                : {
+                                                                                      backgroundColor:
+                                                                                          "gray",
+                                                                                  }),
+                                                                            border: "1px solid black",
+                                                                        }}
+                                                                    ></div>
+                                                                );
+                                                            },
+                                                        )}
                                                     </div>
-                                                    <div className='mb-0 ms-1'>{game_lookup?.players?.length || 0}/4 Players</div>
+                                                    <div className="mb-0 ms-1">
+                                                        {game_lookup?.players
+                                                            ?.length || 0}
+                                                        /4 Players
+                                                    </div>
                                                 </div>
                                             </div>
 
                                             <Link
                                                 className={``}
                                                 href={{
-                                                    pathname: '' + `/${id}`
+                                                    pathname: "" + `/${id}`,
                                                 }}
                                             >
                                                 <ArticlesButton
@@ -672,66 +727,92 @@ export default function BattleTrapLobbyPage(props) {
                                                     Join
                                                 </ArticlesButton>
                                             </Link>
-
                                         </div>
-                                    )
-
+                                    );
                                 })}
                             </div>
 
                             <div className="text-center">
                                 <div>Express Play Servers</div>
-                                <div className='small mb-1'>2 seconds per space.</div>
+                                <div className="small mb-1">
+                                    2 seconds per space.
+                                </div>
                             </div>
 
-                            <div className='servers mb-3'>
-                                {[9, 10, 11, 12].map(id => {
-
-                                    let game_lookup = lobbyDetails?.games?.find(game => parseInt(game.server_id) == id)
+                            <div className="servers mb-3">
+                                {[9, 10, 11, 12].map((id) => {
+                                    let game_lookup = lobbyDetails?.games?.find(
+                                        (game) =>
+                                            parseInt(game.server_id) == id,
+                                    );
 
                                     return (
-                                        <div key={id} className="server card rounded-0 flex-row flex-header border border-white p-2">
-
+                                        <div
+                                            key={id}
+                                            className="server card rounded-0 flex-row flex-header border border-white p-2"
+                                        >
                                             <div>
-                                                <div className='d-flex justify-content-between align-items-center w-100 mb-2'>
-                                                    <div className="mb-0" style={{ fontSize: '0.9rem' }}><b>Server {id}</b></div>
+                                                <div className="d-flex justify-content-between align-items-center w-100 mb-2">
+                                                    <div
+                                                        className="mb-0"
+                                                        style={{
+                                                            fontSize: "0.9rem",
+                                                        }}
+                                                    >
+                                                        <b>Server {id}</b>
+                                                    </div>
                                                 </div>
 
-                                                <div className='d-flex'>
-                                                    <div className='d-flex justify-content-start'>
-                                                        {[1, 2, 3, 4].map(player_count => {
+                                                <div className="d-flex">
+                                                    <div className="d-flex justify-content-start">
+                                                        {[1, 2, 3, 4].map(
+                                                            (player_count) => {
+                                                                let playerLookup = false;
+                                                                if (
+                                                                    game_lookup
+                                                                        ?.players
+                                                                        ?.length >=
+                                                                    player_count
+                                                                )
+                                                                    playerLookup = true;
 
-                                                            let playerLookup = false
-                                                            if (game_lookup?.players?.length >= player_count) playerLookup = true
-
-                                                            return (
-                                                                <div
-                                                                    key={player_count}
-                                                                    className="icon"
-                                                                    style={{
-                                                                        width: '20px',
-                                                                        height: '20px',
-                                                                        ...(playerLookup ? {
-                                                                            backgroundColor: 'cyan',
-                                                                        } : {
-                                                                            backgroundColor: 'gray',
-                                                                        }),
-                                                                        border: '1px solid black'
-                                                                    }}>
-
-                                                                </div>
-                                                            )
-
-                                                        })}
+                                                                return (
+                                                                    <div
+                                                                        key={
+                                                                            player_count
+                                                                        }
+                                                                        className="icon"
+                                                                        style={{
+                                                                            width: "20px",
+                                                                            height: "20px",
+                                                                            ...(playerLookup
+                                                                                ? {
+                                                                                      backgroundColor:
+                                                                                          "cyan",
+                                                                                  }
+                                                                                : {
+                                                                                      backgroundColor:
+                                                                                          "gray",
+                                                                                  }),
+                                                                            border: "1px solid black",
+                                                                        }}
+                                                                    ></div>
+                                                                );
+                                                            },
+                                                        )}
                                                     </div>
-                                                    <div className='mb-0 ms-1'>{game_lookup?.players?.length || 0}/4 Players</div>
+                                                    <div className="mb-0 ms-1">
+                                                        {game_lookup?.players
+                                                            ?.length || 0}
+                                                        /4 Players
+                                                    </div>
                                                 </div>
                                             </div>
 
                                             <Link
                                                 className={``}
                                                 href={{
-                                                    pathname: `/${id}`
+                                                    pathname: `/${id}`,
                                                 }}
                                             >
                                                 <ArticlesButton
@@ -741,19 +822,16 @@ export default function BattleTrapLobbyPage(props) {
                                                     Join
                                                 </ArticlesButton>
                                             </Link>
-
                                         </div>
-                                    )
-
+                                    );
                                 })}
                             </div>
                         </>
                     </IsDev>
-
                 </div>
 
-                <div className='d-flex justify-content-center align-items-center'>
-                    <div style={{ width: '300px' }}>
+                <div className="d-flex justify-content-center align-items-center">
+                    <div style={{ width: "300px" }}>
                         <SessionButton
                             port={process.env.NEXT_PUBLIC_GAME_PORT}
                             friendsButton={true}
@@ -761,7 +839,6 @@ export default function BattleTrapLobbyPage(props) {
                         <ReturnToLauncherButton />
                     </div>
                 </div>
-
             </div>
 
             <GameScoreboard
@@ -779,7 +856,6 @@ export default function BattleTrapLobbyPage(props) {
                 userDetails={userDetails}
                 userDetailsLoading={userDetailsLoading}
             />
-
         </div>
-    )
+    );
 }

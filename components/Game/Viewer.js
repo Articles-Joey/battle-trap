@@ -1,12 +1,11 @@
-import { useRef } from 'react'
+import { useRef } from "react";
 
-import { Canvas } from '@react-three/fiber'
-import { OrbitControls, ContactShadows } from '@react-three/drei'
-import { SkyBox } from './SkyBox'
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls, ContactShadows } from "@react-three/drei";
+import { SkyBox } from "./SkyBox";
 
 export default function Viewer({ autoRotate, scale, children }) {
-
-    const ref = useRef()
+    const ref = useRef();
 
     // useLayoutEffect(() => {
     //     scene.traverse((obj) => {
@@ -19,7 +18,6 @@ export default function Viewer({ autoRotate, scale, children }) {
 
     return (
         <Canvas camera={{ position: [-100, 30, 10], fov: 50 }}>
-
             <SkyBox
                 position={[0, 0, 0]}
                 scale={500}
@@ -27,27 +25,47 @@ export default function Viewer({ autoRotate, scale, children }) {
 
             <hemisphereLight intensity={1} />
 
-            <spotLight intensity={200000} position={[-100, 30, 10]} angle={1} penumbra={1} />
+            <spotLight
+                intensity={200000}
+                position={[-100, 30, 10]}
+                angle={1}
+                penumbra={1}
+            />
 
-            <spotLight intensity={200000} position={[50, 200, 200]} angle={0.4} penumbra={1} />
+            <spotLight
+                intensity={200000}
+                position={[50, 200, 200]}
+                angle={0.4}
+                penumbra={1}
+            />
 
             <group position={[0, -10, 0]}>
+                <group position={[0, 0.25, 0]}>{children}</group>
 
-                <group position={[0, 0.25, 0]} >
-                    {children}
-                </group>
-
-                <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -8, 50]}>
-                    <planeGeometry attach="geometry" args={[20, 200]} />
-                    <meshStandardMaterial attach="material" color={'purple'} />
+                <mesh
+                    rotation={[-Math.PI / 2, 0, 0]}
+                    position={[0, -8, 50]}
+                >
+                    <planeGeometry
+                        attach="geometry"
+                        args={[20, 200]}
+                    />
+                    <meshStandardMaterial
+                        attach="material"
+                        color={"purple"}
+                    />
                 </mesh>
 
-                <ContactShadows blur={10} far={20} />
-
+                <ContactShadows
+                    blur={10}
+                    far={20}
+                />
             </group>
 
-            <OrbitControls autoRotate={autoRotate} enablePan={false} />
-
+            <OrbitControls
+                autoRotate={autoRotate}
+                enablePan={false}
+            />
         </Canvas>
-    )
+    );
 }

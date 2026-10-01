@@ -6,174 +6,179 @@ Source: https://sketchfab.com/3d-models/sci-fi-buildings-pack-low-poly-game-read
 Title: Sci-fi Buildings Pack (low-poly, game ready)
 */
 
-import React, { useLayoutEffect, useRef } from 'react'
-import { useGLTF } from '@react-three/drei'
+import React, { useLayoutEffect, useRef } from "react";
+import { useGLTF } from "@react-three/drei";
 
 export function SciFiBuildingsPack(props) {
-  const { nodes, materials } = useGLTF('/models/sci-fi_buildings_pack.glb')
+    const { nodes, materials } = useGLTF("/models/sci-fi_buildings_pack.glb");
 
-  // Helper to clone and override material
-  function getOverlayMaterial(baseMaterial) {
-    const mat = baseMaterial.clone();
-    mat.color.set(props.colorOverlay); // Overlay color
-    mat.emissive = mat.color.clone();
-    mat.emissiveIntensity = 1.5; // Strong emission
-    mat.transparent = true;
-    mat.opacity = 0.7; // Semi-transparent overlay
-    return mat;
-  }
-
-  const groupRef = useRef();
-  const minDistance = 600; // Minimum distance from the center
-  const maxDistance = 700; // Maximum distance from the center
-
-  useLayoutEffect(() => {
-    if (groupRef.current) {
-      groupRef.current.children.forEach((child) => {
-        const angle = Math.random() * 2 * Math.PI;
-        const radius = minDistance + Math.random() * (maxDistance - minDistance);
-        const x = Math.cos(angle) * radius;
-        const z = Math.sin(angle) * radius;
-        child.position.set(x, 0, z);
-        // Optional: give a random rotation
-        child.rotation.y = Math.random() * 2 * Math.PI;
-      });
+    // Helper to clone and override material
+    function getOverlayMaterial(baseMaterial) {
+        const mat = baseMaterial.clone();
+        mat.color.set(props.colorOverlay); // Overlay color
+        mat.emissive = mat.color.clone();
+        mat.emissiveIntensity = 1.5; // Strong emission
+        mat.transparent = true;
+        mat.opacity = 0.7; // Semi-transparent overlay
+        return mat;
     }
-  }, [minDistance, maxDistance]);
 
+    const groupRef = useRef();
+    const minDistance = 600; // Minimum distance from the center
+    const maxDistance = 700; // Maximum distance from the center
 
-  return (
-    <group {...props} dispose={null}>
-      {
-      // props.debug 
-      true
-      && (
-        <mesh position={[0, 0, 0]}>
-          <sphereGeometry args={[2, 3, 3]} />
-          <meshBasicMaterial color="red" />
-        </mesh>
-      )}
-      <group ref={groupRef} userData={{ name: "data-building-locations" }} scale={0.01}>
+    useLayoutEffect(() => {
+        if (groupRef.current) {
+            groupRef.current.children.forEach((child) => {
+                const angle = Math.random() * 2 * Math.PI;
+                const radius =
+                    minDistance + Math.random() * (maxDistance - minDistance);
+                const x = Math.cos(angle) * radius;
+                const z = Math.sin(angle) * radius;
+                child.position.set(x, 0, z);
+                // Optional: give a random rotation
+                child.rotation.y = Math.random() * 2 * Math.PI;
+            });
+        }
+    }, [minDistance, maxDistance]);
 
-        <group>
-          <mesh
-            castShadow
-            receiveShadow
-            geometry={nodes.Building2_T_B2windows_0.geometry}
-            material={getOverlayMaterial(materials.T_B2windows)}
-          />
-          <mesh
-            castShadow
-            receiveShadow
-            geometry={nodes.Building2_T_B2base_white_0.geometry}
-            material={getOverlayMaterial(materials.T_B2base_white)}
-          />
+    return (
+        <group
+            {...props}
+            dispose={null}
+        >
+            {
+                // props.debug
+                true && (
+                    <mesh position={[0, 0, 0]}>
+                        <sphereGeometry args={[2, 3, 3]} />
+                        <meshBasicMaterial color="red" />
+                    </mesh>
+                )
+            }
+            <group
+                ref={groupRef}
+                userData={{ name: "data-building-locations" }}
+                scale={0.01}
+            >
+                <group>
+                    <mesh
+                        castShadow
+                        receiveShadow
+                        geometry={nodes.Building2_T_B2windows_0.geometry}
+                        material={getOverlayMaterial(materials.T_B2windows)}
+                    />
+                    <mesh
+                        castShadow
+                        receiveShadow
+                        geometry={nodes.Building2_T_B2base_white_0.geometry}
+                        material={getOverlayMaterial(materials.T_B2base_white)}
+                    />
+                </group>
+
+                <group>
+                    <mesh
+                        castShadow
+                        receiveShadow
+                        geometry={nodes.Building6_T_B6base_white_0.geometry}
+                        material={getOverlayMaterial(materials.T_B6base_white)}
+                    />
+                    <mesh
+                        castShadow
+                        receiveShadow
+                        geometry={nodes.Building6_T_B6windows_0.geometry}
+                        material={getOverlayMaterial(materials.T_B6windows)}
+                    />
+                </group>
+
+                <group>
+                    <mesh
+                        castShadow
+                        receiveShadow
+                        geometry={nodes.Building6b_T_B6base_gray_0.geometry}
+                        material={getOverlayMaterial(materials.T_B6base_gray)}
+                    />
+                    <mesh
+                        castShadow
+                        receiveShadow
+                        geometry={nodes.Building6b_T_B6windows_0.geometry}
+                        material={getOverlayMaterial(materials.T_B6windows)}
+                    />
+                </group>
+
+                <group>
+                    <mesh
+                        castShadow
+                        receiveShadow
+                        geometry={nodes.Building2b_T_B2windows_0.geometry}
+                        material={getOverlayMaterial(materials.T_B2windows)}
+                    />
+                    <mesh
+                        castShadow
+                        receiveShadow
+                        geometry={nodes.Building2b_T_B2base_gray_0.geometry}
+                        material={getOverlayMaterial(materials.T_B2base_gray)}
+                    />
+                </group>
+
+                <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Building1_T_B1base_white_0.geometry}
+                    material={getOverlayMaterial(materials.T_B1base_white)}
+                />
+
+                <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Building3_T_B3base_white_0.geometry}
+                    material={getOverlayMaterial(materials.T_B3base_white)}
+                />
+
+                <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Building4_T_B4base_white_0.geometry}
+                    material={getOverlayMaterial(materials.T_B4base_white)}
+                />
+
+                <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Building5_T_B5base_white_0.geometry}
+                    material={getOverlayMaterial(materials.T_B5base_white)}
+                />
+
+                <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Building1b_T_B1base_gray_0.geometry}
+                    material={getOverlayMaterial(materials.T_B1base_gray)}
+                />
+
+                <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Building3b_T_B3base_gray_0.geometry}
+                    material={getOverlayMaterial(materials.T_B3base_gray)}
+                />
+
+                <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Building5b_T_B5base_gray_0.geometry}
+                    material={getOverlayMaterial(materials.T_B5base_gray)}
+                />
+
+                <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.Building4b_T_B4base_gray_0.geometry}
+                    material={getOverlayMaterial(materials.T_B4base_gray)}
+                />
+            </group>
         </group>
-
-        <group>
-          <mesh
-            castShadow
-            receiveShadow
-            geometry={nodes.Building6_T_B6base_white_0.geometry}
-            material={getOverlayMaterial(materials.T_B6base_white)}
-          />
-          <mesh
-            castShadow
-            receiveShadow
-            geometry={nodes.Building6_T_B6windows_0.geometry}
-            material={getOverlayMaterial(materials.T_B6windows)}
-          />
-        </group>
-
-        <group>
-          <mesh
-            castShadow
-            receiveShadow
-            geometry={nodes.Building6b_T_B6base_gray_0.geometry}
-            material={getOverlayMaterial(materials.T_B6base_gray)}
-          />
-          <mesh
-            castShadow
-            receiveShadow
-            geometry={nodes.Building6b_T_B6windows_0.geometry}
-            material={getOverlayMaterial(materials.T_B6windows)}
-          />
-        </group>
-
-        <group>
-          <mesh
-            castShadow
-            receiveShadow
-            geometry={nodes.Building2b_T_B2windows_0.geometry}
-            material={getOverlayMaterial(materials.T_B2windows)}
-          />
-          <mesh
-            castShadow
-            receiveShadow
-            geometry={nodes.Building2b_T_B2base_gray_0.geometry}
-            material={getOverlayMaterial(materials.T_B2base_gray)}
-          />
-        </group>
-
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Building1_T_B1base_white_0.geometry}
-          material={getOverlayMaterial(materials.T_B1base_white)}
-        />
-
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Building3_T_B3base_white_0.geometry}
-          material={getOverlayMaterial(materials.T_B3base_white)}
-        />
-
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Building4_T_B4base_white_0.geometry}
-          material={getOverlayMaterial(materials.T_B4base_white)}
-        />
-
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Building5_T_B5base_white_0.geometry}
-          material={getOverlayMaterial(materials.T_B5base_white)}
-        />
-
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Building1b_T_B1base_gray_0.geometry}
-          material={getOverlayMaterial(materials.T_B1base_gray)}
-        />
-
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Building3b_T_B3base_gray_0.geometry}
-          material={getOverlayMaterial(materials.T_B3base_gray)}
-        />
-
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Building5b_T_B5base_gray_0.geometry}
-          material={getOverlayMaterial(materials.T_B5base_gray)}
-        />
-
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Building4b_T_B4base_gray_0.geometry}
-          material={getOverlayMaterial(materials.T_B4base_gray)}
-        />
-
-      </group>
-    </group>
-  )
+    );
 }
 
-useGLTF.preload('/models/sci-fi_buildings_pack.glb')
+useGLTF.preload("/models/sci-fi_buildings_pack.glb");
