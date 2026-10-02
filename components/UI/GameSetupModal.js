@@ -1,6 +1,19 @@
+"use client";
+
 import { useEffect, useState } from "react";
 
-import { Modal, Form } from "react-bootstrap";
+import {
+    Box,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    IconButton,
+    TextField,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
 
 import ArticlesButton from "@/components/UI/Button";
 import Link from "next/link";
@@ -177,21 +190,27 @@ export default function GameSetupModal({ show, setShow, preventClose }) {
                 />
             )} */}
 
-            <Modal
+            <Dialog
                 className="articles-modal"
-                size="md"
-                show={showModal}
+                maxWidth="sm"
+                fullWidth
+                open={Boolean(show) && showModal}
+                aria-labelledby="game-setup-title"
+                disableEscapeKeyDown={preventClose}
+                slotProps={{
+                    paper: { sx: { alignSelf: "flex-start", mt: 4 } },
+                }}
                 // To much jumping with little content for now
                 // centered
-                scrollable
-                onExited={() => {
+                scroll="paper"
+                onTransitionExited={() => {
                     if (preventClose) {
                         return;
                     }
 
                     setShow(false);
                 }}
-                onHide={() => {
+                onClose={() => {
                     if (preventClose) {
                         return;
                     }
@@ -199,11 +218,25 @@ export default function GameSetupModal({ show, setShow, preventClose }) {
                     setShowModal(false);
                 }}
             >
-                <Modal.Header closeButton={pathname !== "/play" ? true : false}>
-                    <Modal.Title>Game Setup</Modal.Title>
-                </Modal.Header>
+                <DialogTitle
+                    id="game-setup-title"
+                    sx={{ pr: 7 }}
+                >
+                    Game Setup
+                    {pathname !== "/play" && !preventClose && (
+                        <IconButton
+                            aria-label="Close game setup"
+                            onClick={() => setShowModal(false)}
+                            sx={{ position: "absolute", right: 8, top: 8 }}
+                        >
+                            <CloseIcon />
+                        </IconButton>
+                    )}
+                </DialogTitle>
 
-                <Modal.Body className="flex-column p-0">
+                <DialogContent
+                    sx={{ p: 0, display: "flex", flexDirection: "column" }}
+                >
                     {show.type == "single-player" && (
                         <div className="d-none p-3 border-bottom">
                             <div className="mb-3">
@@ -284,9 +317,15 @@ export default function GameSetupModal({ show, setShow, preventClose }) {
                                 How big of a board do you want to play on?
                             </div>
 
-                            <div className="small text-danger mb-1">
+                            <Box
+                                sx={{
+                                    fontSize: "0.875em",
+                                    color: "error.main",
+                                    mb: "0.25rem",
+                                }}
+                            >
                                 Experimental
-                            </div>
+                            </Box>
 
                             <div
                                 className="mb-3 d-flex align-items-center"
@@ -297,33 +336,56 @@ export default function GameSetupModal({ show, setShow, preventClose }) {
                                 }
                             >
                                 <ArticlesButton
+                                    aria-label="Decrease board size"
                                     onClick={() => {
                                         setBoardSize(boardSize - 1);
                                     }}
                                     disabled={boardSize <= 10}
                                 >
-                                    <i className="fad fa-minus"></i>
+                                    <RemoveIcon
+                                        fontSize="inherit"
+                                        sx={{ mr: "0.2rem" }}
+                                    />
                                 </ArticlesButton>
 
-                                <input
+                                <TextField
+                                    size="small"
                                     type="number"
-                                    min="10"
-                                    max="50"
-                                    step="1"
+                                    slotProps={{
+                                        htmlInput: {
+                                            min: 10,
+                                            max: 50,
+                                            step: 1,
+                                            "aria-label": "Board size",
+                                        },
+                                    }}
                                     value={boardSize}
                                     onChange={(e) =>
-                                        setBoardSize(e.target.value)
+                                        setBoardSize(
+                                            Math.min(
+                                                50,
+                                                Math.max(
+                                                    10,
+                                                    Number(e.target.value) ||
+                                                        10,
+                                                ),
+                                            ),
+                                        )
                                     }
                                     className=""
                                 />
 
                                 <ArticlesButton
+                                    aria-label="Increase board size"
                                     onClick={() => {
                                         setBoardSize(boardSize + 1);
                                     }}
                                     disabled={boardSize >= 50}
                                 >
-                                    <i className="fad fa-plus"></i>
+                                    <AddIcon
+                                        fontSize="inherit"
+                                        sx={{ mr: "0.2rem" }}
+                                    />
                                 </ArticlesButton>
                             </div>
 
@@ -347,7 +409,6 @@ export default function GameSetupModal({ show, setShow, preventClose }) {
                                             });
                                         }}
                                     >
-                                        {/* <i className='fad fa-minus'></i> */}
                                         <span>Off</span>
                                     </ArticlesButton>
                                     <ArticlesButton
@@ -362,13 +423,13 @@ export default function GameSetupModal({ show, setShow, preventClose }) {
                                             });
                                         }}
                                     >
-                                        {/* <i className='fad fa-minus'></i> */}
                                         <span>On</span>
                                     </ArticlesButton>
 
                                     {localGameState?.moveTime !== false && (
                                         <>
                                             <ArticlesButton
+                                                aria-label="Decrease move timer"
                                                 onClick={() => {
                                                     setLocalGameState({
                                                         ...localGameState,
@@ -378,13 +439,23 @@ export default function GameSetupModal({ show, setShow, preventClose }) {
                                                     });
                                                 }}
                                             >
-                                                <i className="fad fa-minus"></i>
+                                                <RemoveIcon
+                                                    fontSize="inherit"
+                                                    sx={{ mr: "0.2rem" }}
+                                                />
                                             </ArticlesButton>
 
-                                            <input
+                                            <TextField
+                                                size="small"
                                                 type="number"
-                                                min="1"
-                                                max="100"
+                                                slotProps={{
+                                                    htmlInput: {
+                                                        min: 3,
+                                                        max: 100,
+                                                        "aria-label":
+                                                            "Move timer in seconds",
+                                                    },
+                                                }}
                                                 value={
                                                     localGameState?.moveTime ||
                                                     0
@@ -402,6 +473,7 @@ export default function GameSetupModal({ show, setShow, preventClose }) {
                                             />
 
                                             <ArticlesButton
+                                                aria-label="Increase move timer"
                                                 onClick={() => {
                                                     setLocalGameState({
                                                         ...localGameState,
@@ -411,7 +483,10 @@ export default function GameSetupModal({ show, setShow, preventClose }) {
                                                     });
                                                 }}
                                             >
-                                                <i className="fad fa-plus"></i>
+                                                <AddIcon
+                                                    fontSize="inherit"
+                                                    sx={{ mr: "0.2rem" }}
+                                                />
                                             </ArticlesButton>
                                         </>
                                     )}
@@ -610,9 +685,15 @@ export default function GameSetupModal({ show, setShow, preventClose }) {
                                                 ? "bot"
                                                 : "player"}
                                         </div>
-                                        <input
+                                        <TextField
+                                            size="small"
+                                            fullWidth
                                             type="text"
-                                            className="form-control"
+                                            slotProps={{
+                                                htmlInput: {
+                                                    "aria-label": `Nickname for ${item?.battleTrap?.bot ? "bot" : "player"} ${i + 1}`,
+                                                },
+                                            }}
                                             placeholder="Nickname"
                                             value={item?.battleTrap?.nickname}
                                             onChange={(e) => {
@@ -693,9 +774,9 @@ export default function GameSetupModal({ show, setShow, preventClose }) {
                             </div>
                         </div>
                     )}
-                </Modal.Body>
+                </DialogContent>
 
-                <Modal.Footer className="justify-content-between">
+                <DialogActions sx={{ justifyContent: "space-between" }}>
                     {/* <div></div> */}
 
                     <div>
@@ -703,7 +784,7 @@ export default function GameSetupModal({ show, setShow, preventClose }) {
                             <ArticlesButton
                                 variant="outline-dark"
                                 onClick={() => {
-                                    setShow(false);
+                                    setShowModal(false);
                                 }}
                             >
                                 Close
@@ -711,7 +792,8 @@ export default function GameSetupModal({ show, setShow, preventClose }) {
                         )}
 
                         <ArticlesButton
-                            variant="outline-danger ms-3"
+                            variant="outline-danger"
+                            sx={{ ml: "1rem" }}
                             onClick={() => {
                                 // setShow(false)
                                 setTempPlayers([]);
@@ -786,8 +868,8 @@ export default function GameSetupModal({ show, setShow, preventClose }) {
                             Start
                         </ArticlesButton>
                     </Link>
-                </Modal.Footer>
-            </Modal>
+                </DialogActions>
+            </Dialog>
         </>
     );
 }

@@ -1,4 +1,20 @@
 "use client";
+import Box from "@mui/material/Box";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import InfoIcon from "@mui/icons-material/Info";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import GroupIcon from "@mui/icons-material/Group";
+import SmartToyIcon from "@mui/icons-material/SmartToy";
+import DangerousIcon from "@mui/icons-material/Dangerous";
+import PersonIcon from "@mui/icons-material/Person";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import CodeIcon from "@mui/icons-material/Code";
+import LooksOneIcon from "@mui/icons-material/LooksOne";
+import LooksTwoIcon from "@mui/icons-material/LooksTwo";
+import Looks3Icon from "@mui/icons-material/Looks3";
+import Looks4Icon from "@mui/icons-material/Looks4";
+import Looks5Icon from "@mui/icons-material/Looks5";
+import Looks6Icon from "@mui/icons-material/Looks6";
 import { useState, useEffect, useRef, useMemo } from "react";
 
 import Link from "next/link";
@@ -14,7 +30,6 @@ import {
 // import BasicLoading from '@/components/loading/BasicLoading';
 // import Countdown from 'react-countdown';
 import { add } from "date-fns";
-import { Accordion, Card, Dropdown, DropdownButton } from "react-bootstrap";
 import ArticlesButton from "@/components/UI/Button";
 import useFullscreen from "@/hooks/useFullScreen";
 // import { useHotkeys } from 'react-hotkeys-hook';
@@ -27,23 +42,39 @@ import TwoDimensionalMap from "@/components/Game/TwoDimensionalMap";
 // import usePlayerMoveLogic from '@/hooks/usePlayerMoveLogic';
 
 import GameLogicManager from "@/components/Game/GameLogicManager";
+
+import GameMenuPrimaryButtonGroup from "@articles-media/articles-dev-box/GameMenuPrimaryButtonGroup";
+
 import useRollDice from "@/hooks/useRollDice";
 import useCurrentPlayer from "@/hooks/useCurrentPlayer";
 import usePlayerMoveLogic from "@/hooks/usePlayerMoveLogic";
 
-const diceNumbersToWords = {
-    1: "one",
-    2: "two",
-    3: "three",
-    4: "four",
-    5: "five",
-    6: "six",
+const diceIcons = {
+    1: LooksOneIcon,
+    2: LooksTwoIcon,
+    3: Looks3Icon,
+    4: Looks4Icon,
+    5: Looks5Icon,
+    6: Looks6Icon,
 };
 
+function DiceIcon({ value, sx }) {
+    const Icon = diceIcons[value];
+    return Icon ? (
+        <Icon
+            titleAccess={`Dice roll: ${value}`}
+            sx={{
+                fontSize: "3em",
+                mr: "0.2rem",
+                verticalAlign: "middle",
+                ...sx,
+            }}
+        />
+    ) : null;
+}
+
 export default function SideMenu() {
-    const { socket } = useSocketStore((state) => ({
-        socket: state.socket,
-    }));
+    const socket = useSocketStore((state) => state.socket);
 
     // const theme = useStore(state => state.theme);
     // const setTheme = useStore(state => state.setTheme);
@@ -67,6 +98,10 @@ export default function SideMenu() {
     const addSpace = useStore((state) => state.addSpace);
 
     const setShowInfoModal = useStore((state) => state.setShowInfoModal);
+    const setShowSettingsModal = useStore(
+        (state) => state.setShowSettingsModal,
+    );
+    const setShowInviteModal = useStore((state) => state.setShowInviteModal);
 
     const setGameState = useStore((state) => state.setGameState);
 
@@ -99,7 +134,50 @@ export default function SideMenu() {
     const [showPlayers, setShowPlayers] = useState(true);
 
     return (
-        <div className={`menu-card ${showMenu && "show"}`}>
+        <Box
+            sx={{
+                zIndex: { xs: 10, lg: 1 },
+                p: "1rem",
+                overflowY: "auto",
+                borderRight: { xs: 0, lg: "1px solid #000" },
+                bgcolor: {
+                    xs: "rgba(0, 0, 0, 0.75)",
+                    lg: "rgba(0, 0, 0, 0.25)",
+                },
+                color: "#fff",
+                display: "flex",
+                flexDirection: "column",
+                position: { xs: "fixed", lg: "relative" },
+                width: { xs: "100%", lg: 300 },
+                maxWidth: 300,
+                height: {
+                    xs: "calc(100vh - 50px)",
+                    lg: "calc(100vh - var(--top-position))",
+                },
+                top: { xs: "var(--top-position)", lg: "auto" },
+                left: { xs: 0, lg: "auto" },
+                transform: {
+                    xs: showMenu ? "translateX(0)" : "translateX(-100%)",
+                    lg: "none",
+                },
+                transition: "transform 200ms",
+                flexBasis: { lg: 300 },
+                flexShrink: 0,
+                flexGrow: { lg: 1 },
+                fontSize: { lg: "0.8rem" },
+                ...(isFullscreen && {
+                    position: "absolute",
+                    zIndex: 2,
+                    top: "50%",
+                    left: "1rem",
+                    transform: "translateY(-50%)",
+                    height: "auto",
+                    maxHeight: "100vh",
+                    bgcolor: "rgba(0, 0, 0, 0.75)",
+                }),
+            }}
+            className={`menu-card ${showMenu && "show"}`}
+        >
             {server == "single-player" && (
                 <div className="d-none card card-articles card-sm mb-2">
                     <div className="card-body p-2">
@@ -114,7 +192,7 @@ export default function SideMenu() {
                                 >
 
                                     <div className='d-flex align-items-center mb-1'>
-                                        <i className="fad fa-user text-center" style={{ width: '30px' }}></i>
+                                        <PersonIcon fontSize="inherit" sx={{ width: 30, mr: "0.2rem" }} />
                                         <h5 className='mb-0'>{player_obj?.battleTrap?.nickname || '?'}</h5>
                                     </div>
 
@@ -188,7 +266,10 @@ export default function SideMenu() {
                             });
                         }}
                     >
-                        <i className="fad fa-play"></i>
+                        <PlayArrowIcon
+                            fontSize="inherit"
+                            sx={{ mr: "0.2rem" }}
+                        />
                         <span>Start Game</span>
 
                         <span className="badge bg-dark ms-2">
@@ -209,84 +290,29 @@ export default function SideMenu() {
                             });
                         }}
                     >
-                        <i className="fad fa-play me-0"></i>
+                        <PlayArrowIcon fontSize="inherit" />
                     </ArticlesButton>
                 </IsDev>
             </div>
 
-            <div className="d-flex">
-                <Link
-                    href={"/"}
-                    className="w-50"
-                >
-                    <ArticlesButton
-                        small
-                        className="w-100"
-                    >
-                        <i className="fad fa-sign-out fa-rotate-180"></i>
-                        <span>
-                            Leave{" "}
-                            <span className="d-none d-lg-inline-block">
-                                Game
-                            </span>
-                        </span>
-                    </ArticlesButton>
-                </Link>
-
-                <ArticlesButton
-                    small
-                    className="w-50"
-                    active={isFullscreen}
-                    onClick={() => {
-                        if (isFullscreen) {
-                            exitFullscreen();
-                        } else {
-                            requestFullscreen(
-                                // 'battle-trap-game-page'
-                            );
-                        }
-                    }}
-                >
-                    {isFullscreen && <span>Exit </span>}
-                    {!isFullscreen && (
-                        <span>
-                            <i className="fad fa-expand"></i>
-                        </span>
-                    )}
-                    <span>Fullscreen</span>
-                </ArticlesButton>
-            </div>
-
-            <div className="">
-                <ArticlesButton
-                    className="w-50"
-                    small
-                    onClick={() => {
-                        setShowInfoModal({
-                            game: "Battle Trap",
-                        });
-                    }}
-                >
-                    <i className="fad fa-info-circle"></i>
-                    <span>Info</span>
-                </ArticlesButton>
-                <ArticlesButton
-                    className="w-50"
-                    small
-                    onClick={() => {
-                        setShowSettingsModal({
-                            game: "Battle Trap",
-                        });
-                    }}
-                >
-                    <i className="fad fa-cog"></i>
-                    <span>Settings</span>
-                </ArticlesButton>
-            </div>
+            <Box
+                sx={{
+                    display: "flex",
+                    // flexDirection: 'column',
+                    flexWrap: "wrap",
+                    mb: 2,
+                }}
+            >
+                <GameMenuPrimaryButtonGroup
+                    useStore={useStore}
+                    type="GameMenu"
+                    useRouter={useRouter}
+                />
+            </Box>
 
             <div className="mb-3 d-flex">
                 <ArticlesButton
-                    className="w-50"
+                    className="w-100"
                     small
                     onClick={() => {
                         // setShowInfoModal({
@@ -295,7 +321,10 @@ export default function SideMenu() {
                         setThreeDimensional(!threeDimensional);
                     }}
                 >
-                    <i className="fad fa-info-circle"></i>
+                    <InfoIcon
+                        fontSize="inherit"
+                        sx={{ mr: "0.2rem" }}
+                    />
                     <span>{threeDimensional ? "3D Mode" : "2D Mode"}</span>
                 </ArticlesButton>
             </div>
@@ -304,15 +333,29 @@ export default function SideMenu() {
 
             {/* Tile Moves */}
             <div className="card card-articles card-sm mb-2">
-                <div className="card-header flex-header">
+                <Box
+                    sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                    }}
+                    className="card-header flex-header"
+                >
                     <div>Tile Moves</div>
                     <span className="badge bg-dark">
                         <span>0 Left</span>
                     </span>
-                </div>
+                </Box>
 
                 <div className="card-body text-center">
-                    <div className="h3 mb-0">
+                    <Box
+                        sx={{
+                            fontSize: "1.75rem",
+                            fontWeight: 500,
+                            lineHeight: 1.2,
+                        }}
+                        className="h3 mb-0"
+                    >
                         {
                             gameState?.status == "In Lobby" ? (
                                 <span>Awaiting game start</span>
@@ -323,13 +366,20 @@ export default function SideMenu() {
                             //     date={gameState?.moveTimer}
                             // />
                         }
-                    </div>
+                    </Box>
                 </div>
             </div>
 
             {/* Dice Roll */}
             <div className="card card-articles card-sm mb-2">
-                <div className="card-header flex-header">
+                <Box
+                    sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                    }}
+                    className="card-header flex-header"
+                >
                     <div className="d-flex justify-content-center align-items-center">
                         <span>Dice Roll</span>
                     </div>
@@ -351,7 +401,7 @@ export default function SideMenu() {
                                 <span>{currentRoll || 0} Left</span>
                             </span> */}
                     </div>
-                </div>
+                </Box>
 
                 <div className="card-body text-center">
                     {currentRoll === false
@@ -360,17 +410,19 @@ export default function SideMenu() {
 
                     {gameState?.status == "In Lobby" && !gameState?.turn && (
                         <>
-                            <i className={`fal fa-dice-four fa-3x`}></i>
-                            <i className={`fal fa-dice-two fa-3x me-0`}></i>
+                            <DiceIcon value={4} />
+                            <DiceIcon
+                                value={2}
+                                sx={{ mr: 0 }}
+                            />
                         </>
                     )}
 
-                    <i
-                        className={`fal fa-dice-${diceNumbersToWords[gameState?.turn?.dice_one]} fa-3x`}
-                    ></i>
-                    <i
-                        className={`fal fa-dice-${diceNumbersToWords[gameState?.turn?.dice_two]} fa-3x me-0`}
-                    ></i>
+                    <DiceIcon value={gameState?.turn?.dice_one} />
+                    <DiceIcon
+                        value={gameState?.turn?.dice_two}
+                        sx={{ mr: 0 }}
+                    />
                 </div>
 
                 <div className="card-footer d-flex justify-content-center align-items-center">
@@ -380,7 +432,7 @@ export default function SideMenu() {
                                 rollDice()
                             }}
                         >
-                            <i className="fad fa-play"></i>
+                            <PlayArrowIcon fontSize="inherit" sx={{ mr: "0.2rem" }} />
                             <span>Auto</span>
                             <span className="badge bg-dark ms-1">Off</span>
                         </ArticlesButton> */}
@@ -393,7 +445,10 @@ export default function SideMenu() {
                             rollDice();
                         }}
                     >
-                        <i className="fad fa-play"></i>
+                        <PlayArrowIcon
+                            fontSize="inherit"
+                            sx={{ mr: "0.2rem" }}
+                        />
                         <span>Roll Dice</span>
                     </ArticlesButton>
                 </div>
@@ -401,23 +456,37 @@ export default function SideMenu() {
 
             {/* Players */}
             <div className="card card-articles card-sm mb-2 mt-auto">
-                <div className="card-header flex-header">
+                <Box
+                    sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                    }}
+                    className="card-header flex-header"
+                >
                     <ArticlesButton
                         small
                         className="py-1"
+                        aria-label={
+                            showPlayers ? "Hide players" : "Show players"
+                        }
+                        aria-expanded={showPlayers}
                         active={showPlayers}
                         onClick={() => {
                             setShowPlayers((prev) => !prev);
                         }}
                     >
-                        <i className="fad fa-eye me-0"></i>
+                        <VisibilityIcon fontSize="inherit" />
                     </ArticlesButton>
 
                     {/* <span>Players</span> */}
 
                     <span className="badge bg-dark">
                         <span className="me-2">
-                            <i className="fad fa-users"></i>
+                            <GroupIcon
+                                fontSize="inherit"
+                                sx={{ mr: "0.2rem", verticalAlign: "middle" }}
+                            />
                             {
                                 players?.filter(
                                     (player) => !player.battleTrap?.bot,
@@ -426,7 +495,10 @@ export default function SideMenu() {
                         </span>
 
                         <span>
-                            <i className="fad fa-robot"></i>
+                            <SmartToyIcon
+                                fontSize="inherit"
+                                sx={{ mr: "0.2rem", verticalAlign: "middle" }}
+                            />
                             {
                                 players?.filter(
                                     (player) => player.battleTrap?.bot,
@@ -434,34 +506,63 @@ export default function SideMenu() {
                             }
                         </span>
                     </span>
-                </div>
+                </Box>
 
                 {showPlayers && (
                     <>
                         <div className="card-body p-2">
                             <div className="players mb-0">
                                 {players.map((player_obj, i) => (
-                                    <div
+                                    <Box
+                                        sx={{
+                                            border: "1px solid rgba(0, 0, 0, 0.3)",
+                                            p: "0.5rem 1rem",
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            alignItems: "center",
+                                            "&:not(:last-child)": {
+                                                mb: "0.5rem",
+                                            },
+                                            "&.active-turn": {
+                                                borderLeft: "6px solid #000",
+                                            },
+                                            "&.open": {
+                                                cursor: "pointer",
+                                                "&:hover": { bgcolor: "gray" },
+                                            },
+                                        }}
                                         key={`${player_obj}-${i}`}
                                         className="player open p-1"
                                         onClick={() => {}}
                                     >
                                         <div className="d-flex align-items-center ">
                                             {player_obj?.battleTrap?.dead ? (
-                                                <i
-                                                    className="fad fa-skull text-center"
-                                                    style={{ width: "30px" }}
-                                                ></i>
+                                                <DangerousIcon
+                                                    titleAccess="Eliminated player"
+                                                    fontSize="inherit"
+                                                    sx={{
+                                                        width: 30,
+                                                        mr: "0.2rem",
+                                                    }}
+                                                />
                                             ) : player_obj?.battleTrap?.bot ? (
-                                                <i
-                                                    className="fad fa-robot text-center"
-                                                    style={{ width: "30px" }}
-                                                ></i>
+                                                <SmartToyIcon
+                                                    titleAccess="Bot"
+                                                    fontSize="inherit"
+                                                    sx={{
+                                                        width: 30,
+                                                        mr: "0.2rem",
+                                                    }}
+                                                />
                                             ) : (
-                                                <i
-                                                    className="fad fa-user text-center"
-                                                    style={{ width: "30px" }}
-                                                ></i>
+                                                <PersonIcon
+                                                    titleAccess="Player"
+                                                    fontSize="inherit"
+                                                    sx={{
+                                                        width: 30,
+                                                        mr: "0.2rem",
+                                                    }}
+                                                />
                                             )}
 
                                             <h5 className="mb-0">
@@ -480,11 +581,14 @@ export default function SideMenu() {
                                                     setCurrentTurn(i);
                                                 }}
                                             >
-                                                <i className="fad fa-code me-1"></i>
+                                                <CodeIcon
+                                                    fontSize="inherit"
+                                                    sx={{ mr: "0.25rem" }}
+                                                />
                                                 Turn
                                             </ArticlesButton>
                                         )}
-                                    </div>
+                                    </Box>
                                 ))}
 
                                 {/* {players.length < 4 && */}
@@ -502,7 +606,7 @@ export default function SideMenu() {
                                             // })
                                         }}
                                     >
-                                        <i className="fad fa-robot"></i>
+                                        <SmartToyIcon fontSize="inherit" sx={{ mr: "0.2rem", verticalAlign: "middle" }} />
                                         <span className='mb-0'>Add Bot</span>
                                     </ArticlesButton> */}
 
@@ -520,7 +624,10 @@ export default function SideMenu() {
                                                     });
                                                 }}
                                             >
-                                                <i className="fad fa-user-plus"></i>
+                                                <PersonAddIcon
+                                                    fontSize="inherit"
+                                                    sx={{ mr: "0.2rem" }}
+                                                />
                                                 <span className="mb-0">
                                                     Invite Players
                                                 </span>
@@ -534,7 +641,13 @@ export default function SideMenu() {
                                             console.log("Log Players", players);
                                         }}
                                     >
-                                        <i className="fad fa-users"></i>
+                                        <GroupIcon
+                                            fontSize="inherit"
+                                            sx={{
+                                                mr: "0.2rem",
+                                                verticalAlign: "middle",
+                                            }}
+                                        />
                                         <span className="mb-0">
                                             Log Players
                                         </span>
@@ -549,7 +662,13 @@ export default function SideMenu() {
                                             );
                                         }}
                                     >
-                                        <i className="fad fa-users"></i>
+                                        <GroupIcon
+                                            fontSize="inherit"
+                                            sx={{
+                                                mr: "0.2rem",
+                                                verticalAlign: "middle",
+                                            }}
+                                        />
                                         <span className="mb-0">Log Board</span>
                                     </ArticlesButton>
 
@@ -586,6 +705,6 @@ export default function SideMenu() {
                     </Accordion.Item>
 
                 </Accordion> */}
-        </div>
+        </Box>
     );
 }

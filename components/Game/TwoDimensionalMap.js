@@ -1,3 +1,4 @@
+import Box from "@mui/material/Box";
 import { useSocketStore } from "@/hooks/useSocketStore";
 import { useEffect, useRef } from "react";
 
@@ -81,7 +82,21 @@ export default function TwoDimensionalMap() {
     }, []);
 
     return (
-        <div className="ratio ratio-1x1 canvas-container bg-black">
+        <Box
+            sx={{
+                position: "relative",
+                width: "100%",
+                aspectRatio: "1",
+                bgcolor: "#000",
+                "& canvas": {
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                },
+            }}
+            className="ratio ratio-1x1 canvas-container bg-black"
+        >
             <canvas
                 id="static-canvas"
                 className="static"
@@ -96,6 +111,6 @@ export default function TwoDimensionalMap() {
                 height={600}
                 ref={canvasGameRef}
             />
-        </div>
+        </Box>
     );
 }

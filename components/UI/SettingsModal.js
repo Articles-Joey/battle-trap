@@ -1,177 +1,143 @@
+"use client";
+
 import { useState } from "react";
-
-import { Modal, Form } from "react-bootstrap";
-
+import {
+    Box,
+    Divider,
+    FormControlLabel,
+    Slider,
+    Switch,
+    Typography,
+} from "@mui/material";
 import ArticlesButton from "@/components/UI/Button";
+import ArticlesModal from "@/components/UI/ArticlesModal";
 
-export default function FourFrogsSettingsModal({ show, setShow }) {
-    const [showModal, setShowModal] = useState(true);
-
-    const [lightboxData, setLightboxData] = useState(null);
-
+export default function BattleTrapSettingsModal({ show, setShow }) {
     const [tab, setTab] = useState("Controls");
 
     return (
-        <>
-            {/* {lightboxData && (
-                <Lightbox
-                    mainSrc={lightboxData?.location}
-                    onCloseRequest={() => setLightboxData(null)}
-                    reactModalStyle={{
-                        overlay: {
-                            zIndex: '2000'
-                        }
-                    }}
-                />
-            )} */}
-
-            <Modal
-                className="articles-modal"
-                size="md"
-                show={showModal}
-                // To much jumping with little content for now
-                // centered
-                scrollable
-                onExited={() => {
-                    setShow(false);
-                }}
-                onHide={() => {
-                    setShowModal(false);
-                }}
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>Game Settings</Modal.Title>
-                </Modal.Header>
-
-                <Modal.Body className="flex-column p-0">
-                    <div className="p-2">
-                        {["Controls", "Audio", "Chat"].map((item) => (
-                            <ArticlesButton
-                                key={item}
-                                active={tab == item}
-                                onClick={() => {
-                                    setTab(item);
+        <ArticlesModal
+            show={show}
+            setShow={setShow}
+            title="Game Settings"
+            size="sm"
+            centered={false}
+            contentSx={{ p: 0 }}
+            footerOverride={(closeModal) => (
+                <Box sx={{ display: "flex", gap: "1rem" }}>
+                    <ArticlesButton
+                        variant="outline-dark"
+                        onClick={() => closeModal(false)}
+                    >
+                        Close
+                    </ArticlesButton>
+                    <ArticlesButton
+                        variant="outline-danger"
+                        onClick={() => closeModal(false)}
+                    >
+                        Reset
+                    </ArticlesButton>
+                </Box>
+            )}
+        >
+            <Box sx={{ p: "0.5rem" }}>
+                {["Controls", "Audio", "Chat"].map((item) => (
+                    <ArticlesButton
+                        key={item}
+                        active={tab === item}
+                        onClick={() => setTab(item)}
+                    >
+                        {item}
+                    </ArticlesButton>
+                ))}
+            </Box>
+            <Divider />
+            <Box sx={{ p: "0.5rem" }}>
+                {tab === "Controls" && (
+                    <>
+                        {[
+                            { action: "Move Up", defaultKeyboardKey: "W" },
+                            { action: "Move Down", defaultKeyboardKey: "S" },
+                            { action: "Move Left", defaultKeyboardKey: "A" },
+                            { action: "Move Right", defaultKeyboardKey: "D" },
+                        ].map(({ action, defaultKeyboardKey }) => (
+                            <Box
+                                key={action}
+                                sx={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    borderBottom: 1,
+                                    borderColor: "divider",
+                                    pb: "0.25rem",
+                                    mb: "0.25rem",
                                 }}
                             >
-                                {item}
-                            </ArticlesButton>
+                                <Box>{action}</Box>
+                                <Box>
+                                    <Box
+                                        component="span"
+                                        sx={{
+                                            display: "inline-block",
+                                            bgcolor: "#000",
+                                            color: "#fff",
+                                            mr: "0.25rem",
+                                            px: "0.65em",
+                                            py: "0.35em",
+                                            borderRadius: "0.375rem",
+                                            fontSize: "0.75em",
+                                            fontWeight: 700,
+                                        }}
+                                    >
+                                        {defaultKeyboardKey}
+                                    </Box>
+                                    <ArticlesButton small>
+                                        Change Key
+                                    </ArticlesButton>
+                                </Box>
+                            </Box>
                         ))}
-                    </div>
-
-                    <hr className="my-0" />
-
-                    <div className="p-2">
-                        {tab == "Controls" && (
-                            <div>
-                                <div>
-                                    {[
-                                        {
-                                            action: "Move Up",
-                                            defaultKeyboardKey: "W",
-                                        },
-                                        {
-                                            action: "Move Down",
-                                            defaultKeyboardKey: "S",
-                                        },
-                                        {
-                                            action: "Move Left",
-                                            defaultKeyboardKey: "A",
-                                        },
-                                        {
-                                            action: "Move Right",
-                                            defaultKeyboardKey: "D",
-                                        },
-                                    ].map((obj) => (
-                                        <div key={obj.action}>
-                                            <div className="flex-header border-bottom pb-1 mb-1">
-                                                <div>
-                                                    <div>{obj.action}</div>
-                                                </div>
-
-                                                <div>
-                                                    <div className="badge badge-hover bg-black me-1">
-                                                        {obj.defaultKeyboardKey}
-                                                    </div>
-
-                                                    <ArticlesButton
-                                                        className=""
-                                                        small
-                                                    >
-                                                        Change Key
-                                                    </ArticlesButton>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="p-2">
-                                    * You can also click or tap the tile you
-                                    want to move to.
-                                </div>
-                            </div>
-                        )}
-                        {tab == "Audio" && (
-                            <>
-                                <Form.Label className="mb-0">
-                                    Game Volume
-                                </Form.Label>
-                                <Form.Range />
-                                <Form.Label className="mb-0">
-                                    Music Volume
-                                </Form.Label>
-                                <Form.Range />
-                            </>
-                        )}
-                        {tab == "Chat" && (
-                            <>
-                                <Form.Check
-                                    type="switch"
-                                    id="custom-switch"
-                                    label="Game chat panel"
-                                />
-                                <Form.Check
-                                    type="switch"
-                                    id="custom-switch"
-                                    label="Censor chat"
-                                />
-                                <Form.Check
-                                    type="switch"
-                                    id="custom-switch"
-                                    label="Game chat speech bubbles"
-                                />
-                            </>
-                        )}
-                    </div>
-                </Modal.Body>
-
-                <Modal.Footer className="justify-content-between">
-                    {/* <div></div> */}
-
-                    <div>
-                        <ArticlesButton
-                            variant="outline-dark"
-                            onClick={() => {
-                                setShow(false);
-                            }}
-                        >
-                            Close
-                        </ArticlesButton>
-
-                        <ArticlesButton
-                            variant="outline-danger ms-3"
-                            onClick={() => {
-                                setShow(false);
-                            }}
-                        >
-                            Reset
-                        </ArticlesButton>
-                    </div>
-
-                    {/* <ArticlesButton variant="success" onClick={() => setValue(false)}>
-                    Save
-                </ArticlesButton> */}
-                </Modal.Footer>
-            </Modal>
-        </>
+                        <Box sx={{ p: "0.5rem" }}>
+                            * You can also click or tap the tile you want to
+                            move to.
+                        </Box>
+                    </>
+                )}
+                {tab === "Audio" && (
+                    <>
+                        <Typography id="game-volume-label">
+                            Game Volume
+                        </Typography>
+                        <Slider
+                            aria-labelledby="game-volume-label"
+                            defaultValue={50}
+                        />
+                        <Typography id="music-volume-label">
+                            Music Volume
+                        </Typography>
+                        <Slider
+                            aria-labelledby="music-volume-label"
+                            defaultValue={50}
+                        />
+                    </>
+                )}
+                {tab === "Chat" && (
+                    <Box sx={{ display: "flex", flexDirection: "column" }}>
+                        <FormControlLabel
+                            control={<Switch />}
+                            label="Game chat panel"
+                        />
+                        <FormControlLabel
+                            control={<Switch />}
+                            label="Censor chat"
+                        />
+                        <FormControlLabel
+                            control={<Switch />}
+                            label="Game chat speech bubbles"
+                        />
+                    </Box>
+                )}
+            </Box>
+        </ArticlesModal>
     );
 }

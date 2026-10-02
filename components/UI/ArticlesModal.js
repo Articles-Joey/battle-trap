@@ -1,6 +1,16 @@
-import { useState } from "react";
+"use client";
 
-import { Button, Modal } from "react-bootstrap";
+import { useId, useState } from "react";
+
+import CloseIcon from "@mui/icons-material/Close";
+import {
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    IconButton,
+    Box,
+} from "@mui/material";
 import ArticlesButton from "./Button";
 
 export default function ArticlesModal({
@@ -21,79 +31,114 @@ export default function ArticlesModal({
     scrollable,
     size,
     actionVariant,
+    footerOverride,
+    contentSx,
 }) {
     const [showModal, setShowModal] = useState(true);
-
-    // Notes
-    // Assumes always centered
-    // Assumes always scrollable
-    // Just pass false to disable
-
-    // return (
-    //     null
-    // )
+    const titleId = useId();
 
     return (
-        <>
-            <Modal
-                className={`articles-modal ${modalClassName}`}
-                size={size || "md"}
-                show={showModal}
-                centered={centered === false ? false : true}
-                backdrop={backdrop}
-                scrollable={scrollable === false ? false : true}
-                onExited={() => {
-                    setShow(false);
-                }}
-                onHide={() => {
-                    if (!disableClose) {
-                        setShowModal(false);
-                    }
-                }}
+        <Dialog
+            className={`articles-modal ${modalClassName || ""}`}
+            maxWidth={size || "md"}
+            fullWidth
+            open={show !== false && showModal}
+            aria-labelledby={titleId}
+            scroll={scrollable === false ? "body" : "paper"}
+            hideBackdrop={backdrop === false}
+            disableEscapeKeyDown={disableClose}
+            onTransitionExited={() => {
+                setShow(false);
+            }}
+            onClose={(_, reason) => {
+                if (
+                    disableClose ||
+                    (backdrop === "static" && reason === "backdropClick")
+                ) {
+                    return;
+                }
+                setShowModal(false);
+            }}
+            slotProps={{
+                paper:
+                    centered === false
+                        ? {
+                              sx: {
+                                  alignSelf: "flex-start",
+                                  marginTop: 4,
+                              },
+                          }
+                        : undefined,
+            }}
+        >
+            <DialogTitle
+                id={titleId}
+                sx={{ paddingRight: disableClose ? 3 : 7 }}
             >
-                <Modal.Header closeButton={disableClose ? false : true}>
-                    <Modal.Title>{title ? title : "Info"}</Modal.Title>
-                </Modal.Header>
+                {title || "Info"}
+                {!disableClose && (
+                    <IconButton
+                        aria-label="Close dialog"
+                        onClick={() => {
+                            setShowModal(false);
+                        }}
+                        sx={{
+                            position: "absolute",
+                            right: 8,
+                            top: 8,
+                        }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
+                )}
+            </DialogTitle>
 
-                <Modal.Body className={className}>
-                    {children ? children : "..."}
-                </Modal.Body>
+            <DialogContent
+                className={className}
+                sx={contentSx}
+            >
+                {children || "..."}
+            </DialogContent>
 
-                <Modal.Footer className="justify-content-between">
-                    {!action && <div></div>}
+            <DialogActions sx={{ justifyContent: "space-between" }}>
+                {footerOverride ? (
+                    footerOverride(setShowModal)
+                ) : (
+                    <>
+                        {!action && <Box />}
 
-                    <div>
-                        {(!disableClose || closeAction) && (
+                        <Box>
+                            {(!disableClose || closeAction) && (
+                                <ArticlesButton
+                                    variant="outline-dark"
+                                    onClick={() => {
+                                        if (closeAction) {
+                                            closeAction();
+                                        } else {
+                                            setShowModal(false);
+                                        }
+                                    }}
+                                >
+                                    {closeText || "Close"}
+                                </ArticlesButton>
+                            )}
+                        </Box>
+
+                        {action && (
                             <ArticlesButton
-                                variant="outline-dark"
+                                variant={actionVariant || "articles"}
+                                disabled={disableAction}
                                 onClick={() => {
-                                    if (closeAction) {
-                                        closeAction();
-                                    } else {
-                                        setShowModal(false);
-                                    }
+                                    console.log("action");
+                                    action(setShowModal);
                                 }}
                             >
-                                {/* Close */}
-                                {closeText || "Close"}
+                                {actionText || "Continue"}
                             </ArticlesButton>
                         )}
-                    </div>
-
-                    {action && (
-                        <ArticlesButton
-                            variant={actionVariant ? actionVariant : "articles"}
-                            disabled={disableAction}
-                            onClick={() => {
-                                console.log("action");
-                                action(setShowModal);
-                            }}
-                        >
-                            {actionText || "Continue"}
-                        </ArticlesButton>
-                    )}
-                </Modal.Footer>
-            </Modal>
-        </>
+                    </>
+                )}
+            </DialogActions>
+        </Dialog>
     );
 }

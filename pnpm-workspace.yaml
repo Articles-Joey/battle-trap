@@ -2,6 +2,7 @@ allowBuilds:
     "@parcel/watcher": false
     unrs-resolver: false
 minimumReleaseAgeExclude:
+    - "@articles-media/articles-dev-box@2.0.0-beta.3"
     - "@next/env@16.3.8"
     - "@next/eslint-plugin-next@16.3.8"
     - "@next/swc-darwin-arm64@16.3.8"

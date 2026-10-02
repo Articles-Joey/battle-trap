@@ -1,4 +1,5 @@
 "use client";
+import Box from "@mui/material/Box";
 import { useState, useEffect, useRef, useMemo } from "react";
 
 // import Link from 'next/link'
@@ -14,7 +15,6 @@ import {
 // import BasicLoading from '@/components/loading/BasicLoading';
 // import Countdown from 'react-countdown';
 // import { add } from 'date-fns';
-// import { Accordion, Card, Dropdown, DropdownButton } from 'react-bootstrap';
 import ArticlesButton from "@/components/UI/Button";
 import useFullscreen from "@/hooks/useFullScreen";
 // import { useHotkeys } from 'react-hotkeys-hook';
@@ -61,9 +61,7 @@ const GameSetupModal = dynamic(() => import("@/components/UI/GameSetupModal"), {
 });
 
 export default function BattleTrapGamePage(props) {
-    const { socket } = useSocketStore((state) => ({
-        socket: state.socket,
-    }));
+    const socket = useSocketStore((state) => state.socket);
 
     const threeDimensional = useStore((state) => state.threeDimensional);
     const setThreeDimensional = useStore((state) => state.setThreeDimensional);
@@ -215,12 +213,23 @@ export default function BattleTrapGamePage(props) {
     }, [players, currentTurn]);
 
     return (
-        <div
+        <Box
+            sx={{
+                position: "relative",
+                flexGrow: 1,
+                display: "flex",
+                justifyContent: "center",
+                flexDirection: { xs: "column", lg: "row" },
+                alignItems: { lg: "flex-start" },
+                height: "100vh",
+                overflowY: "hidden",
+                "--top-position": "0px",
+            }}
             className={classNames(
                 `${process.env.NEXT_PUBLIC_GAME_KEY}-game-page`,
                 {
                     "menu-open": showMenu,
-                    fullscreen: useFullscreen().isFullscreen,
+                    fullscreen: isFullscreen,
                     "show-sidebar": sidebar,
                 },
             )}
@@ -298,7 +307,21 @@ export default function BattleTrapGamePage(props) {
                 </ArticlesModal>
             )}
 
-            <div className="background">
+            <Box
+                sx={{
+                    position: "fixed",
+                    inset: 0,
+                    height: "100%",
+                    width: "100%",
+                    zIndex: 0,
+                    overflow: "hidden",
+                    "& img": {
+                        filter: "blur(5px) brightness(0.5)",
+                        transform: "scale(1.05)",
+                    },
+                }}
+                className="background"
+            >
                 <Image
                     src={`${process.env.NEXT_PUBLIC_CDN}games/Battle Trap/background.jpg`}
                     // placeholder={'blur'}
@@ -306,30 +329,67 @@ export default function BattleTrapGamePage(props) {
                     fill
                     style={{ objectFit: "cover" }}
                 />
-            </div>
+            </Box>
 
             {/* <MenuBar /> */}
 
             <SideMenu />
 
             {/* Game Board */}
-            <div className="game-content">
+            <Box
+                sx={{
+                    zIndex: 1,
+                    width: "100%",
+                    minWidth: 0,
+                    height: "calc(100vh - var(--top-position))",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    flexDirection: "column",
+                    position: "relative",
+                }}
+                className="game-content"
+            >
                 {threeDimensional && (
-                    <div className="canvas-three-wrap">
+                    <Box
+                        sx={{
+                            border: "1px solid #000",
+                            bgcolor: "#fff",
+                            position: "absolute",
+                            left: 0,
+                            top: 0,
+                            width: "100%",
+                            height: "100%",
+                            "& canvas": { height: "100%", width: "100%" },
+                        }}
+                        className="canvas-three-wrap"
+                    >
                         <GameCanvas
                             gameState={gameState}
                             server={server}
                             players={players}
                         />
-                    </div>
+                    </Box>
                 )}
 
                 {!threeDimensional && (
-                    <div className="canvas-two-dimensional-wrap">
+                    <Box
+                        sx={{
+                            border: "1px solid #000",
+                            bgcolor: "#fff",
+                            left: 0,
+                            top: 0,
+                            width: 500,
+                            maxWidth: "100%",
+                            aspectRatio: "1",
+                            "& canvas": { height: "100%", width: "100%" },
+                        }}
+                        className="canvas-two-dimensional-wrap"
+                    >
                         <TwoDimensionalMap />
-                    </div>
+                    </Box>
                 )}
-            </div>
-        </div>
+            </Box>
+        </Box>
     );
 }

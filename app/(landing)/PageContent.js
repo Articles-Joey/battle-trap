@@ -20,6 +20,16 @@ import { useSocketStore } from "@/hooks/useSocketStore";
 import { Box, Paper, Tooltip } from "@mui/material";
 import { useStore } from "@/hooks/useStore";
 import NicknameInput from "@articles-media/articles-dev-box/NicknameInput";
+
+import RefreshIcon from "@mui/icons-material/Refresh";
+import ColorLensIcon from "@mui/icons-material/ColorLens";
+import CameraswitchIcon from "@mui/icons-material/Cameraswitch";
+import SettingsIcon from "@mui/icons-material/Settings";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import InfoIcon from "@mui/icons-material/Info";
+import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
+import PowerIcon from "@mui/icons-material/Power";
+
 const SessionButton = dynamic(
     () => import("@articles-media/articles-dev-box/SessionButton"),
     { ssr: false },
@@ -77,6 +87,7 @@ export default function BattleTrapLobbyPage(props) {
     // const userReduxState = false
 
     const darkMode = useStore((state) => state.darkMode);
+    const toggleDarkMode = useStore((state) => state.toggleDarkMode);
     const nickname = useStore((state) => state.nickname);
     const setNickname = useStore((state) => state.setNickname);
     const randomNickname = useStore((state) => state.randomNickname);
@@ -186,42 +197,113 @@ export default function BattleTrapLobbyPage(props) {
     });
 
     return (
-        <div className="battle-trap-lobby-page">
+        <Box
+            sx={{
+                "& .scoreboard": {
+                    position: { xs: "relative", lg: "absolute" },
+                    zIndex: 1,
+                    "@media (max-width: 991.98px)": {
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        maxWidth: "100%",
+                        "& .card": { maxWidth: 300, width: "100%" },
+                    },
+                },
+            }}
+            className="battle-trap-lobby-page"
+        >
             <Suspense>
                 <PieMenu
                     options={[
                         {
-                            label: "Settings",
-                            icon: "fad fa-cog",
+                            label: (
+                                <Box
+                                    component="span"
+                                    sx={{
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "0.2rem",
+                                    }}
+                                >
+                                    <SettingsIcon fontSize="inherit" />
+                                    Settings
+                                </Box>
+                            ),
                             callback: () => {
                                 setShowSettingsModal((prev) => !prev);
                             },
                         },
                         {
-                            label: "Go Back",
-                            icon: "fad fa-arrow-left",
+                            label: (
+                                <Box
+                                    component="span"
+                                    sx={{
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "0.2rem",
+                                    }}
+                                >
+                                    <ArrowBackIcon fontSize="inherit" />
+                                    Go Back
+                                </Box>
+                            ),
                             callback: () => {
                                 window.history.back();
                             },
                         },
                         {
-                            label: "Credits",
-                            icon: "fad fa-info-circle",
+                            label: (
+                                <Box
+                                    component="span"
+                                    sx={{
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "0.2rem",
+                                    }}
+                                >
+                                    <InfoIcon fontSize="inherit" />
+                                    Credits
+                                </Box>
+                            ),
                             callback: () => {
                                 setShowCreditsModal(true);
                             },
                         },
                         {
-                            label: "Game Launcher",
-                            icon: "fad fa-gamepad",
+                            label: (
+                                <Box
+                                    component="span"
+                                    sx={{
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "0.2rem",
+                                    }}
+                                >
+                                    <SportsEsportsIcon fontSize="inherit" />
+                                    Game Launcher
+                                </Box>
+                            ),
                             callback: () => {
                                 window.location.href =
                                     "https://games.articles.media";
                             },
                         },
                         {
-                            label: `${darkMode ? "Light" : "Dark"} Mode`,
-                            icon: "fad fa-palette",
+                            label: (
+                                <Box
+                                    component="span"
+                                    sx={{
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "0.2rem",
+                                    }}
+                                >
+                                    <ColorLensIcon fontSize="inherit" />
+                                    {darkMode ? "Light" : "Dark"} Mode
+                                </Box>
+                            ),
                             callback: () => {
                                 toggleDarkMode();
                             },
@@ -245,7 +327,21 @@ export default function BattleTrapLobbyPage(props) {
 
             {showEditBikeModal && <CustomizeBikeModal />}
 
-            <div className="background">
+            <Box
+                sx={{
+                    position: "fixed",
+                    inset: 0,
+                    height: "100%",
+                    width: "100%",
+                    zIndex: 0,
+                    overflow: "hidden",
+                    "& img": {
+                        filter: "blur(5px) brightness(0.5)",
+                        transform: "scale(1.05)",
+                    },
+                }}
+                className="background"
+            >
                 <Image
                     src={`${process.env.NEXT_PUBLIC_CDN}games/Battle Trap/background.jpg`}
                     // placeholder={'blur'}
@@ -253,9 +349,21 @@ export default function BattleTrapLobbyPage(props) {
                     fill
                     style={{ objectFit: "cover" }}
                 />
-            </div>
+            </Box>
 
-            <div
+            <Box
+                sx={{
+                    position: "relative",
+                    zIndex: 1,
+                    color: "#fff",
+                    maxWidth: {
+                        sm: 540,
+                        md: 720,
+                        lg: 960,
+                        xl: 1140,
+                        xxl: 1320,
+                    },
+                }}
                 className="container py-3 py-lg-5"
                 data-theme="Dark"
             >
@@ -305,7 +413,10 @@ export default function BattleTrapLobbyPage(props) {
                                         }
                                     }}
                                 >
-                                    <i className="fad fa-plug"></i>
+                                    <PowerIcon
+                                        fontSize="inherit"
+                                        sx={{ mr: "0.2rem" }}
+                                    />
                                     {connected ? "Disconnect" : "Connect"}
                                 </ArticlesButton>
                                 <ArticlesButton
@@ -320,8 +431,24 @@ export default function BattleTrapLobbyPage(props) {
                     </div>
 
                     <div className="d-lg-flex">
-                        <div className="model-preview">
-                            <div className="floating-controls">
+                        <Box
+                            sx={{
+                                position: "relative",
+                                width: { xs: "100%", lg: "50%" },
+                                flexShrink: 0,
+                            }}
+                            className="model-preview"
+                        >
+                            <Box
+                                sx={{
+                                    position: "absolute",
+                                    top: 0,
+                                    right: 0,
+                                    zIndex: 1,
+                                    display: "flex",
+                                }}
+                                className="floating-controls"
+                            >
                                 <Tooltip
                                     title="Rotation"
                                     placement="bottom"
@@ -333,7 +460,7 @@ export default function BattleTrapLobbyPage(props) {
                                         }}
                                         className=""
                                     >
-                                        <i className="fad fa-sync me-0"></i>
+                                        <CameraswitchIcon fontSize="small" />
                                     </ArticlesButton>
                                 </Tooltip>
 
@@ -351,7 +478,7 @@ export default function BattleTrapLobbyPage(props) {
                                         }}
                                         className=""
                                     >
-                                        <i className="fad fa-undo me-0"></i>
+                                        <RefreshIcon fontSize="small" />
                                     </ArticlesButton>
                                 </Tooltip>
 
@@ -366,7 +493,7 @@ export default function BattleTrapLobbyPage(props) {
                                         }}
                                         className=""
                                     >
-                                        <i className="fad fa-pen me-2"></i>
+                                        <ColorLensIcon fontSize="small" />
                                         Customize
                                     </ArticlesButton>
                                 </Tooltip>
@@ -379,7 +506,7 @@ export default function BattleTrapLobbyPage(props) {
                                         display: "none",
                                     }}
                                 ></div>
-                            </div>
+                            </Box>
 
                             <Paper
                                 id="users-bike-viewer"
@@ -389,7 +516,18 @@ export default function BattleTrapLobbyPage(props) {
                                     margin: "0rem",
                                     border: "1px solid #fff",
                                 }}
-                                sx={{ mr: 2 }}
+                                sx={[
+                                    { mr: 2 },
+                                    {
+                                        bgcolor: "#000",
+                                        minHeight: 168,
+                                        position: "relative",
+                                        "& > *": {
+                                            position: "absolute !important",
+                                            height: "100%",
+                                        },
+                                    },
+                                ]}
                             >
                                 {!showEditBikeModal && (
                                     <Viewer
@@ -403,7 +541,7 @@ export default function BattleTrapLobbyPage(props) {
                                     </Viewer>
                                 )}
                             </Paper>
-                        </div>
+                        </Box>
 
                         <Paper
                             className="mb-3 mx-auto text-center"
@@ -430,8 +568,26 @@ export default function BattleTrapLobbyPage(props) {
                         <div className='small mb-1'>123</div>
                     </div> */}
 
-                    <div className="servers mb-4">
-                        <Paper className="server flex-row flex-header border border-white p-2">
+                    <Box
+                        sx={{
+                            display: { xs: "flex", lg: "grid" },
+                            flexDirection: "column",
+                            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                            gap: { xs: 0, lg: "5px" },
+                        }}
+                        className="servers mb-4"
+                    >
+                        <Paper
+                            sx={[
+                                {
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                },
+                                { border: "1px solid #fff" },
+                            ]}
+                            className="server flex-row flex-header border border-white p-2"
+                        >
                             <div>
                                 <div className="d-flex justify-content-between align-items-center w-100 mb-1">
                                     <div
@@ -483,7 +639,17 @@ export default function BattleTrapLobbyPage(props) {
                             </ArticlesButton>
                         </Paper>
 
-                        <Paper className="server flex-row flex-header border border-white p-2">
+                        <Paper
+                            sx={[
+                                {
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                },
+                                { border: "1px solid #fff" },
+                            ]}
+                            className="server flex-row flex-header border border-white p-2"
+                        >
                             <div>
                                 <div className="d-flex justify-content-between align-items-center w-100 mb-1">
                                     <div
@@ -526,14 +692,22 @@ export default function BattleTrapLobbyPage(props) {
                             </ArticlesButton>
                             {/* </Link> */}
                         </Paper>
-                    </div>
+                    </Box>
 
                     <div className="text-center">
                         <div>Classic Play Servers</div>
                         <div className="small mb-1">Turn based gameplay.</div>
                     </div>
 
-                    <div className="servers mb-3">
+                    <Box
+                        sx={{
+                            display: { xs: "flex", lg: "grid" },
+                            flexDirection: "column",
+                            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                            gap: { xs: 0, lg: "5px" },
+                        }}
+                        className="servers mb-3"
+                    >
                         {[1, 2, 3, 4].map((id) => {
                             let game_lookup = lobbyDetails?.games?.find(
                                 (game) => parseInt(game.server_id) == id,
@@ -541,6 +715,14 @@ export default function BattleTrapLobbyPage(props) {
 
                             return (
                                 <Paper
+                                    sx={[
+                                        {
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            alignItems: "center",
+                                        },
+                                        { border: "1px solid #fff" },
+                                    ]}
                                     key={id}
                                     className="server flex-row flex-header border border-white p-2"
                                 >
@@ -632,7 +814,7 @@ export default function BattleTrapLobbyPage(props) {
                                 </Paper>
                             );
                         })}
-                    </div>
+                    </Box>
 
                     {/* TODO */}
                     <IsDev>
@@ -644,7 +826,16 @@ export default function BattleTrapLobbyPage(props) {
                                 </div>
                             </div>
 
-                            <div className="servers mb-3">
+                            <Box
+                                sx={{
+                                    display: { xs: "flex", lg: "grid" },
+                                    flexDirection: "column",
+                                    gridTemplateColumns:
+                                        "repeat(2, minmax(0, 1fr))",
+                                    gap: { xs: 0, lg: "5px" },
+                                }}
+                                className="servers mb-3"
+                            >
                                 {[5, 6, 7, 8].map((id) => {
                                     let game_lookup = lobbyDetails?.games?.find(
                                         (game) =>
@@ -652,7 +843,16 @@ export default function BattleTrapLobbyPage(props) {
                                     );
 
                                     return (
-                                        <div
+                                        <Box
+                                            sx={[
+                                                {
+                                                    display: "flex",
+                                                    justifyContent:
+                                                        "space-between",
+                                                    alignItems: "center",
+                                                },
+                                                { border: "1px solid #fff" },
+                                            ]}
                                             key={id}
                                             className="server card rounded-0 flex-row flex-header border border-white p-2"
                                         >
@@ -727,10 +927,10 @@ export default function BattleTrapLobbyPage(props) {
                                                     Join
                                                 </ArticlesButton>
                                             </Link>
-                                        </div>
+                                        </Box>
                                     );
                                 })}
-                            </div>
+                            </Box>
 
                             <div className="text-center">
                                 <div>Express Play Servers</div>
@@ -739,7 +939,16 @@ export default function BattleTrapLobbyPage(props) {
                                 </div>
                             </div>
 
-                            <div className="servers mb-3">
+                            <Box
+                                sx={{
+                                    display: { xs: "flex", lg: "grid" },
+                                    flexDirection: "column",
+                                    gridTemplateColumns:
+                                        "repeat(2, minmax(0, 1fr))",
+                                    gap: { xs: 0, lg: "5px" },
+                                }}
+                                className="servers mb-3"
+                            >
                                 {[9, 10, 11, 12].map((id) => {
                                     let game_lookup = lobbyDetails?.games?.find(
                                         (game) =>
@@ -747,7 +956,16 @@ export default function BattleTrapLobbyPage(props) {
                                     );
 
                                     return (
-                                        <div
+                                        <Box
+                                            sx={[
+                                                {
+                                                    display: "flex",
+                                                    justifyContent:
+                                                        "space-between",
+                                                    alignItems: "center",
+                                                },
+                                                { border: "1px solid #fff" },
+                                            ]}
                                             key={id}
                                             className="server card rounded-0 flex-row flex-header border border-white p-2"
                                         >
@@ -822,10 +1040,10 @@ export default function BattleTrapLobbyPage(props) {
                                                     Join
                                                 </ArticlesButton>
                                             </Link>
-                                        </div>
+                                        </Box>
                                     );
                                 })}
-                            </div>
+                            </Box>
                         </>
                     </IsDev>
                 </div>
@@ -839,7 +1057,7 @@ export default function BattleTrapLobbyPage(props) {
                         <ReturnToLauncherButton />
                     </div>
                 </div>
-            </div>
+            </Box>
 
             <GameScoreboard
                 game={process.env.NEXT_PUBLIC_GAME_NAME}
@@ -848,6 +1066,14 @@ export default function BattleTrapLobbyPage(props) {
             />
 
             <Ad
+                sx={{
+                    position: "fixed",
+                    right: "1rem",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    display: { xs: "none", lg: "block" },
+                    zIndex: 1,
+                }}
                 style="Default"
                 section={"Games"}
                 section_id={process.env.NEXT_PUBLIC_GAME_NAME}
@@ -856,6 +1082,6 @@ export default function BattleTrapLobbyPage(props) {
                 userDetails={userDetails}
                 userDetailsLoading={userDetailsLoading}
             />
-        </div>
+        </Box>
     );
 }
