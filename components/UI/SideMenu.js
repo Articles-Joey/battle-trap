@@ -124,10 +124,14 @@ export default function SideMenu() {
     const searchParamsObject = Object.fromEntries(searchParams.entries());
     // const params = useParams()
     const server = searchParamsObject?.server;
+    const local = server === "single-player" || server === "local-play";
 
     const handlePlayerMove = usePlayerMoveLogic(server);
 
     const currentPlayer = useCurrentPlayer();
+    const winner = players.find(
+        (player) => player.id === localGameState?.winnerId,
+    );
 
     const rollDice = useRollDice(server);
 
@@ -404,9 +408,15 @@ export default function SideMenu() {
                 </Box>
 
                 <div className="card-body text-center">
-                    {currentRoll === false
-                        ? `${currentPlayer?.nickname} Please Roll`
-                        : currentRoll}
+                    {local && localGameState?.gameOver
+                        ? winner
+                            ? `${winner.battleTrap.nickname || winner.battleTrap.color || "Player"} wins!`
+                            : "Game over: no winner"
+                        : local && (!currentPlayer || currentPlayer.dead)
+                          ? "No players left to move"
+                          : currentRoll === false
+                            ? `${currentPlayer?.nickname} Please Roll`
+                            : currentRoll}
 
                     {gameState?.status == "In Lobby" && !gameState?.turn && (
                         <>
@@ -440,7 +450,13 @@ export default function SideMenu() {
                     <ArticlesButton
                         small
                         className="flex-grow-1"
-                        disabled={currentRoll}
+                        disabled={
+                            currentRoll !== false ||
+                            (local &&
+                                (!currentPlayer ||
+                                    currentPlayer.dead ||
+                                    currentPlayer.bot))
+                        }
                         onClick={() => {
                             rollDice();
                         }}
@@ -541,6 +557,7 @@ export default function SideMenu() {
                                                     titleAccess="Eliminated player"
                                                     fontSize="inherit"
                                                     sx={{
+                                                        color: "#ff3333",
                                                         width: 30,
                                                         mr: "0.2rem",
                                                     }}
@@ -565,10 +582,24 @@ export default function SideMenu() {
                                                 />
                                             )}
 
-                                            <h5 className="mb-0">
+                                            <Box
+                                                component="h5"
+                                                className="mb-0"
+                                                sx={{
+                                                    textDecorationLine:
+                                                        player_obj.battleTrap
+                                                            ?.dead
+                                                            ? "line-through"
+                                                            : "none",
+                                                    textDecorationColor:
+                                                        "#ff3333",
+                                                    textDecorationThickness:
+                                                        "2px",
+                                                }}
+                                            >
                                                 {player_obj?.battleTrap
                                                     ?.nickname || "?"}
-                                            </h5>
+                                            </Box>
                                         </div>
 
                                         {process.env.NODE_ENV ==
@@ -577,6 +608,12 @@ export default function SideMenu() {
                                                 small
                                                 active={i == currentTurn}
                                                 variant="warning"
+                                                disabled={
+                                                    player_obj.battleTrap
+                                                        ?.dead ||
+                                                    (local &&
+                                                        localGameState?.gameOver)
+                                                }
                                                 onClick={() => {
                                                     setCurrentTurn(i);
                                                 }}

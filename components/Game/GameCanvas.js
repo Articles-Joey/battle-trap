@@ -1,19 +1,17 @@
 import { Canvas } from "@react-three/fiber";
 import {
     Sky,
-    useDetectGPU,
     useTexture,
     OrbitControls,
     Text,
     Billboard,
+    Line,
 } from "@react-three/drei";
 
 import GameGrid from "./GameGrid";
 
 import GroundPlane from "./Ground";
-import { LowPolyChopper } from "./Bikes";
-import { DoubleSide, Vector3 } from "three";
-import { memo, useEffect, useMemo } from "react";
+import { memo, useState } from "react";
 
 import RenderModel from "./RenderModel";
 import { useSocketStore } from "@/hooks/useSocketStore";
@@ -25,7 +23,7 @@ import { useStore } from "@/hooks/useStore";
 import CornerBuildings from "./CornerBuildings";
 import FillerBuildings from "./FillerBuildings";
 import { SkyBoxCitySkyLine } from "./SkyBoxCitySkyLine";
-import useCurrentPlayer from "@/hooks/useCurrentPlayer";
+import { getAvailableMoves, getPreviousTrailSpace } from "@/util/gameBoard";
 // const RenderModel = dynamic(() => import('@/components/Games/Battle Trap/RenderModel'), {
 //     ssr: false,
 // });
@@ -110,99 +108,77 @@ const FlatArrow = (props) => {
 };
 
 function MovementArrows({ player_obj, flatSpaces, boardSize }) {
-    // const boardSize = useStore(state => state.boardSize);
-
     const currentRoll = useStore((state) => state.currentRoll);
     const d12Texture = useTexture("/img/d12.svg");
-
-    const Dice = ({ position }) => (
-        <mesh
-            rotation={[-Math.PI / 2, 0, 0]}
-            position={position}
-        >
-            <planeGeometry args={[1.5, 1.5]} />
-            <meshBasicMaterial
-                map={d12Texture}
-                transparent={true}
-            />
-        </mesh>
-    );
-
-    const Arrow = ({ show, position, rotation }) =>
-        show ? (
-            currentRoll === false ? (
-                <Dice position={position} />
-            ) : (
-                <FlatArrow
-                    rotation={rotation}
-                    color="blue"
-                    size={10}
-                />
-            )
-        ) : null;
+    const player = player_obj.battleTrap;
 
     return (
         <group>
-            {/* Left */}
-            <Arrow
-                show={
-                    player_obj.battleTrap.x - 1 >= 0 &&
-                    !flatSpaces.some(
-                        (s) =>
-                            s.x == player_obj.battleTrap.x - 1 &&
-                            s.y == player_obj.battleTrap.y &&
-                            s.checked,
-                    )
-                }
-                position={[-2, 0.15, 0]}
-                rotation={[0, -Math.PI / 2, 0]}
-            />
-
-            {/* Right */}
-            <Arrow
-                show={
-                    player_obj.battleTrap.x + 1 < boardSize &&
-                    !flatSpaces.some(
-                        (s) =>
-                            s.x == player_obj.battleTrap.x + 1 &&
-                            s.y == player_obj.battleTrap.y &&
-                            s.checked,
-                    )
-                }
-                position={[2, 0.15, 0]}
-                rotation={[0, Math.PI / 2, 0]}
-            />
-
-            {/* Back */}
-            <Arrow
-                show={
-                    player_obj.battleTrap.y - 1 >= 0 &&
-                    !flatSpaces.some(
-                        (s) =>
-                            s.x == player_obj.battleTrap.x &&
-                            s.y == player_obj.battleTrap.y - 1 &&
-                            s.checked,
-                    )
-                }
-                position={[0, 0.15, 2]}
-                rotation={[0, 0, 0]}
-            />
-
-            {/* Forward */}
-            <Arrow
-                show={
-                    player_obj.battleTrap.y + 1 < boardSize &&
-                    !flatSpaces.some(
-                        (s) =>
-                            s.x == player_obj.battleTrap.x &&
-                            s.y == player_obj.battleTrap.y + 1 &&
-                            s.checked,
-                    )
-                }
-                position={[0, 0.15, -2]}
-                rotation={[0, -Math.PI, 0]}
-            />
+            {getAvailableMoves(boardSize, flatSpaces, player).map((space) => {
+                const dx = space.x - player.x;
+                const dy = space.y - player.y;
+                return currentRoll === false ? (
+                    <mesh
+                        key={`${space.x},${space.y}`}
+                        rotation={[-Math.PI / 2, 0, 0]}
+                        position={[dx * 2, 0.15, -dy * 2]}
+                    >
+                        <planeGeometry args={[1.5, 1.5]} />
+                        <meshBasicMaterial
+                            map={d12Texture}
+                            transparent
+                        />
+                    </mesh>
+                ) : (
+                    <FlatArrow
+                        key={`${space.x},${space.y}`}
+                        rotation={[0, Math.atan2(dx, -dy), 0]}
+                    />
+                );
+            })}
         </group>
+    );
+}
+
+function PlayerNameplate({ nickname, dead, turnProgress }) {
+    const [width, setWidth] = useState(0);
+    return (
+        <Billboard position={[0, 2, 0]}>
+            {turnProgress && !dead && (
+                <Text
+                    position={[0, 0.9, 0]}
+                    fontSize={0.45}
+                    color="#baffba"
+                    anchorX="center"
+                    anchorY="middle"
+                >
+                    {turnProgress}
+                </Text>
+            )}
+            <Text
+                color="pink"
+                anchorX="center"
+                anchorY="middle"
+                onSync={(text) => {
+                    const bounds = text.textRenderInfo?.blockBounds;
+                    if (bounds) setWidth(bounds[2] - bounds[0]);
+                }}
+            >
+                {nickname}
+            </Text>
+            {dead && width > 0 && (
+                <Line
+                    points={[
+                        [-width / 2, 0, 0.02],
+                        [width / 2, 0, 0.02],
+                    ]}
+                    color="#ff3333"
+                    lineWidth={2.5}
+                    depthTest={false}
+                    toneMapped={false}
+                />
+            )}
+        </Billboard>
     );
 }
 
@@ -250,9 +226,11 @@ function GameCanvas(props) {
         socket: state.socket,
     }));
 
-    const boardSize = useStore((state) => state.boardSize);
+    const storedBoardSize = useStore((state) => state.boardSize);
     const localGameState = useStore((state) => state.localGameState);
-    const currentPlayer = useCurrentPlayer();
+    const currentTurn = useStore((state) => state.currentTurn);
+    const currentRoll = useStore((state) => state.currentRoll);
+    const currentMoveCount = useStore((state) => state.currentMoveCount);
 
     // const defaultLocalGameState = useStore(state => state.defaultLocalGameState);
     // const setLocalGameState = useStore(state => state.setLocalGameState);
@@ -280,6 +258,12 @@ function GameCanvas(props) {
     }
 
     const flatSpaces = gameState?.spaces?.flat() || [];
+    const boardSize = gameState?.boardSize || storedBoardSize;
+    const currentPlayer = (
+        server === "single-player" || server === "local-play"
+            ? players[currentTurn]
+            : players.find((p) => p.id === socket?.id)
+    )?.battleTrap;
 
     return (
         <Canvas camera={{ position: [-10, 40, 40], fov: 50 }}>
@@ -381,27 +365,16 @@ function GameCanvas(props) {
 
                     // console.log(gameState?.spaces?.flat())
 
-                    let lastMove = gameState.move - 2;
-
-                    console.log("Last move number", lastMove);
-
-                    let lookup = gameState?.spaces
-                        ?.flat()
-                        .find(
-                            (space_obj) =>
-                                space_obj.checked.move == lastMove &&
-                                space_obj.checked.socket_id == player_obj.id,
-                        );
-
-                    console.log("Last move lookup", lookup);
+                    const lookup = getPreviousTrailSpace(
+                        flatSpaces,
+                        player_obj.battleTrap,
+                    );
 
                     const { rotation, axis } = getPlayerRotation(
                         lookup,
                         player_obj,
                         server,
                     );
-
-                    console.log(rotation);
 
                     return (
                         <group
@@ -412,18 +385,17 @@ function GameCanvas(props) {
                                 -(player_obj.battleTrap.y * 2),
                             ]}
                         >
-                            <Billboard>
-                                <Text
-                                    position={[0, 2, 0]}
-                                    color="pink"
-                                    anchorX="center"
-                                    anchorY="middle"
-                                    scale={1}
-                                >
-                                    {player_obj.battleTrap.nickname}
-                                    {/* {player_obj.battleTrap.x} */}
-                                </Text>
-                            </Billboard>
+                            <PlayerNameplate
+                                nickname={player_obj.battleTrap.nickname}
+                                dead={player_obj.battleTrap.dead}
+                                turnProgress={
+                                    currentPlayer === player_obj.battleTrap
+                                        ? currentRoll === false
+                                            ? "Roll dice"
+                                            : `Moves: ${currentMoveCount} / ${currentRoll}`
+                                        : null
+                                }
+                            />
 
                             {/* <LowPolyChopper
                                 position={[0, 0, 0]}

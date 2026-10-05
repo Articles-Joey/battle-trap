@@ -224,6 +224,10 @@ export default function useBotTurnLogic(server) {
     const turnPlan = useRef({ mode: null });
 
     const calculateBotTurnLogic = useCallback(() => {
+        if (server !== "single-player" && server !== "local-play") return;
+        const previousTurn = useStore.getState().currentTurn;
+        useStore.getState().resolveLocalGame();
+        if (useStore.getState().currentTurn !== previousTurn) return;
         const {
             players,
             currentTurn,
@@ -234,6 +238,7 @@ export default function useBotTurnLogic(server) {
         } = useStore.getState();
 
         const botPlayer = players[currentTurn];
+        if (localGameState?.gameOver) return;
         if (!botPlayer?.battleTrap?.bot) return;
         if (botPlayer.battleTrap?.dead) return;
 
@@ -272,7 +277,7 @@ export default function useBotTurnLogic(server) {
         if (move) {
             handlePlayerMove(move);
         }
-    }, [rollDice, handlePlayerMove]);
+    }, [rollDice, handlePlayerMove, server]);
 
     return calculateBotTurnLogic;
 }

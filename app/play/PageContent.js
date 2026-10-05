@@ -27,6 +27,7 @@ import TwoDimensionalMap from "@/components/Game/TwoDimensionalMap";
 // import usePlayerMoveLogic from '@/hooks/usePlayerMoveLogic';
 
 import GameLogicManager from "@/components/Game/GameLogicManager";
+import GameResultDialog from "@/components/UI/GameResultDialog";
 import useRollDice from "@/hooks/useRollDice";
 import SideMenu from "@/components/UI/SideMenu";
 import classNames from "classnames";
@@ -70,6 +71,7 @@ export default function BattleTrapGamePage(props) {
     const character = useStore((state) => state.character);
 
     const localGameState = useStore((state) => state.localGameState);
+    const leaveLocalGame = useStore((state) => state.leaveLocalGame);
     const addSpace = useStore((state) => state.addSpace);
 
     const players = useStore((state) => state.players);
@@ -118,6 +120,7 @@ export default function BattleTrapGamePage(props) {
     // const [currentTurnCountdown, setCurrentTurnCountdown] = useState(add(new Date(), { minutes: 1 }))
 
     const [showPlayers, setShowPlayers] = useState(true);
+    const [leavingGame, setLeavingGame] = useState(false);
 
     const subscribeToNewPlayer = () => {
         socket.on("newPlayer", function (players) {
@@ -236,6 +239,14 @@ export default function BattleTrapGamePage(props) {
             id={`${process.env.NEXT_PUBLIC_GAME_KEY}-game-page`}
         >
             <GameLogicManager />
+            <GameResultDialog
+                server={server}
+                onMainMenu={() => {
+                    setLeavingGame(true);
+                    leaveLocalGame();
+                    router.push("/");
+                }}
+            />
 
             {/* {showInfoModal &&
                 <InfoModal
@@ -258,7 +269,7 @@ export default function BattleTrapGamePage(props) {
                 />
             } */}
 
-            {players.length == 0 && (
+            {players.length == 0 && !leavingGame && (
                 <GameSetupModal
                     show={{
                         type: server,
@@ -379,14 +390,18 @@ export default function BattleTrapGamePage(props) {
                             bgcolor: "#fff",
                             left: 0,
                             top: 0,
-                            width: 500,
-                            maxWidth: "100%",
-                            aspectRatio: "1",
+                            position: "absolute",
+                            width: "100%",
+                            height: "100%",
                             "& canvas": { height: "100%", width: "100%" },
                         }}
                         className="canvas-two-dimensional-wrap"
                     >
-                        <TwoDimensionalMap />
+                        <TwoDimensionalMap
+                            gameState={gameState}
+                            server={server}
+                            players={players}
+                        />
                     </Box>
                 )}
             </Box>

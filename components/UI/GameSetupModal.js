@@ -19,6 +19,7 @@ import ArticlesButton from "@/components/UI/Button";
 import Link from "next/link";
 import { useStore } from "@/hooks/useStore";
 import { usePathname } from "next/navigation";
+import { getStartingPosition } from "@/util/gameBoard";
 
 export default function GameSetupModal({ show, setShow, preventClose }) {
     const pathname = usePathname();
@@ -39,6 +40,7 @@ export default function GameSetupModal({ show, setShow, preventClose }) {
 
     const players = useStore((state) => state.players);
     const setPlayers = useStore((state) => state.setPlayers);
+    const startLocalGame = useStore((state) => state.startLocalGame);
 
     const boardSize = useStore((state) => state.boardSize);
     const setBoardSize = useStore((state) => state.setBoardSize);
@@ -91,38 +93,7 @@ export default function GameSetupModal({ show, setShow, preventClose }) {
     }, [show]);
 
     function determineStartLocationFromPlayerNumberAndBoardSize(playerNumber) {
-        // return { x: 0, y: 0 };
-
-        switch (playerNumber) {
-            case 0:
-                return {
-                    x: 0,
-                    y: 0,
-                    color: "red",
-                };
-            case 2:
-                return {
-                    x: boardSize - 1,
-                    y: boardSize - 1,
-                    color: "blue",
-                };
-            case 3:
-                return {
-                    x: 0,
-                    y: boardSize - 1,
-                    color: "yellow",
-                };
-            case 4:
-                return {
-                    x: boardSize - 1,
-                    y: 0,
-                    color: "green",
-                };
-        }
-
-        // const row = Math.floor(playerNumber / boardSize);
-        // const col = playerNumber % boardSize;
-        // return { x: col, y: row };
+        return getStartingPosition(playerNumber, boardSize);
     }
 
     function setPlayersFromBotCount(bot_count) {
@@ -154,7 +125,7 @@ export default function GameSetupModal({ show, setShow, preventClose }) {
                     nickname: `Bot ${new_i + 1}`,
                     color: "red",
                     ...determineStartLocationFromPlayerNumberAndBoardSize(
-                        1 + new_i + 4 - bot_count,
+                        new_i + 4 - bot_count,
                     ),
                     // x: 0,
                     // y: 0,
@@ -815,54 +786,7 @@ export default function GameSetupModal({ show, setShow, preventClose }) {
                         <ArticlesButton
                             variant="success"
                             onClick={() => {
-                                setPlayers(tempPlayers);
-
-                                setLocalGameState({
-                                    ...localGameState,
-                                    boardSize: boardSize,
-                                    spaces: [
-                                        {
-                                            x: 0,
-                                            y: 0,
-                                            checked: {
-                                                color: "red",
-                                                move: 1,
-                                                socket_id: "socket_id_1",
-                                                playerMove: 0,
-                                            },
-                                        },
-                                        {
-                                            x: boardSize - 1,
-                                            y: boardSize - 1,
-                                            checked: {
-                                                color: "blue",
-                                                move: 1,
-                                                socket_id: "socket_id_2",
-                                                playerMove: 0,
-                                            },
-                                        },
-                                        {
-                                            x: 0,
-                                            y: boardSize - 1,
-                                            checked: {
-                                                color: "yellow",
-                                                move: 1,
-                                                socket_id: "socket_id_3",
-                                                playerMove: 0,
-                                            },
-                                        },
-                                        {
-                                            x: boardSize - 1,
-                                            y: 0,
-                                            checked: {
-                                                color: "green",
-                                                move: 1,
-                                                socket_id: "socket_id_4",
-                                                playerMove: 0,
-                                            },
-                                        },
-                                    ],
-                                });
+                                startLocalGame(tempPlayers, boardSize);
                             }}
                         >
                             Start

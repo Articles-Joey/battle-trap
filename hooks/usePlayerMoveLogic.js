@@ -6,36 +6,43 @@ import { useStore } from "@/hooks/useStore";
 export default function usePlayerMoveLogic(server) {
     const socket = useSocketStore((state) => state.socket);
 
-    const boardSize = useStore((state) => state.boardSize);
-
-    // const localGameState      = useStore(state => state.localGameState);
-    const addSpace = useStore((state) => state.addSpace);
-    const players = useStore((state) => state.players);
-    const currentTurn = useStore((state) => state.currentTurn);
-    const currentRoll = useStore((state) => state.currentRoll);
-    const incCurrentMoveCount = useStore((state) => state.incCurrentMoveCount);
-
     return useCallback(
         (newSpaceData) => {
-            if (currentRoll === false) {
+            // Read at input time so rapid clicks and bot moves use the latest position.
+            const local = server === "single-player" || server === "local-play";
+            if (local) {
+                const previousTurn = useStore.getState().currentTurn;
+                useStore.getState().resolveLocalGame();
+                if (useStore.getState().currentTurn !== previousTurn) return;
+            }
+            const state = useStore.getState();
+            const gameState = local ? state.localGameState : state.gameState;
+            if (gameState?.gameOver) return;
+            const currentPlayer = local
+                ? state.players[state.currentTurn]
+                : state.players.find((p) => p.id === socket?.id);
+            const currentPlay = currentPlayer?.battleTrap;
+            if (!currentPlay || currentPlay.dead) return;
+
+            if (state.currentRoll === false) {
                 alert("Roll dice before moving!");
                 return;
             }
+            if (state.currentMoveCount >= state.currentRoll) return;
 
-            const currentPlayerColor = players[currentTurn]?.battleTrap?.color;
-            const currentPlay = players?.find(
-                (p) => p.battleTrap.color === currentPlayerColor,
-            )?.battleTrap;
-
-            if (Math.abs(newSpaceData.x) + Math.abs(newSpaceData.y) !== 1) {
+            if (
+                !Number.isInteger(newSpaceData.x) ||
+                !Number.isInteger(newSpaceData.y) ||
+                Math.abs(newSpaceData.x) + Math.abs(newSpaceData.y) !== 1
+            ) {
                 alert("Too far away! You can only move one space at a time.");
                 return;
             }
 
-            const localGameState = useStore.getState().localGameState;
-            const flatSpaces = localGameState?.spaces?.flat() || [];
-            const targetX = currentPlay?.x + newSpaceData.x;
-            const targetY = currentPlay?.y + newSpaceData.y;
+            const boardSize = gameState?.boardSize || state.boardSize;
+            const flatSpaces = gameState?.spaces?.flat() || [];
+            const targetX = currentPlay.x + newSpaceData.x;
+            const targetY = currentPlay.y + newSpaceData.y;
 
             if (
                 targetX < 0 ||
@@ -47,49 +54,29 @@ export default function usePlayerMoveLogic(server) {
                 return;
             }
 
-            const targetOccupied = flatSpaces.some(
-                (s) => s.x == targetX && s.y == targetY && s.checked,
-            );
-            if (targetOccupied) {
+            if (
+                flatSpaces.some(
+                    (s) => s.x === targetX && s.y === targetY && s.checked,
+                )
+            ) {
                 alert("A wall is there! That space is already occupied.");
                 return;
             }
 
-            incCurrentMoveCount();
-
-            if (server === "single-player" || server === "local-play") {
-                addSpace({
-                    space: {
-                        x: currentPlay?.x + newSpaceData.x,
-                        y: currentPlay?.y + newSpaceData.y,
-                        checked: {
-                            move: (localGameState?.spaces?.length || 0) + 1,
-                            color: currentPlayerColor,
-                            socket_id: "socket_id_1",
-                            playerMove: localGameState?.spaces?.filter(
-                                (space) =>
-                                    space.checked?.color === currentPlayerColor,
-                            ).length,
-                        },
-                    },
-                    player_color: currentPlayerColor,
+            if (local) {
+                state.addSpace({
+                    space: { x: targetX, y: targetY },
+                    player_color: currentPlay.color,
                 });
             } else {
+                state.incCurrentMoveCount();
                 socket.emit("game:battle-trap-move", {
                     game_id: server,
-                    x: currentPlay?.x + newSpaceData.x,
-                    y: currentPlay?.y + newSpaceData.y,
+                    x: targetX,
+                    y: targetY,
                 });
             }
         },
-        [
-            socket,
-            addSpace,
-            players,
-            currentTurn,
-            currentRoll,
-            incCurrentMoveCount,
-            server,
-        ],
+        [socket, server],
     );
 }

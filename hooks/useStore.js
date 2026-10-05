@@ -5,6 +5,11 @@ import typicalZustandStoreExcludes from "@articles-media/articles-dev-box/typica
 import typicalZustandStoreStateSlice from "@articles-media/articles-dev-box/typicalZustandStoreStateSlice";
 
 import randomNicknameConfig from "@/util/randomNicknameConfig";
+import {
+    createLocalGame,
+    recordLocalMove,
+    resolveLocalTurn,
+} from "@/util/gameBoard";
 
 export const useStore = create()(
     persist(
@@ -95,6 +100,9 @@ export const useStore = create()(
                 moveTimer: null,
                 localPlayPlayerCount: 2,
                 gameStarted: false,
+                gameOver: false,
+                winnerId: null,
+                move: 0,
                 // currentTurn: 0,
                 // Note - Spaces gets initialized more when game starts in useEffect
                 spaces: [],
@@ -106,6 +114,10 @@ export const useStore = create()(
                     currentRoll: false,
                     currentMoveCount: 0,
                 }),
+            startLocalGame: (players, boardSize) =>
+                set((state) => createLocalGame(state, players, boardSize)),
+            restartLocalGame: () => set((state) => createLocalGame(state)),
+            leaveLocalGame: () => set((state) => createLocalGame(state, [])),
 
             localGameState: false,
             setLocalGameState: (gameState) =>
@@ -116,40 +128,19 @@ export const useStore = create()(
 
             addSpace: (data) => {
                 const { space, player_color } = data;
-
-                console.log("Confirm addSpace event", data);
-
-                const players = get().players;
-
-                console.log("Current players", players);
-
-                const newPlayers = players.map((player) => {
-                    if (player_color == player?.battleTrap?.color) {
-                        let newPlayer = {
-                            ...player,
-                            battleTrap: {
-                                ...player.battleTrap,
-                                x: space.x,
-                                y: space.y,
-                            },
-                        };
-
-                        console.log("Confirm Set", newPlayer);
-
-                        return newPlayer;
-                    } else {
-                        return player;
-                    }
-                });
-
-                set({ players: newPlayers });
-
-                const { localGameState } = get();
-                const newSpaces = [...localGameState?.spaces, space];
-                set({
-                    localGameState: { ...localGameState, spaces: newSpaces },
-                });
+                set((state) => recordLocalMove(state, space, player_color));
             },
+
+            resolveLocalGame: () =>
+                set((state) => {
+                    const updates = resolveLocalTurn(state);
+                    return Object.keys(updates).length ? updates : state;
+                }),
+            endLocalTurn: () =>
+                set((state) => {
+                    const updates = resolveLocalTurn(state, true);
+                    return Object.keys(updates).length ? updates : state;
+                }),
 
             setPlayerDead: (player_color) => {
                 const players = get().players;
@@ -162,7 +153,10 @@ export const useStore = create()(
                     }
                     return player;
                 });
-                set({ players: newPlayers });
+                set((state) => ({
+                    players: newPlayers,
+                    ...resolveLocalTurn({ ...state, players: newPlayers }),
+                }));
             },
 
             lobbyDetails: {

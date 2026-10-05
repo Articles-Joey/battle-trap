@@ -550,10 +550,13 @@ export default function BattleTrapLobbyPage(props) {
                                 margin: "0rem",
                                 border: "1px solid #fff",
                                 padding: "1rem 0rem",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
                             }}
                         >
                             <div
-                                className="card-header d-flex justify-content-center h-100 align-items-center mx-auto"
+                                // className="card-header d-flex justify-content-center h-100 align-items-center mx-auto"
                                 style={{
                                     width: "250px",
                                 }}

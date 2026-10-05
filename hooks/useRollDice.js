@@ -5,31 +5,45 @@ import { useStore } from "@/hooks/useStore";
 
 export default function useRollDice(server) {
     const socket = useSocketStore((state) => state.socket);
-    const setCurrentRoll = useStore((state) => state.setCurrentRoll);
-    // const localGameState = useStore(state => state.localGameState);
-    const setLocalGameState = useStore((state) => state.setLocalGameState);
 
     return useCallback(
         (min = 1, max = 10) => {
-            const localGameState = useStore.getState().localGameState; // Get the latest localGameState
-
             if (server === "single-player" || server === "local-play") {
+                const previousTurn = useStore.getState().currentTurn;
+                useStore.getState().resolveLocalGame();
+                const state = useStore.getState();
+                const player = state.players[state.currentTurn]?.battleTrap;
+                if (
+                    !player ||
+                    player.dead ||
+                    state.localGameState?.gameOver ||
+                    state.currentTurn !== previousTurn ||
+                    state.currentRoll !== false
+                )
+                    return;
+                const localGameState = state.localGameState;
                 const roll = Math.floor(Math.random() * (max - min + 1)) + min;
-                setCurrentRoll(roll);
-
-                setLocalGameState({
-                    ...localGameState,
-                    moveTimer: localGameState?.moveTime,
+                useStore.setState({
+                    currentRoll: roll,
+                    currentMoveCount: 0,
+                    localGameState: {
+                        ...localGameState,
+                        moveTimer: localGameState?.moveTime,
+                    },
                 });
             }
 
             if (server !== "single-player" && server !== "local-play") {
+                const player = useStore
+                    .getState()
+                    .players.find((p) => p.id === socket?.id)?.battleTrap;
+                if (!player || player.dead) return;
                 socket.emit("game:battle-trap:roll-dice", {
                     server: server,
                     settings: {},
                 });
             }
         },
-        [socket, server, setCurrentRoll, localGameState, setLocalGameState],
+        [socket, server],
     );
 }
