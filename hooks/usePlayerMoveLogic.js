@@ -2,6 +2,7 @@
 import { useCallback } from "react";
 import { useSocketStore } from "@/hooks/useSocketStore";
 import { useStore } from "@/hooks/useStore";
+import { sendGameAction } from "@/util/sendGameAction";
 
 export default function usePlayerMoveLogic(server) {
     const socket = useSocketStore((state) => state.socket);
@@ -18,6 +19,8 @@ export default function usePlayerMoveLogic(server) {
             const state = useStore.getState();
             const gameState = local ? state.localGameState : state.gameState;
             if (gameState?.gameOver) return;
+            if (local && !gameState?.gameStarted) return;
+            if (!local && (!socket.connected || gameState?.status !== "In Progress" || state.players[state.currentTurn]?.id !== socket.id)) return;
             const currentPlayer = local
                 ? state.players[state.currentTurn]
                 : state.players.find((p) => p.id === socket?.id);
@@ -69,8 +72,7 @@ export default function usePlayerMoveLogic(server) {
                     player_color: currentPlay.color,
                 });
             } else {
-                state.incCurrentMoveCount();
-                socket.emit("game:battle-trap-move", {
+                sendGameAction(socket, "game:battle-trap-move", {
                     game_id: server,
                     x: targetX,
                     y: targetY,

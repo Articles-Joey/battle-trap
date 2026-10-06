@@ -1,5 +1,8 @@
 "use client";
 import Box from "@mui/material/Box";
+import Alert from "@mui/material/Alert";
+import GameSetupModal from "@/components/UI/GameSetupModal";
+import { sendGameAction } from "@/util/sendGameAction";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import InfoIcon from "@mui/icons-material/Info";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -125,12 +128,22 @@ export default function SideMenu() {
     // const params = useParams()
     const server = searchParamsObject?.server;
     const local = server === "single-player" || server === "local-play";
+    const connected = useSocketStore((state) => state.connected);
+    const multiplayerError = useStore((state) => state.multiplayerError);
+    const activeGame = local ? localGameState : gameState;
+    const isLeader = !local && connected && gameState?.leaderId === socket.id;
+    const inLobby = local
+        ? localGameState?.mode === server && !localGameState.gameStarted && !localGameState.gameOver
+        : gameState?.status === "In Lobby";
+    const canConfigure = inLobby && (local || isLeader);
+    const myTurn = local ? Boolean(localGameState?.gameStarted) : (connected && gameState?.status === "In Progress" && players[currentTurn]?.id === socket.id);
+    const [showSetup, setShowSetup] = useState(false);
 
     const handlePlayerMove = usePlayerMoveLogic(server);
 
     const currentPlayer = useCurrentPlayer();
     const winner = players.find(
-        (player) => player.id === localGameState?.winnerId,
+        (player) => player.id === activeGame?.winnerId,
     );
 
     const rollDice = useRollDice(server);
@@ -182,6 +195,15 @@ export default function SideMenu() {
             }}
             className={`menu-card ${showMenu && "show"}`}
         >
+            {showSetup && canConfigure && <GameSetupModal key={server} show={{ type: server }} setShow={setShowSetup} />}
+            {local && <div className="card card-articles card-sm mb-2">
+                <div className="card-body p-2">
+                    <div>{server === "single-player" ? "Single Player" : "Local Play"}</div>
+                    <div>{inLobby ? "In Lobby — Edit Game Setup or start when ready." : activeGame?.gameOver ? "Game finished" : "In Progress"}</div>
+                    <div>Board: {activeGame?.boardSize} × {activeGame?.boardSize}</div>
+                </div>
+            </div>}
+            {!local && multiplayerError && <Alert severity="error" sx={{ mb: 2 }}>{multiplayerError}</Alert>}
             {server == "single-player" && (
                 <div className="d-none card card-articles card-sm mb-2">
                     <div className="card-body p-2">
@@ -234,7 +256,7 @@ export default function SideMenu() {
                             {gameState?.status == "In Lobby" &&
                                 "In Lobby - Waiting for players"}
                             {gameState?.status == "In Progress" &&
-                                "In Progress - Your Turn"}
+                                "In Progress"}
                         </div>
                     </div>
                 </div>
@@ -248,23 +270,37 @@ export default function SideMenu() {
                             {gameState?.status == "In Lobby" &&
                                 "In Lobby - Waiting for players"}
                             {gameState?.status == "In Progress" &&
-                                "In Progress - Your Turn"}
+                                (myTurn ? "Your turn" : `Waiting for ${currentPlayer?.nickname || "player"}`)}
+                            {!gameState?.status && (connected ? "Joining room…" : "Connecting…")}
+                            {gameState?.status === "Finished" && "Game finished"}
                         </div>
+                        <div>Leader: {players.find((p) => p.id === gameState?.leaderId)?.battleTrap?.nickname || "—"}</div>
+                        <div>Board: {gameState?.boardSize || 20} × {gameState?.boardSize || 20}</div>
+                        {gameState?.status === "In Lobby" && <div>
+                            {isLeader ? "Edit Game Setup or start when everyone is ready." : "Waiting for the leader to start."}
+                        </div>}
                     </div>
                 </div>
             )}
 
+            {canConfigure && <ArticlesButton className="mb-2" onClick={() => setShowSetup(true)}>Game Setup</ArticlesButton>}
+
             <div className="d-flex mb-2">
-                {server !== "single-player" && server !== "local-play" && (
+                {(local || server) && (
                     <ArticlesButton
                         className="flex-grow-1"
                         disabled={
-                            gameState?.status !== "In Lobby" ||
+                            !canConfigure ||
                             (players?.length || 0) < 2
                         }
                         small
                         onClick={() => {
-                            socket.emit("game:battle-trap:start-game", {
+                            setShowSetup(false);
+                            if (local) {
+                                useStore.getState().startLocalGame();
+                                return;
+                            }
+                            sendGameAction(socket, "game:battle-trap:start-game", {
                                 server: server,
                                 settings: {},
                             });
@@ -282,21 +318,6 @@ export default function SideMenu() {
                     </ArticlesButton>
                 )}
 
-                <IsDev>
-                    <ArticlesButton
-                        className="w-100"
-                        variant="warning"
-                        small
-                        onClick={() => {
-                            socket.emit("game:battle-trap:start-game", {
-                                server: server,
-                                settings: {},
-                            });
-                        }}
-                    >
-                        <PlayArrowIcon fontSize="inherit" />
-                    </ArticlesButton>
-                </IsDev>
             </div>
 
             <Box
@@ -347,7 +368,7 @@ export default function SideMenu() {
                 >
                     <div>Tile Moves</div>
                     <span className="badge bg-dark">
-                        <span>0 Left</span>
+                        <span>{Math.max(0, (currentRoll || 0) - currentMoveCount)} Left</span>
                     </span>
                 </Box>
 
@@ -361,10 +382,10 @@ export default function SideMenu() {
                         className="h3 mb-0"
                     >
                         {
-                            gameState?.status == "In Lobby" ? (
+                            inLobby ? (
                                 <span>Awaiting game start</span>
                             ) : (
-                                <span>{localGameState?.moveTimer}</span>
+                                <span>{activeGame?.moveTime === false ? "Timer off" : activeGame?.moveTimer ?? "—"}</span>
                             )
                             // <Countdown
                             //     date={gameState?.moveTimer}
@@ -392,7 +413,6 @@ export default function SideMenu() {
                         <span className="badge bg-dark">
                             <span>Moves: </span>
 
-                            <span>{gameState?.turn?.spaces}</span>
                             <span>{currentMoveCount}</span>
 
                             <span>/</span>
@@ -408,7 +428,7 @@ export default function SideMenu() {
                 </Box>
 
                 <div className="card-body text-center">
-                    {local && localGameState?.gameOver
+                    {inLobby ? "Awaiting game start" : activeGame?.gameOver
                         ? winner
                             ? `${winner.battleTrap.nickname || winner.battleTrap.color || "Player"} wins!`
                             : "Game over: no winner"
@@ -418,7 +438,7 @@ export default function SideMenu() {
                             ? `${currentPlayer?.nickname} Please Roll`
                             : currentRoll}
 
-                    {gameState?.status == "In Lobby" && !gameState?.turn && (
+                    {inLobby && (
                         <>
                             <DiceIcon value={4} />
                             <DiceIcon
@@ -451,6 +471,7 @@ export default function SideMenu() {
                         small
                         className="flex-grow-1"
                         disabled={
+                            !myTurn || activeGame?.gameOver ||
                             currentRoll !== false ||
                             (local &&
                                 (!currentPlayer ||
@@ -602,13 +623,14 @@ export default function SideMenu() {
                                             </Box>
                                         </div>
 
-                                        {process.env.NODE_ENV ==
+                                        {local && process.env.NODE_ENV ==
                                             "development" && (
                                             <ArticlesButton
                                                 small
                                                 active={i == currentTurn}
                                                 variant="warning"
                                                 disabled={
+                                                    !activeGame?.gameStarted ||
                                                     player_obj.battleTrap
                                                         ?.dead ||
                                                     (local &&

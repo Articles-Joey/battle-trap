@@ -36,9 +36,6 @@ const SessionButton = dynamic(
 );
 import GameMenuPrimaryButtonGroup from "@articles-media/articles-dev-box/GameMenuPrimaryButtonGroup";
 
-const GameSetupModal = dynamic(() => import("@/components/UI/GameSetupModal"), {
-    ssr: false,
-});
 
 const Viewer = dynamic(() => import("@/components/Game/Viewer"), {
     ssr: false,
@@ -62,7 +59,7 @@ import Ad from "@articles-media/articles-dev-box/Ad";
 import useUserDetails from "@articles-media/articles-dev-box/useUserDetails";
 import useUserToken from "@articles-media/articles-dev-box/useUserToken";
 import { PieMenu } from "@articles-media/articles-gamepad-helper";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const ReturnToLauncherButton = dynamic(
     () => import("@articles-media/articles-dev-box/ReturnToLauncherButton"),
@@ -73,6 +70,7 @@ const game_name = process.env.NEXT_PUBLIC_GAME_NAME;
 
 export default function BattleTrapLobbyPage(props) {
     const pathname = usePathname();
+    const router = useRouter();
 
     // const defaultLocalGameState = useStore(state => state.defaultLocalGameState);
     // const setLocalGameState = useStore(state => state.setLocalGameState);
@@ -123,7 +121,6 @@ export default function BattleTrapLobbyPage(props) {
     // const showCreditsModal = useStore((state) => state.showCreditsModal)
     const setShowCreditsModal = useStore((state) => state.setShowCreditsModal);
 
-    const [showGameSetupModal, setShowGameSetupModal] = useState(false);
 
     // const [lobbyDetails, setLobbyDetails] = useState({
     //     players: [],
@@ -171,14 +168,11 @@ export default function BattleTrapLobbyPage(props) {
     }, [socket]);
 
     useEffect(() => {
-        if (socket.connected) {
-            socket.emit("join-room", "game:battle-trap-landing");
-        }
-
-        // return function cleanup() {
-        //     socket.emit('leave-room', 'game:battle-trap-landing')
-        // };
-    }, [socket.connected]);
+        const join = () => socket.emit("join-room", "game:battle-trap-landing");
+        socket.on("connect", join);
+        if (socket.connected) join();
+        return () => socket.off("connect", join);
+    }, [socket]);
 
     const {
         data: userToken,
@@ -318,12 +312,6 @@ export default function BattleTrapLobbyPage(props) {
                 />
             </Suspense>
 
-            {showGameSetupModal && (
-                <GameSetupModal
-                    show={showGameSetupModal}
-                    setShow={setShowGameSetupModal}
-                />
-            )}
 
             {showEditBikeModal && <CustomizeBikeModal />}
 
@@ -632,9 +620,7 @@ export default function BattleTrapLobbyPage(props) {
                                 className="px-5"
                                 small
                                 onClick={() => {
-                                    setShowGameSetupModal({
-                                        type: "single-player",
-                                    });
+                                    router.push("/play?server=single-player");
                                 }}
                                 // disabled={!connected}
                             >
@@ -685,9 +671,7 @@ export default function BattleTrapLobbyPage(props) {
                                 className="px-5"
                                 small
                                 onClick={() => {
-                                    setShowGameSetupModal({
-                                        type: "local-play",
-                                    });
+                                    router.push("/play?server=local-play");
                                 }}
                                 // disabled={!connected}
                             >

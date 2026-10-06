@@ -1,36 +1,23 @@
-import { degToRad } from "three/src/math/MathUtils";
-
-// import { SciFiBuildingsPack } from "./SciFiBuildingsPackCorner";
+import BoardSafeBuildings from "./BoardSafeBuildings";
 import { SciFiBuildingsPack as SciFiBuildingsPackSquare } from "./SciFiBuildingsPackSquare";
 
-export default function FillerBuildings(props) {
-    const { boardSize } = props;
+const SIDES = [[0, 1], [0, -1], [1, 0], [-1, 0]];
 
+export default function FillerBuildings({ boardSize }) {
     return (
         <group>
-            <SciFiBuildingsPackSquare
-                position={[0, 0, boardSize * 1.9]}
-                // rotation={[0, degToRad(-30), 0]}
-                colorOverlay="white"
-            />
-
-            <SciFiBuildingsPackSquare
-                position={[0, 0, -boardSize * 1.9]}
-                // rotation={[0, degToRad(-30), 0]}
-                colorOverlay="white"
-            />
-
-            <SciFiBuildingsPackSquare
-                position={[boardSize * 1.9, 0, 0]}
-                // rotation={[0, degToRad(-30), 0]}
-                colorOverlay="white"
-            />
-
-            <SciFiBuildingsPackSquare
-                position={[-boardSize * 1.9, 0, 0]}
-                // rotation={[0, degToRad(-30), 0]}
-                colorOverlay="white"
-            />
+            {SIDES.map(([x, z]) => (
+                <BoardSafeBuildings
+                    key={`${x},${z}`}
+                    boardSize={boardSize}
+                    direction={[x, z]}
+                >
+                    <SciFiBuildingsPackSquare
+                        position={[x * boardSize * 1.9, 0, z * boardSize * 1.9]}
+                        colorOverlay="white"
+                    />
+                </BoardSafeBuildings>
+            ))}
         </group>
     );
 }

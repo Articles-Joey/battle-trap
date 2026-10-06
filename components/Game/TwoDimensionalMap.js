@@ -45,7 +45,8 @@ export default function TwoDimensionalMap({
         [gameState?.spaces],
     );
     const activePlayer = (
-        local ? players[currentTurn] : players.find((p) => p.id === socket?.id)
+        local ? players[currentTurn] : gameState?.status === "In Progress" && players[currentTurn]?.id === socket?.id
+            ? players[currentTurn] : null
     )?.battleTrap;
     const available = getAvailableMoves(boardSize, flatSpaces, activePlayer);
     const canInteract = activePlayer && !activePlayer.bot && !activePlayer.dead;

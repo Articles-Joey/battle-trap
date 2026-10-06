@@ -1,799 +1,120 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-import {
-    Box,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    IconButton,
-    TextField,
-} from "@mui/material";
+import { useState } from "react";
+import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, IconButton, MenuItem, Stack, Switch, TextField, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import AddIcon from "@mui/icons-material/Add";
-import RemoveIcon from "@mui/icons-material/Remove";
-
-import ArticlesButton from "@/components/UI/Button";
-import Link from "next/link";
 import { useStore } from "@/hooks/useStore";
-import { usePathname } from "next/navigation";
-import { getStartingPosition } from "@/util/gameBoard";
+import { useSocketStore } from "@/hooks/useSocketStore";
+import { makeLocalPlayers } from "@/util/localLobby";
 
-export default function GameSetupModal({ show, setShow, preventClose }) {
-    const pathname = usePathname();
-
-    const nickname = useStore((state) => state.nickname);
-    const setNickname = useStore((state) => state.setNickname);
-    const character = useStore((state) => state.character);
-
-    const [showModal, setShowModal] = useState(true);
-
-    const [lightboxData, setLightboxData] = useState(null);
-
-    const [tab, setTab] = useState("Controls");
-
-    const [tempPlayers, setTempPlayers] = useState([]);
-
-    const [botData, setBotData] = useState([]);
-
-    const players = useStore((state) => state.players);
-    const setPlayers = useStore((state) => state.setPlayers);
-    const startLocalGame = useStore((state) => state.startLocalGame);
-
-    const boardSize = useStore((state) => state.boardSize);
-    const setBoardSize = useStore((state) => state.setBoardSize);
-
-    const localGameState = useStore((state) => state.localGameState);
-    const setLocalGameState = useStore((state) => state.setLocalGameState);
-
-    useEffect(() => {
-        if (show.type == "single-player") {
-            setPlayersFromBotCount(3);
-            // setBotData([
-            //     ...[...Array(3).keys()].map(i => (
-            //         {
-            //             difficulty: "Medium"
-            //         }
-            //     ))
-            // ])
-        }
-
-        if (show.type == "local-play") {
-            setPlayersFromBotCount(2);
-
-            // setBotData([
-            //     ...[...Array(3).keys()].map(i => (
-            //         {
-            //             difficulty: "Medium"
-            //         }
-            //     ))
-            // ])
-
-            // setPlayers([
-
-            //     ...[
-            //         ...Array(1)
-            //     ].map((item, new_i) => ({
-            //         id: `bot-${new_i}`,
-            //         battleTrap: {
-            //             nickname: nickname || `Player ${new_i + 1}`,
-            //             color: "red",
-            //             x: 0,
-            //             y: 0,
-            //             character: {
-            //                 model: "low_poly_chopper.glb"
-            //             }
-            //         }
-            //     })),
-
-            // ])
-        }
-    }, [show]);
-
-    function determineStartLocationFromPlayerNumberAndBoardSize(playerNumber) {
-        return getStartingPosition(playerNumber, boardSize);
-    }
-
-    function setPlayersFromBotCount(bot_count) {
-        setTempPlayers([
-            ...[...Array(4 - bot_count)].map((item, new_i) => ({
-                id: `player-${new_i}`,
-                battleTrap: {
-                    nickname:
-                        new_i == 0
-                            ? nickname || `Player ${new_i + 1}`
-                            : `Player ${new_i + 1}`,
-                    color: "red",
-                    ...determineStartLocationFromPlayerNumberAndBoardSize(
-                        new_i,
-                    ),
-                    // y: determineStartLocationFromPlayerNumberAndBoardSize(new_i),
-                    character: {
-                        model: "low_poly_chopper.glb",
-                        ...character,
-                    },
-                },
-            })),
-
-            ...[...Array(bot_count)].map((item, new_i) => ({
-                id: `bot-${new_i}`,
-                battleTrap: {
-                    bot: true,
-                    difficulty: "Medium",
-                    nickname: `Bot ${new_i + 1}`,
-                    color: "red",
-                    ...determineStartLocationFromPlayerNumberAndBoardSize(
-                        new_i + 4 - bot_count,
-                    ),
-                    // x: 0,
-                    // y: 0,
-                    character: {
-                        model: "low_poly_chopper.glb",
-                    },
-                },
-            })),
-        ]);
-    }
-
-    useEffect(() => {
-        if (localGameState.moveTime < 3 && localGameState.moveTime !== false) {
-            alert("Move timer can not be less than 3!");
-            setLocalGameState({
-                ...localGameState,
-                moveTime: 20,
+export default function GameSetupModal({ show, setShow, preventClose = false }) {
+    const socket = useSocketStore((state) => state.socket);
+    const connected = useSocketStore((state) => state.connected);
+    const room = useStore((state) => state.gameState);
+    const roomPlayers = useStore((state) => state.players);
+    const localGame = useStore((state) => state.localGameState);
+    const multiplayer = show.type !== "single-player" && show.type !== "local-play";
+    const [draft, setDraft] = useState(() => {
+        const state = useStore.getState();
+        const config = multiplayer ? state.gameState : state.localGameState || state.defaultLocalGameState;
+        return {
+            boardSize: multiplayer ? config.boardSize || 20 : state.boardSize,
+            moveTime: config.moveTime ?? 20,
+            players: multiplayer ? state.players.filter((p) => p.battleTrap.bot) : state.players,
+        };
+    });
+    const [error, setError] = useState(null);
+    const [saving, setSaving] = useState(false);
+    const humans = multiplayer ? roomPlayers.filter((p) => !p.battleTrap.bot) : [];
+    const editable = multiplayer
+        ? connected && room.leaderId === socket.id && room.status === "In Lobby"
+        : localGame?.mode === show.type && !localGame.gameStarted && !localGame.gameOver;
+    const botCount = draft.players.filter((p) => p.battleTrap.bot).length;
+    const maximumBots = multiplayer ? Math.max(0, 4 - humans.length) : 3;
+    const minimumBots = show.type === "single-player" ? 1 : 0;
+    const valid = Number.isInteger(draft.boardSize) && draft.boardSize >= 4 && draft.boardSize <= 50
+        && (draft.moveTime === false || (Number.isInteger(draft.moveTime) && draft.moveTime >= 3 && draft.moveTime <= 100))
+        && botCount <= maximumBots;
+    const close = () => { if (!preventClose && !saving) setShow(false); };
+    const updatePlayer = (id, changes) => setDraft((value) => ({
+        ...value, players: value.players.map((p) => p.id === id ? { ...p, battleTrap: { ...p.battleTrap, ...changes } } : p),
+    }));
+    const changeBotCount = (count) => setDraft((value) => ({
+        ...value,
+        players: multiplayer ? Array.from({ length: count }, (_, i) => value.players[i] || {
+            id: `draft-bot-${i}`, battleTrap: { bot: true, nickname: `Bot ${i + 1}`, difficulty: "Medium" },
+        }) : makeLocalPlayers(useStore.getState(), count, value.players),
+    }));
+    const save = () => {
+        if (!editable || !valid || saving) return;
+        if (multiplayer) {
+            if (!socket.connected) return;
+            setSaving(true);
+            setError(null);
+            socket.timeout(5000).emit("game:battle-trap:configure", {
+                server: show.type,
+                config: { boardSize: draft.boardSize, moveTime: draft.moveTime, bots: draft.players.map((p) => ({ nickname: p.battleTrap.nickname, difficulty: p.battleTrap.difficulty })) },
+            }, (timeout, result) => {
+                setSaving(false);
+                if (timeout || !result?.ok) setError(timeout ? "The server did not respond. Please try again." : result?.error || "Unable to save configuration.");
+                else setShow(false);
             });
+            return;
         }
-    }, [localGameState]);
+        useStore.getState().configureLocalLobby(show.type, draft);
+        setShow(false);
+    };
 
     return (
-        <>
-            {/* {lightboxData && (
-                <Lightbox
-                    mainSrc={lightboxData?.location}
-                    onCloseRequest={() => setLightboxData(null)}
-                    reactModalStyle={{
-                        overlay: {
-                            zIndex: '2000'
-                        }
-                    }}
-                />
-            )} */}
-
-            <Dialog
-                className="articles-modal"
-                maxWidth="sm"
-                fullWidth
-                open={Boolean(show) && showModal}
-                aria-labelledby="game-setup-title"
-                disableEscapeKeyDown={preventClose}
-                slotProps={{
-                    paper: { sx: { alignSelf: "flex-start", mt: 4 } },
-                }}
-                // To much jumping with little content for now
-                // centered
-                scroll="paper"
-                onTransitionExited={() => {
-                    if (preventClose) {
-                        return;
-                    }
-
-                    setShow(false);
-                }}
-                onClose={() => {
-                    if (preventClose) {
-                        return;
-                    }
-
-                    setShowModal(false);
-                }}
-            >
-                <DialogTitle
-                    id="game-setup-title"
-                    sx={{ pr: 7 }}
-                >
-                    Game Setup
-                    {pathname !== "/play" && !preventClose && (
-                        <IconButton
-                            aria-label="Close game setup"
-                            onClick={() => setShowModal(false)}
-                            sx={{ position: "absolute", right: 8, top: 8 }}
-                        >
-                            <CloseIcon />
-                        </IconButton>
-                    )}
-                </DialogTitle>
-
-                <DialogContent
-                    sx={{ p: 0, display: "flex", flexDirection: "column" }}
-                >
-                    {show.type == "single-player" && (
-                        <div className="d-none p-3 border-bottom">
-                            <div className="mb-3">
-                                Adjust bot difficulty as needed.
-                            </div>
-
-                            <div className="">
-                                {botData.map((item, i) => (
-                                    <div
-                                        key={`bot-data-option-${i}`}
-                                        // active={i == botData}
-                                        onClick={() => {
-                                            // setBotData(
-                                            //     [...Array(parseInt(item)).keys()].map(i => (
-                                            //         {
-                                            //             difficulty: "Easy"
-                                            //         }
-                                            //     ))
-                                            // )
-                                        }}
-                                    >
-                                        <div>
-                                            Bot {i + 1}: {item.difficulty}
-                                        </div>
-
-                                        <div className="p-2">
-                                            {["Easy", "Medium", "Hard"].map(
-                                                (
-                                                    difficulty_item,
-                                                    difficulty_i,
-                                                ) => (
-                                                    <ArticlesButton
-                                                        key={`bot-difficulty-option-${difficulty_item}`}
-                                                        active={
-                                                            difficulty_item ==
-                                                            botData[i]
-                                                                .difficulty
-                                                        }
-                                                        onClick={() => {
-                                                            let newData =
-                                                                botData.map(
-                                                                    (
-                                                                        bot,
-                                                                        index,
-                                                                    ) => {
-                                                                        if (
-                                                                            index ==
-                                                                            i
-                                                                        ) {
-                                                                            return {
-                                                                                ...bot,
-                                                                                difficulty:
-                                                                                    difficulty_item,
-                                                                            };
-                                                                        }
-                                                                        return bot;
-                                                                    },
-                                                                );
-
-                                                            setBotData(newData);
-                                                        }}
-                                                    >
-                                                        {difficulty_item}
-                                                    </ArticlesButton>
-                                                ),
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {(show.type == "single-player" ||
-                        show.type == "local-play") && (
-                        <div className="p-3 border-bottom">
-                            <div className="">
-                                How big of a board do you want to play on?
-                            </div>
-
-                            <Box
-                                sx={{
-                                    fontSize: "0.875em",
-                                    color: "error.main",
-                                    mb: "0.25rem",
-                                }}
-                            >
-                                Experimental
+        <Dialog open={Boolean(show)} fullWidth maxWidth="sm" onClose={close} disableEscapeKeyDown={preventClose || saving}
+            aria-labelledby="game-setup-title" slotProps={{ paper: { sx: { alignSelf: "flex-start", mt: 4 } } }}>
+            <DialogTitle id="game-setup-title">
+                Game Setup
+                {!preventClose && <IconButton aria-label="Close game setup" onClick={close} disabled={saving} sx={{ position: "absolute", right: 8, top: 8 }}><CloseIcon /></IconButton>}
+            </DialogTitle>
+            <DialogContent>
+                <Stack spacing={3} sx={{ pt: 1 }}>
+                    {error && <Alert severity="error">{error}</Alert>}
+                    {!editable && <Alert severity="info">{multiplayer ? "Only the connected room leader can edit setup while the room is in the lobby." : "Game Setup is available before the game starts."}</Alert>}
+                    {botCount > maximumBots && <Alert severity="warning">Another player joined. Reduce the bot count to fit four players.</Alert>}
+                    <Box component="fieldset" disabled={!editable || saving} sx={{ border: 0, p: 0, m: 0, minWidth: 0 }}>
+                        <Stack spacing={3}>
+                            <TextField label="Board size" type="number" value={draft.boardSize}
+                                slotProps={{ htmlInput: { min: 4, max: 50 } }}
+                                helperText="4–50 squares per side"
+                                onChange={(event) => setDraft({ ...draft, boardSize: event.target.value === "" ? "" : Number(event.target.value) })} />
+                            <Box>
+                                <FormControlLabel label="Move timer" control={<Switch checked={draft.moveTime !== false} onChange={(_, checked) => setDraft({ ...draft, moveTime: checked ? 20 : false })} />} />
+                                {draft.moveTime !== false && <TextField fullWidth label="Seconds per roll" type="number" value={draft.moveTime}
+                                    slotProps={{ htmlInput: { min: 3, max: 100 } }}
+                                    onChange={(event) => setDraft({ ...draft, moveTime: event.target.value === "" ? "" : Number(event.target.value) })} />}
+                                <Typography variant="body2" sx={{ mt: 1 }}>The timer starts after rolling. Unused moves are forfeited when it expires.</Typography>
                             </Box>
-
-                            <div
-                                className="mb-3 d-flex align-items-center"
-                                style={
-                                    {
-                                        // pointerEvents: "none"
-                                    }
-                                }
-                            >
-                                <ArticlesButton
-                                    aria-label="Decrease board size"
-                                    onClick={() => {
-                                        setBoardSize(boardSize - 1);
-                                    }}
-                                    disabled={boardSize <= 10}
-                                >
-                                    <RemoveIcon
-                                        fontSize="inherit"
-                                        sx={{ mr: "0.2rem" }}
-                                    />
-                                </ArticlesButton>
-
-                                <TextField
-                                    size="small"
-                                    type="number"
-                                    slotProps={{
-                                        htmlInput: {
-                                            min: 10,
-                                            max: 50,
-                                            step: 1,
-                                            "aria-label": "Board size",
-                                        },
-                                    }}
-                                    value={boardSize}
-                                    onChange={(e) =>
-                                        setBoardSize(
-                                            Math.min(
-                                                50,
-                                                Math.max(
-                                                    10,
-                                                    Number(e.target.value) ||
-                                                        10,
-                                                ),
-                                            ),
-                                        )
-                                    }
-                                    className=""
-                                />
-
-                                <ArticlesButton
-                                    aria-label="Increase board size"
-                                    onClick={() => {
-                                        setBoardSize(boardSize + 1);
-                                    }}
-                                    disabled={boardSize >= 50}
-                                >
-                                    <AddIcon
-                                        fontSize="inherit"
-                                        sx={{ mr: "0.2rem" }}
-                                    />
-                                </ArticlesButton>
-                            </div>
-
-                            {/* Move Timer */}
-                            <div>
-                                <div className="small mb-1">
-                                    Would you like to add a move timer? Any
-                                    remaining moves will be forfitted when time
-                                    runs out.
-                                </div>
-
-                                <div className="mb-3 d-flex align-items-center">
-                                    <ArticlesButton
-                                        active={
-                                            localGameState?.moveTime == false
-                                        }
-                                        onClick={() => {
-                                            setLocalGameState({
-                                                ...localGameState,
-                                                moveTime: false,
-                                            });
-                                        }}
-                                    >
-                                        <span>Off</span>
-                                    </ArticlesButton>
-                                    <ArticlesButton
-                                        className="me-3"
-                                        active={
-                                            localGameState?.moveTime !== false
-                                        }
-                                        onClick={() => {
-                                            setLocalGameState({
-                                                ...localGameState,
-                                                moveTime: 20,
-                                            });
-                                        }}
-                                    >
-                                        <span>On</span>
-                                    </ArticlesButton>
-
-                                    {localGameState?.moveTime !== false && (
-                                        <>
-                                            <ArticlesButton
-                                                aria-label="Decrease move timer"
-                                                onClick={() => {
-                                                    setLocalGameState({
-                                                        ...localGameState,
-                                                        moveTime:
-                                                            (localGameState?.moveTime ||
-                                                                0) - 5,
-                                                    });
-                                                }}
-                                            >
-                                                <RemoveIcon
-                                                    fontSize="inherit"
-                                                    sx={{ mr: "0.2rem" }}
-                                                />
-                                            </ArticlesButton>
-
-                                            <TextField
-                                                size="small"
-                                                type="number"
-                                                slotProps={{
-                                                    htmlInput: {
-                                                        min: 3,
-                                                        max: 100,
-                                                        "aria-label":
-                                                            "Move timer in seconds",
-                                                    },
-                                                }}
-                                                value={
-                                                    localGameState?.moveTime ||
-                                                    0
-                                                }
-                                                onChange={(e) =>
-                                                    setLocalGameState({
-                                                        ...localGameState,
-                                                        moveTime: parseInt(
-                                                            e.target.value,
-                                                            10,
-                                                        ),
-                                                    })
-                                                }
-                                                className=""
-                                            />
-
-                                            <ArticlesButton
-                                                aria-label="Increase move timer"
-                                                onClick={() => {
-                                                    setLocalGameState({
-                                                        ...localGameState,
-                                                        moveTime:
-                                                            (localGameState?.moveTime ||
-                                                                0) + 5,
-                                                    });
-                                                }}
-                                            >
-                                                <AddIcon
-                                                    fontSize="inherit"
-                                                    sx={{ mr: "0.2rem" }}
-                                                />
-                                            </ArticlesButton>
-                                        </>
-                                    )}
-                                </div>
-                            </div>
-
-                            {
-                                // show.type !== 'single-player'
-                                true && (
-                                    <div>
-                                        <div className="small mb-1">
-                                            How many bots do you want to play
-                                            against?
-                                        </div>
-
-                                        <div className="mb-3">
-                                            {["0", "1", "2", "3"].map(
-                                                (item, i) => (
-                                                    <ArticlesButton
-                                                        key={`bot-amount-option-${i}`}
-                                                        className={`${show.type == "single-player" && i == 0 && "d-none"}`}
-                                                        active={
-                                                            i ==
-                                                            tempPlayers.filter(
-                                                                (player) =>
-                                                                    player
-                                                                        .battleTrap
-                                                                        ?.bot,
-                                                            ).length
-                                                        }
-                                                        onClick={() => {
-                                                            // let newData = [...Array(parseInt(item)).keys()].map(i => (
-                                                            //     {
-                                                            //         difficulty: "Easy"
-                                                            //     }
-                                                            // ))
-
-                                                            setPlayersFromBotCount(
-                                                                i,
-                                                            );
-
-                                                            // setPlayers([
-
-                                                            //     // ...[
-                                                            //     //     ...Array(4 - botData.length)
-                                                            //     // ].map((item, i) => ({
-
-                                                            //     // })),
-
-                                                            //     // {
-                                                            //     //     id: '1',
-                                                            //     //     battleTrap: {
-                                                            //     //         nickname: nickname || "Player 1",
-                                                            //     //         color: "red",
-                                                            //     //         x: 0,
-                                                            //     //         y: 0,
-                                                            //     //         character: {
-                                                            //     //             model: "low_poly_chopper.glb"
-                                                            //     //         }
-                                                            //     //     }
-                                                            //     // },
-
-                                                            //     // {
-                                                            //     //     id: '2',
-                                                            //     //     battleTrap: {
-                                                            //     //         nickname: "Player 2",
-                                                            //     //         color: "blue",
-                                                            //     //         x: boardSize - 1,
-                                                            //     //         y: boardSize - 1,
-                                                            //     //         character: {
-                                                            //     //             model: "low_poly_chopper.glb"
-                                                            //     //         }
-                                                            //     //     }
-                                                            //     // },
-                                                            //     // {
-                                                            //     //     id: '3',
-                                                            //     //     battleTrap: {
-                                                            //     //         nickname: "Player 3",
-                                                            //     //         color: "yellow",
-                                                            //     //         x: 0,
-                                                            //     //         y: boardSize - 1,
-                                                            //     //         character: {
-                                                            //     //             model: "low_poly_chopper.glb"
-                                                            //     //         }
-                                                            //     //     }
-                                                            //     // },
-                                                            //     // {
-                                                            //     //     id: '4',
-                                                            //     //     battleTrap: {
-                                                            //     //         nickname: "Player 4",
-                                                            //     //         color: "green",
-                                                            //     //         x: boardSize - 1,
-                                                            //     //         y: 0,
-                                                            //     //         character: {
-                                                            //     //             model: "low_poly_chopper.glb"
-                                                            //     //         }
-                                                            //     //     }
-                                                            //     // }
-
-                                                            // ])
-
-                                                            // console.log(
-                                                            //     newData
-                                                            // )
-
-                                                            // setBotData(newData)
-                                                        }}
-                                                    >
-                                                        {item}
-                                                    </ArticlesButton>
-                                                ),
-                                            )}
-                                        </div>
-                                    </div>
-                                )
-                            }
-
-                            {/* <div className='d-none p-2 border-bottom mb-3'>
-                                {botData.map((item, i) =>
-                                    <div
-                                        key={`bot-data-option-${i}`}
-                                        // active={i == botData}
-                                        onClick={() => {
-                                            // setBotData(
-                                            //     [...Array(parseInt(item)).keys()].map(i => (
-                                            //         {
-                                            //             difficulty: "Easy"
-                                            //         }
-                                            //     ))
-                                            // )
-                                        }}
-                                    >
-
-                                        <div>Bot {i + 1}: {item.difficulty}</div>
-
-                                        <div className='p-2'>
-                                            {[
-                                                'Easy',
-                                                'Medium',
-                                                'Hard',
-                                            ].map((difficulty_item, difficulty_i) =>
-                                                <ArticlesButton
-                                                    key={`bot-difficulty-option-${difficulty_item}`}
-                                                    active={difficulty_item == botData[i].difficulty}
-                                                    onClick={() => {
-
-                                                        let newData = botData.map((bot, index) => {
-                                                            if (index == i) {
-                                                                return {
-                                                                    ...bot,
-                                                                    difficulty: difficulty_item
-                                                                }
-                                                            }
-                                                            return bot
-                                                        })
-
-                                                        setBotData(newData)
-
-                                                    }}
-                                                >
-                                                    {difficulty_item}
-                                                </ArticlesButton>
-                                            )}
-                                        </div>
-
-                                    </div>
-                                )}
-                            </div> */}
-
-                            <div className="small mb-1">Player Data</div>
-
-                            <div className="border px-3 pt-2">
-                                {[
-                                    // ...Array(4 - botData.length)
-                                    ...tempPlayers,
-                                ].map((item, i) => (
-                                    <div
-                                        key={`player-info-${i}`}
-                                        className="mb-2"
-                                        // active={i == botData.length}
-                                        onClick={() => {
-                                            // let newData = [...Array(parseInt(item)).keys()].map(i => (
-                                            //     {
-                                            //         difficulty: "Easy"
-                                            //     }
-                                            // ))
-                                            // console.log(
-                                            //     newData
-                                            // )
-                                            // setBotData(newData)
-                                        }}
-                                    >
-                                        <div>
-                                            Enter nickname for{" "}
-                                            {item?.battleTrap?.bot
-                                                ? "bot"
-                                                : "player"}
-                                        </div>
-                                        <TextField
-                                            size="small"
-                                            fullWidth
-                                            type="text"
-                                            slotProps={{
-                                                htmlInput: {
-                                                    "aria-label": `Nickname for ${item?.battleTrap?.bot ? "bot" : "player"} ${i + 1}`,
-                                                },
-                                            }}
-                                            placeholder="Nickname"
-                                            value={item?.battleTrap?.nickname}
-                                            onChange={(e) => {
-                                                // e.preventDefault();
-                                                setTempPlayers(
-                                                    tempPlayers.map(
-                                                        (player, index) => {
-                                                            if (index == i) {
-                                                                return {
-                                                                    ...player,
-                                                                    battleTrap:
-                                                                        {
-                                                                            ...player.battleTrap,
-                                                                            nickname:
-                                                                                e
-                                                                                    .target
-                                                                                    .value,
-                                                                        },
-                                                                };
-                                                            }
-                                                            return player;
-                                                        },
-                                                    ),
-                                                );
-                                            }}
-                                        />
-
-                                        {item?.battleTrap?.bot && (
-                                            <div className="p-2">
-                                                {["Easy", "Medium", "Hard"].map(
-                                                    (
-                                                        difficulty_item,
-                                                        difficulty_i,
-                                                    ) => (
-                                                        <ArticlesButton
-                                                            key={`bot-difficulty-option-${difficulty_item}`}
-                                                            active={
-                                                                difficulty_item ==
-                                                                item?.battleTrap
-                                                                    ?.difficulty
-                                                            }
-                                                            onClick={() => {
-                                                                setTempPlayers(
-                                                                    // players
-                                                                    tempPlayers.map(
-                                                                        (
-                                                                            player,
-                                                                            index,
-                                                                        ) => {
-                                                                            if (
-                                                                                index ==
-                                                                                i
-                                                                            ) {
-                                                                                return {
-                                                                                    ...player,
-                                                                                    battleTrap:
-                                                                                        {
-                                                                                            ...player.battleTrap,
-                                                                                            difficulty:
-                                                                                                difficulty_item,
-                                                                                        },
-                                                                                };
-                                                                            }
-                                                                            return player;
-                                                                        },
-                                                                    ),
-                                                                );
-                                                            }}
-                                                        >
-                                                            {difficulty_item}
-                                                        </ArticlesButton>
-                                                    ),
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </DialogContent>
-
-                <DialogActions sx={{ justifyContent: "space-between" }}>
-                    {/* <div></div> */}
-
-                    <div>
-                        {pathname !== "/play" && (
-                            <ArticlesButton
-                                variant="outline-dark"
-                                onClick={() => {
-                                    setShowModal(false);
-                                }}
-                            >
-                                Close
-                            </ArticlesButton>
-                        )}
-
-                        <ArticlesButton
-                            variant="outline-danger"
-                            sx={{ ml: "1rem" }}
-                            onClick={() => {
-                                // setShow(false)
-                                setTempPlayers([]);
-                                setPlayers([]);
-                                setBotData([]);
-                            }}
-                        >
-                            Reset
-                        </ArticlesButton>
-                    </div>
-
-                    <Link
-                        className={``}
-                        href={{
-                            pathname: `/play`,
-                            query: { server: show.type },
-                        }}
-                    >
-                        <ArticlesButton
-                            variant="success"
-                            onClick={() => {
-                                startLocalGame(tempPlayers, boardSize);
-                            }}
-                        >
-                            Start
-                        </ArticlesButton>
-                    </Link>
-                </DialogActions>
-            </Dialog>
-        </>
+                            <TextField select label="Bots" value={botCount} onChange={(event) => changeBotCount(Number(event.target.value))}>
+                                {Array.from({ length: Math.max(maximumBots, botCount) - minimumBots + 1 }, (_, i) => i + minimumBots).map((count) => <MenuItem key={count} value={count} disabled={count > maximumBots}>{count}</MenuItem>)}
+                            </TextField>
+                            {multiplayer && <Box>
+                                <Typography variant="subtitle2">Connected players</Typography>
+                                {humans.map((p) => <Typography key={p.id}>{p.battleTrap.nickname}{p.id === room.leaderId ? " (Leader)" : ""}</Typography>)}
+                            </Box>}
+                            {draft.players.map((p) => <Stack key={p.id} spacing={1}>
+                                <TextField label={p.battleTrap.bot ? "Bot nickname" : "Player nickname"} value={p.battleTrap.nickname} slotProps={{ htmlInput: { maxLength: 40 } }}
+                                    onChange={(event) => updatePlayer(p.id, { nickname: event.target.value })} />
+                                {p.battleTrap.bot && <TextField select label="Difficulty" value={p.battleTrap.difficulty}
+                                    onChange={(event) => updatePlayer(p.id, { difficulty: event.target.value })}>
+                                    {["Easy", "Medium", "Hard"].map((difficulty) => <MenuItem key={difficulty} value={difficulty}>{difficulty}</MenuItem>)}
+                                </TextField>}
+                            </Stack>)}
+                        </Stack>
+                    </Box>
+                </Stack>
+            </DialogContent>
+            <DialogActions>
+                {!preventClose && <Button onClick={close} disabled={saving}>Cancel</Button>}
+                <Button variant="contained" onClick={save} disabled={!editable || !valid || saving}>
+                    {saving ? "Saving…" : "Save Configuration"}
+                </Button>
+            </DialogActions>
+        </Dialog>
     );
 }

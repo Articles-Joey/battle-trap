@@ -107,7 +107,8 @@ export default function GameGrid({
     const handlePlayerMove = usePlayerMoveLogic(server);
     const local = server === "single-player" || server === "local-play";
     const activePlayer = (
-        local ? players[currentTurn] : players.find((p) => p.id === socket?.id)
+        local ? players[currentTurn] : gameState?.status === "In Progress" && players[currentTurn]?.id === socket?.id
+            ? players[currentTurn] : null
     )?.battleTrap;
     const flatSpaces = useMemo(
         () => gameState?.spaces?.flat() || [],

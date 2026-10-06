@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useStore } from "@/hooks/useStore";
-import { useSocketStore } from "@/hooks/useSocketStore";
+import useMultiplayerGame from "@/hooks/useMultiplayerGame";
 import usePlayerMoveLogic from "@/hooks/usePlayerMoveLogic";
 import useCurrentPlayer from "@/hooks/useCurrentPlayer";
 import useRollDice from "@/hooks/useRollDice";
@@ -12,15 +12,13 @@ import useBotTurnLogic from "@/hooks/useBotTurnLogic";
 export default function GameLogicManager() {
     const server = useSearchParams().get("server");
     const local = server === "single-player" || server === "local-play";
-    const socket = useSocketStore((state) => state.socket);
-    const nickname = useStore((state) => state.nickname);
-    const character = useStore((state) => state.character);
+    useMultiplayerGame(server);
     const localGameState = useStore((state) => state.localGameState);
     const players = useStore((state) => state.players);
     const currentTurn = useStore((state) => state.currentTurn);
     const currentRoll = useStore((state) => state.currentRoll);
     const currentMoveCount = useStore((state) => state.currentMoveCount);
-    const resetGameState = useStore((state) => state.resetGameState);
+    const enterLocalLobby = useStore((state) => state.enterLocalLobby);
     const resolveLocalGame = useStore((state) => state.resolveLocalGame);
     const currentPlayer = useCurrentPlayer();
     const hasCurrentPlayer = Boolean(currentPlayer);
@@ -29,8 +27,8 @@ export default function GameLogicManager() {
     const calculateBotTurnLogic = useBotTurnLogic(server);
 
     useEffect(() => {
-        if (local && !localGameState) resetGameState();
-    }, [local, localGameState, resetGameState]);
+        if (local) enterLocalLobby(server);
+    }, [local, server, enterLocalLobby]);
 
     // Also reconcile restored games and turn changes made outside the move action.
     useEffect(() => {
@@ -41,6 +39,7 @@ export default function GameLogicManager() {
         localGameState?.spaces,
         localGameState?.boardSize,
         localGameState?.gameOver,
+        localGameState?.gameStarted,
         currentTurn,
         currentRoll,
         currentMoveCount,
@@ -50,6 +49,7 @@ export default function GameLogicManager() {
     useEffect(() => {
         if (
             !local ||
+            !localGameState?.gameStarted ||
             localGameState?.gameOver ||
             !currentPlayer?.bot ||
             currentPlayer.dead
@@ -68,6 +68,7 @@ export default function GameLogicManager() {
         local,
         currentPlayer?.bot,
         currentPlayer?.dead,
+        localGameState?.gameStarted,
         localGameState?.gameOver,
         currentTurn,
         currentRoll,
@@ -78,6 +79,7 @@ export default function GameLogicManager() {
     useEffect(() => {
         if (
             !local ||
+            !localGameState?.gameStarted ||
             localGameState?.gameOver ||
             !hasCurrentPlayer ||
             currentPlayer?.dead ||
@@ -90,6 +92,7 @@ export default function GameLogicManager() {
             const state = useStore.getState();
             if (
                 state.currentTurn !== currentTurn ||
+                !state.localGameState?.gameStarted ||
                 state.currentRoll === false ||
                 state.localGameState?.gameOver ||
                 state.players[state.currentTurn]?.battleTrap?.dead
@@ -107,43 +110,13 @@ export default function GameLogicManager() {
     }, [
         local,
         hasCurrentPlayer,
+        localGameState?.gameStarted,
         localGameState?.gameOver,
         currentPlayer?.dead,
         localGameState?.moveTime,
         currentTurn,
         currentRoll,
     ]);
-
-    useEffect(() => {
-        if (local || !server) return;
-        const event = `game:battle-trap-room-${server}`;
-        const receiveGame = (data) => {
-            useStore.setState({
-                players: data?.players || [],
-                gameState: data?.game_state,
-            });
-        };
-        socket.on(event, receiveGame);
-        return () => socket.off(event, receiveGame);
-    }, [local, server, socket]);
-
-    useEffect(() => {
-        if (local || !server) return;
-        if (socket.connected) {
-            socket.emit("join-room", `game:battle-trap-room-${server}`, {
-                client_version: "1",
-                game_id: server,
-                character,
-                nickname,
-            });
-        }
-        return () => {
-            socket.emit("leave-room", `game:battle-trap-room-${server}`, {
-                client_version: "1",
-                game_id: server,
-            });
-        };
-    }, [local, server, socket, character, nickname]);
 
     useHotkeys(["w", "ArrowUp"], () => handlePlayerMove({ x: 0, y: 1 }), [
         handlePlayerMove,

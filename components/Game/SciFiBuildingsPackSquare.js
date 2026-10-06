@@ -47,15 +47,6 @@ export function SciFiBuildingsPack(props) {
             {...props}
             dispose={null}
         >
-            {
-                // props.debug
-                true && (
-                    <mesh position={[0, 0, 0]}>
-                        <sphereGeometry args={[2, 3, 3]} />
-                        <meshBasicMaterial color="red" />
-                    </mesh>
-                )
-            }
             <group
                 ref={groupRef}
                 userData={{ name: "data-building-locations" }}

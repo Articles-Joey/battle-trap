@@ -22,6 +22,18 @@ NEXT_PUBLIC_MODEL_SOURCE = LOCAL
 
 This game offers multiplayer in a few ways. When using the classic play servers, websockets will be used to play the game on our server. Local Play is available for playing a game with friends/bots on the same device by taking turns. When everything else is done I plan to add peer-to-peer multiplayer support.
 
+The first player in a socket room is its leader. The leader opens Game Setup from
+the lobby to configure the board, move timer, and bots before starting. Multiplayer
+defaults to a 20×20 board. Rolls, moves, eliminations, timers, and bot turns are
+authoritative on the socket server.
+
+Single-player and local play also enter a lobby directly. Use Game Setup to save
+board, timer, and player settings, then Start Game to begin. Finished games can
+return to the lobby to change the configuration before playing again.
+
+The matching server files, integration notes, and manual verification checklist
+are in [multiplayer-server/README.md](multiplayer-server/README.md).
+
 ## TODO
 
 Things needed before done

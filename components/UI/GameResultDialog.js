@@ -14,21 +14,25 @@ import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import HomeIcon from "@mui/icons-material/Home";
 import ReplayIcon from "@mui/icons-material/Replay";
 import { useStore } from "@/hooks/useStore";
+import { useSocketStore } from "@/hooks/useSocketStore";
+import { sendGameAction } from "@/util/sendGameAction";
 
 export default function GameResultDialog({ server, onMainMenu }) {
     const titleId = useId();
     const descriptionId = useId();
-    const gameState = useStore((state) => state.localGameState);
-    const players = useStore((state) => state.players);
-    const restartLocalGame = useStore((state) => state.restartLocalGame);
     const local = server === "single-player" || server === "local-play";
+    const gameState = useStore((state) => local ? state.localGameState : state.gameState);
+    const socket = useSocketStore((state) => state.socket);
+    const connected = useSocketStore((state) => state.connected);
+    const players = useStore((state) => state.players);
+    const returnToLocalLobby = useStore((state) => state.returnToLocalLobby);
     const winner = players.find((player) => player.id === gameState?.winnerId);
     const winnerName =
         winner?.battleTrap?.nickname || winner?.battleTrap?.color || "Player";
 
     return (
         <Dialog
-            open={local && Boolean(gameState?.gameOver)}
+            open={Boolean(gameState?.gameOver)}
             maxWidth="xs"
             fullWidth
             disableEscapeKeyDown
@@ -79,9 +83,10 @@ export default function GameResultDialog({ server, onMainMenu }) {
                 <Button
                     variant="contained"
                     startIcon={<ReplayIcon />}
-                    onClick={restartLocalGame}
+                    disabled={!local && (!connected || gameState?.leaderId !== socket.id)}
+                    onClick={() => local ? returnToLocalLobby() : sendGameAction(socket, "game:battle-trap:restart", { server })}
                 >
-                    Restart
+                    Return to Lobby
                 </Button>
             </DialogActions>
         </Dialog>

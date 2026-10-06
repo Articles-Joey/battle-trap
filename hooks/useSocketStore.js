@@ -2,13 +2,14 @@
 import { createWithEqualityFn as create } from "zustand/traditional";
 import { io } from "socket.io-client";
 
-export const useSocketStore = create((set) => ({
+export const useSocketStore = create((set, get) => ({
     // socket: null,
     socket: io({
         autoConnect: false,
     }),
     serverUrl: process.env.NEXT_PUBLIC_NODE_SERVER, // Default server URL
     connectSocket: (url) => {
+        get().socket?.disconnect();
         console.log("[📶Socket] connectSocket called");
         const newSocket = io(url || process.env.NEXT_PUBLIC_NODE_SERVER, {
             transports: ["websocket"],
@@ -20,8 +21,8 @@ export const useSocketStore = create((set) => ({
                 client: "battle-trap",
             },
         });
+        set({ socket: newSocket, connected: false });
         newSocket.connect();
-        set({ socket: newSocket });
     },
     setServerUrl: (url) => set({ serverUrl: url }),
     disconnectSocket: () =>

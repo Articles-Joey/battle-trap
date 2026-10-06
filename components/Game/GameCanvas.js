@@ -262,7 +262,8 @@ function GameCanvas(props) {
     const currentPlayer = (
         server === "single-player" || server === "local-play"
             ? players[currentTurn]
-            : players.find((p) => p.id === socket?.id)
+            : gameState?.status === "In Progress" && players[currentTurn]?.id === socket?.id
+              ? players[currentTurn] : null
     )?.battleTrap;
 
     return (

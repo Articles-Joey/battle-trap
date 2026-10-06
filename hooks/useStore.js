@@ -5,6 +5,7 @@ import typicalZustandStoreExcludes from "@articles-media/articles-dev-box/typica
 import typicalZustandStoreStateSlice from "@articles-media/articles-dev-box/typicalZustandStoreStateSlice";
 
 import randomNicknameConfig from "@/util/randomNicknameConfig";
+import { createLocalLobby } from "@/util/localLobby";
 import {
     createLocalGame,
     recordLocalMove,
@@ -114,8 +115,17 @@ export const useStore = create()(
                     currentRoll: false,
                     currentMoveCount: 0,
                 }),
-            startLocalGame: (players, boardSize) =>
-                set((state) => createLocalGame(state, players, boardSize)),
+            enterLocalLobby: (mode) => set((state) => createLocalLobby(state, mode)),
+            configureLocalLobby: (mode, config) => set((state) =>
+                state.localGameState?.gameStarted || state.localGameState?.gameOver
+                    ? state : createLocalLobby(state, mode, config)),
+            returnToLocalLobby: () => set((state) => createLocalLobby(
+                state, state.localGameState.mode,
+                { players: state.players, boardSize: state.localGameState.boardSize },
+            )),
+            startLocalGame: () => set((state) =>
+                state.localGameState?.gameStarted || state.localGameState?.gameOver || state.players.length < 2
+                    ? state : createLocalGame(state)),
             restartLocalGame: () => set((state) => createLocalGame(state)),
             leaveLocalGame: () => set((state) => createLocalGame(state, [])),
 
@@ -124,20 +134,24 @@ export const useStore = create()(
                 set({ localGameState: gameState }),
 
             gameState: {},
+            multiplayerError: null,
             setGameState: (gameState) => set({ gameState }),
 
             addSpace: (data) => {
                 const { space, player_color } = data;
-                set((state) => recordLocalMove(state, space, player_color));
+                set((state) => state.localGameState?.gameStarted
+                    ? recordLocalMove(state, space, player_color) : state);
             },
 
             resolveLocalGame: () =>
                 set((state) => {
+                    if (!state.localGameState?.gameStarted) return state;
                     const updates = resolveLocalTurn(state);
                     return Object.keys(updates).length ? updates : state;
                 }),
             endLocalTurn: () =>
                 set((state) => {
+                    if (!state.localGameState?.gameStarted) return state;
                     const updates = resolveLocalTurn(state, true);
                     return Object.keys(updates).length ? updates : state;
                 }),
@@ -180,7 +194,7 @@ export const useStore = create()(
                 Object.fromEntries(
                     Object.entries(state).filter(
                         ([key]) =>
-                            ![...typicalZustandStoreExcludes].includes(key),
+                            ![...typicalZustandStoreExcludes, "gameState", "multiplayerError"].includes(key),
                     ),
                 ),
         },

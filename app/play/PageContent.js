@@ -34,9 +34,6 @@ import classNames from "classnames";
 // import MenuBar from '@/components/UI/MenuBar';
 // import AudioHandler from '@/components/Game/AudioHandler';
 
-const ArticlesModal = dynamic(() => import("@/components/UI/ArticlesModal"), {
-    ssr: false,
-});
 
 // const InviteModal = dynamic(
 //     () => import('@/components/UI/InviteModal'),
@@ -57,9 +54,6 @@ const GameCanvas = dynamic(() => import("@/components/Game/GameCanvas"), {
     ssr: false,
 });
 
-const GameSetupModal = dynamic(() => import("@/components/UI/GameSetupModal"), {
-    ssr: false,
-});
 
 export default function BattleTrapGamePage(props) {
     const socket = useSocketStore((state) => state.socket);
@@ -101,10 +95,6 @@ export default function BattleTrapGamePage(props) {
 
     const [showInviteModal, setShowInviteModal] = useState(false);
 
-    const [showBotModal, setShowBotModal] = useState(false);
-    const [botOptions, setBotOptions] = useState({
-        difficulty: "Easy",
-    });
 
     const gameState = useStore((state) => state.gameState);
     const showMenu = useStore((state) => state.showMenu);
@@ -120,7 +110,6 @@ export default function BattleTrapGamePage(props) {
     // const [currentTurnCountdown, setCurrentTurnCountdown] = useState(add(new Date(), { minutes: 1 }))
 
     const [showPlayers, setShowPlayers] = useState(true);
-    const [leavingGame, setLeavingGame] = useState(false);
 
     const subscribeToNewPlayer = () => {
         socket.on("newPlayer", function (players) {
@@ -242,8 +231,7 @@ export default function BattleTrapGamePage(props) {
             <GameResultDialog
                 server={server}
                 onMainMenu={() => {
-                    setLeavingGame(true);
-                    leaveLocalGame();
+                    if (server === "single-player" || server === "local-play") leaveLocalGame();
                     router.push("/");
                 }}
             />
@@ -269,54 +257,6 @@ export default function BattleTrapGamePage(props) {
                 />
             } */}
 
-            {players.length == 0 && !leavingGame && (
-                <GameSetupModal
-                    show={{
-                        type: server,
-                    }}
-                    preventClose={true}
-                    setShow={() => {
-                        console.error("No leaving on play page!");
-                    }}
-                />
-            )}
-
-            {showBotModal && (
-                <ArticlesModal
-                    show={showBotModal}
-                    setShow={setShowBotModal}
-                    title="Add a Bot"
-                    action={() => {
-                        socket.emit(`game:battle-trap:add-bot`, {
-                            server: server,
-                            difficulty: botOptions?.difficulty,
-                        });
-
-                        setShowBotModal(false);
-                    }}
-                    actionText={"Add"}
-                >
-                    <div className="fw-bold">Difficulty</div>
-
-                    <div className="d-flex">
-                        {["Easy", "Medium", "Hard"].map((item) => {
-                            return (
-                                <ArticlesButton
-                                    key={item}
-                                    active={item == botOptions?.difficulty}
-                                    onClick={() => {
-                                        setBotOptions({
-                                            difficulty: item,
-                                        });
-                                    }}
-                                >
-                                    {item}
-                                </ArticlesButton>
-                            );
-                        })}
-                    </div>
-                </ArticlesModal>
-            )}
 
             <Box
                 sx={{
